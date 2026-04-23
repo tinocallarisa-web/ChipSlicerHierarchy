@@ -1,0 +1,27 @@
+{
+  "visual": {
+    "name": "chipSlicerHierarchy",
+    "displayName": "Chip Slicer Hierarchy",
+    "guid": "chipSlicerHierarchy",
+    "visualClassName": "Visual",
+    "version": "1.0.0.0",
+    "description": "A hierarchical chip/pill slicer with drill-down filtering (Category → Subcategory → Product), multi-select, and professional customization.",
+    "supportUrl": "https://tcviz.com/support",
+    "gitHubUrl": ""
+  },
+  "author": {
+    "name": "Tino Callarisa",
+    "email": "support@tcviz.com"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "apiVersion": "5.10.0",
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json",
+  "dependencies": null,
+  "stringResources": [
+    "stringResources/en-US/resources.resjson",
+    "stringResources/es-ES/resources.resjson"
+  ]
+}

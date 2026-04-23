@@ -1,0 +1,73 @@
+/*
+ *  ChipSlicer Hierarchy — visual.less
+ *  © 2024 TCViz
+ */
+.chip-slicer-container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 4px;
+  padding: 8px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+.chip-slicer-container::-webkit-scrollbar {
+  width: 4px;
+}
+.chip-slicer-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+.chip-slicer-container::-webkit-scrollbar-thumb {
+  background: #D1D5DB;
+  border-radius: 2px;
+}
+.chip-slicer-container .chip-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+.chip-slicer-container .chip-item:hover {
+  filter: brightness(0.93);
+}
+.chip-slicer-container .chip-item:active {
+  filter: brightness(0.85);
+}
+.chip-slicer-container .chip-item:focus-visible {
+  outline: 2px solid #378ADD;
+  outline-offset: 2px;
+}
+.chip-slicer-container .chip-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+}
+.chip-slicer-container .chip-expand-icon {
+  width: 18px;
+  min-width: 18px;
+  text-align: center;
+  font-size: 10px;
+  user-select: none;
+  flex-shrink: 0;
+  opacity: 0.6;
+  cursor: pointer;
+}
+.chip-slicer-container .chip-expand-icon:hover {
+  opacity: 1;
+}
+.high-contrast .chip-slicer-container .chip-item {
+  forced-color-adjust: auto;
+}
+

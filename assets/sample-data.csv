@@ -1,0 +1,30 @@
+Category,SubCategory,Product
+Beverages,Hot Drinks,Espresso
+Beverages,Hot Drinks,Cappuccino
+Beverages,Hot Drinks,Latte
+Beverages,Hot Drinks,Green Tea
+Beverages,Cold Drinks,Iced Coffee
+Beverages,Cold Drinks,Lemonade
+Beverages,Cold Drinks,Orange Juice
+Beverages,Cold Drinks,Sparkling Water
+Food,Bakery,Croissant
+Food,Bakery,Muffin
+Food,Bakery,Bagel
+Food,Sandwiches,Club Sandwich
+Food,Sandwiches,BLT
+Food,Sandwiches,Veggie Wrap
+Food,Salads,Caesar Salad
+Food,Salads,Greek Salad
+Technology,Laptops,UltraBook Pro
+Technology,Laptops,WorkStation 15
+Technology,Phones,SmartPhone X
+Technology,Phones,SmartPhone Lite
+Technology,Accessories,Wireless Mouse
+Technology,Accessories,Mechanical Keyboard
+Technology,Accessories,USB-C Hub
+Clothing,Men,Classic Polo
+Clothing,Men,Slim Chinos
+Clothing,Women,Summer Dress
+Clothing,Women,Blazer
+Clothing,Kids,T-Shirt Pack
+Clothing,Kids,Hoodie
