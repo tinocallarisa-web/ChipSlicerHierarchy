@@ -1,0 +1,16 @@
+=========================================================
+CHIP SLICER HIERARCHY — YouTube Tags (v1.0.0.1)
+Video: https://www.youtube.com/watch?v=Wt5CktHwN44
+=========================================================
+
+--- MAIN TAG BLOCK (fits YouTube's 500-character limit) ---
+
+power bi,power bi custom visual,chip slicer,chip slicer hierarchy,hierarchy slicer,drill down filter,power bi slicer,power bi hierarchy,pill slicer,multi-select slicer,power bi appsource,power bi tutorial,data visualization,business intelligence,microsoft power bi,power bi dashboard,power bi report,tcviz
+
+--- VARIANT: feature/demo-focused video ---
+
+power bi,power bi custom visual,drill down slicer,hierarchical filter,chip ui,pill ui,power bi filtering,category subcategory product,power bi field wells,power bi formatting pane
+
+--- VARIANT: tutorial/how-to video ---
+
+power bi tutorial,power bi how to,power bi custom visual tutorial,power bi slicer tutorial,power bi appsource visual,install power bi visual,power bi drill down tutorial

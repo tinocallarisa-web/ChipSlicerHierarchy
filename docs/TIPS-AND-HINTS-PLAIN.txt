@@ -1,0 +1,64 @@
+CHIP SLICER HIERARCHY — TIPS & HINTS (v1.0.0.1)
+=================================================
+(Plain-text version — safe to paste into a Power BI text box; no markdown tables)
+
+GETTING STARTED
+1. Drag a Category field into the Categories well (Level 1).
+2. Optionally add a second and third field to the same well for SubCategory and Product
+   -- field order determines hierarchy depth (1st = Level 1, 2nd = Level 2, 3rd = Level 3).
+3. Click a chip to filter the report. Child chips for the next level appear automatically.
+4. Click the expand icon (>) to browse a level without filtering.
+
+FIELD WELLS
+- Categories (required) .... hierarchy fields, in order, up to 3 levels
+- Images (optional) ........ image URL per level, same order as Categories
+- Values (optional) ........ measure shown as a badge on each chip
+- Tooltips (optional) ...... extra fields shown on hover, up to 5
+
+FORMAT PANE
+- Chip Style ....... layout, multi-select, leaf-only, hide blanks, default selection,
+                      chip size / radius / font / gap / padding, "All" button
+- Search ........... show/hide search box, placeholder, colors
+- Images ........... image height, position, border radius
+- Value Badge ...... show/hide, format (compact/number/currency/percent), colors, size
+- Hierarchy ........ indent per level, expand icon, auto-collapse siblings, reset button
+- Level 1/2/3 Colors ... independent inactive / active / parent-of-selection colors per level
+
+FREE VS PRO
+- Hierarchy levels ......... Free: 2   -- Pro: 3
+- Values per level ......... Free: 20  -- Pro: Unlimited
+- Multi-select ............. Free: No  -- Pro: Yes
+- Leaf-only selection ...... Free: No  -- Pro: Yes
+- Search box ............... Free: No  -- Pro: Yes
+- Custom per-level colors .. Free: No  -- Pro: Yes
+- Auto-collapse siblings ... Free: No  -- Pro: Yes
+- Configurable reset button  Free: No  -- Pro: Yes
+
+TIPS & BEST PRACTICES
+- Keep Level 1 categories short -- long labels wrap chip layout on narrow visuals.
+- Use vertical layout for tall/narrow report canvases with many values.
+- Enable "Hide blank values" if your source data has nulls in hierarchy fields.
+- Use the Value Badge with compact format for large numbers (K/M/B) to keep chips narrow.
+- Image chips work best with square, small (under ~64px) images for fast rendering.
+
+PRO FEATURES IN DETAIL
+- Multi-select .......... click additional chips to add to the selection
+- Leaf-only selection ... restricts clicking to the deepest available level
+- Auto-collapse siblings  collapses other expanded branches when a new one is expanded
+
+EXAMPLE CONFIGURATIONS
+- Simple category filter: 1 field in Categories, nothing else -- behaves like a standard
+  single-level slicer with chip styling.
+- Product catalog browser: Category, SubCategory, Product in Categories; Images well with
+  product thumbnail URLs; Values well with a Sales measure.
+- Compact sidebar slicer: vertical layout, small chip height, search enabled (Pro).
+
+TROUBLESHOOTING
+- Chips not filtering other visuals -> confirm the field is present (directly or via
+  relationship) in the visuals you expect to be filtered.
+- Images not showing -> the Images field must contain a full, publicly reachable URL per
+  row; the visual does not fetch or proxy images itself.
+- Third level not appearing -> you're on the Free tier (2-level limit) or only 2 fields are
+  present in the Categories well.
+- Colors not applying -> confirm you're editing the correct Level (1/2/3) color card; each
+  level has an independent color set.

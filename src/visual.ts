@@ -5,882 +5,906 @@ import powerbi from "powerbi-visuals-api";
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
-import DataView = powerbi.DataView;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
-import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
-import FilterAction = powerbi.FilterAction;
+import DataView = powerbi.DataView;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
-
-import { formattingSettings, FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
+import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { VisualSettingsModel } from "./settings";
 
-import IVisualLicenseManager = powerbi.extensibility.IVisualLicenseManager;
-import ServicePlanState = powerbi.ServicePlanState;
-import IVisualEventService = powerbi.extensibility.IVisualEventService;
-import VisualUpdateType = powerbi.VisualUpdateType;
-import IFilter = powerbi.IFilter;
+const enum ServicePlanState { Active = 1 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Types
+// Data model
 // ─────────────────────────────────────────────────────────────────────────────
-
-/** A single node in the hierarchy tree. */
 interface HierarchyNode {
     value: string;
     rawValue: powerbi.PrimitiveValue;
-    level: number;               // 0 = L1, 1 = L2, 2 = L3
-    parentKey: string | null;    // key of the parent node (null for root)
-    key: string;                 // unique composite key: "l1val||l2val||l3val"
+    level: number;
+    parentKey: string | null;
+    key: string;
     children: HierarchyNode[];
     isSelected: boolean;
     isExpanded: boolean;
-    isParentOfSelection: boolean; // true when a descendant is selected
-    /** Column metadata for this node's level */
+    isParentOfSelection: boolean;
+    isLeaf: boolean;
+    imageUrl: string | null;
     source: powerbi.DataViewMetadataColumn;
-}
-
-/** Resolved per-level column references for filter building. */
-interface LevelMeta {
-    table: string;
-    column: string;
-    source: powerbi.DataViewMetadataColumn;
+    measureValue: number | null; // aggregated measure — sum of all rows that belong to this node
+    tooltipFields: { name: string; value: string }[];
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HierarchyManager  — pure data logic, no DOM
+// HierarchyManager
 // ─────────────────────────────────────────────────────────────────────────────
-
 class HierarchyManager {
-    /** Flat map of key → node for O(1) lookups */
-    private nodeMap: Map<string, HierarchyNode> = new Map();
-    /** Root-level nodes (level 0) */
     public roots: HierarchyNode[] = [];
-    /** All level column metadata */
-    public levelMeta: LevelMeta[] = [];
+    private nodeMap: Map<string, HierarchyNode> = new Map();
+    private measureTotal: number = 0;
 
-    /**
-     * Rebuilds the tree from a categorical DataView.
-     * categories[0] = Level1, categories[1] = Level2 (optional), categories[2] = Level3 (optional)
-     */
-    public buildTree(dataView: DataView): void {
-        this.nodeMap.clear();
+    getMeasureTotal(): number { return this.measureTotal; }
+
+    buildTree(
+        dataView: DataView,
+        hideBlank: boolean,
+        measureValues?: powerbi.PrimitiveValue[],
+        tooltipMeasureCols?: { name: string; values: powerbi.PrimitiveValue[] }[]
+    ): void {
+        // Save expanded AND selected state before clearing
+        const expandedKeys = new Set<string>();
+        const selectedKeys  = new Set<string>();
+        this.nodeMap.forEach((n, k) => {
+            if (n.isExpanded) expandedKeys.add(k);
+            if (n.isSelected) selectedKeys.add(k);
+        });
+
         this.roots = [];
-        this.levelMeta = [];
+        this.nodeMap.clear();
 
         const cats = dataView?.categorical?.categories;
         if (!cats || cats.length === 0) return;
 
-        // Build levelMeta for each bound category
-        for (let lvl = 0; lvl < cats.length; lvl++) {
-            const src = cats[lvl].source;
-            const qn = src.queryName || "";
-            const dot = qn.indexOf(".");
-            this.levelMeta.push({
-                table: dot > -1 ? qn.substring(0, dot) : qn,
-                column: dot > -1 ? qn.substring(dot + 1) : src.displayName,
-                source: src
-            });
+        // Separate category columns (hierarchy levels) from image columns,
+        // preserving the order the user added them — 1st = L1, 2nd = L2, etc.
+        const catCols: powerbi.DataViewCategoryColumn[] = [];
+        const imgCols: powerbi.DataViewCategoryColumn[] = [];
+        const tipCols: powerbi.DataViewCategoryColumn[] = [];
+
+        for (const cat of cats) {
+            const roles = cat.source.roles as Record<string, boolean>;
+            if (roles["categories"]) catCols.push(cat);
+            else if (roles["images"]) imgCols.push(cat);
+            else if (roles["tooltips"]) tipCols.push(cat);
         }
 
-        const rowCount = cats[0].values.length;
+        if (catCols.length === 0) return;
 
-        for (let row = 0; row < rowCount; row++) {
-            const l1Raw = cats[0]?.values[row];
-            const l2Raw = cats[1]?.values[row];
-            const l3Raw = cats[2]?.values[row];
+        const rowCount = catCols[0].values.length;
 
-            const l1Val = l1Raw == null ? "(blank)" : String(l1Raw);
-            const l2Val = l2Raw == null ? null : String(l2Raw);
-            const l3Val = l3Raw == null ? null : String(l3Raw);
+        for (let i = 0; i < rowCount; i++) {
+            let parentKey: string | null = null;
+            let parentNode: HierarchyNode | null = null;
 
-            // ── Level 1 ──
-            const l1Key = l1Val;
-            if (!this.nodeMap.has(l1Key)) {
-                const node: HierarchyNode = {
-                    value: l1Val,
-                    rawValue: l1Raw,
-                    level: 0,
-                    parentKey: null,
-                    key: l1Key,
-                    children: [],
-                    isSelected: false,
-                    isExpanded: false,
-                    isParentOfSelection: false,
-                    source: cats[0].source
-                };
-                this.nodeMap.set(l1Key, node);
-                this.roots.push(node);
-            }
+            // Measure value for this row — null means no measure or null data
+            const rowMeasure = measureValues != null
+                ? (typeof measureValues[i] === "number" && !isNaN(measureValues[i] as number)
+                    ? (measureValues[i] as number)
+                    : null)
+                : null;
 
-            // ── Level 2 ──
-            if (l2Val != null && cats.length > 1) {
-                const l2Key = `${l1Key}||${l2Val}`;
-                if (!this.nodeMap.has(l2Key)) {
-                    const node: HierarchyNode = {
-                        value: l2Val,
-                        rawValue: l2Raw,
-                        level: 1,
-                        parentKey: l1Key,
-                        key: l2Key,
-                        children: [],
-                        isSelected: false,
-                        isExpanded: false,
-                        isParentOfSelection: false,
-                        source: cats[1].source
-                    };
-                    this.nodeMap.set(l2Key, node);
-                    const parent = this.nodeMap.get(l1Key)!;
-                    parent.children.push(node);
+            for (let lvl = 0; lvl < catCols.length; lvl++) {
+                const col = catCols[lvl];
+                const raw = col.values[i];
+                const val = raw == null ? "" : String(raw);
+                if (hideBlank && val === "") break; // stop the path at a blank value
+
+                const level  = lvl + 1;
+                const key    = parentKey ? `L${level}::${parentKey}::${val}` : `L${level}::${val}`;
+                const isLast = lvl === catCols.length - 1;
+
+                // Image URL for this level (matched by position in imgCols)
+                let imageUrl: string | null = null;
+                if (imgCols[lvl]) {
+                    const imgVal = imgCols[lvl].values[i];
+                    if (imgVal != null && String(imgVal) !== "") imageUrl = String(imgVal);
                 }
 
-                // ── Level 3 ──
-                if (l3Val != null && cats.length > 2) {
-                    const l3Key = `${l2Key}||${l3Val}`;
-                    if (!this.nodeMap.has(l3Key)) {
-                        const node: HierarchyNode = {
-                            value: l3Val,
-                            rawValue: l3Raw,
-                            level: 2,
-                            parentKey: l2Key,
-                            key: l3Key,
-                            children: [],
-                            isSelected: false,
-                            isExpanded: false,
-                            isParentOfSelection: false,
-                            source: cats[2].source
-                        };
-                        this.nodeMap.set(l3Key, node);
-                        const parent = this.nodeMap.get(l2Key)!;
-                        parent.children.push(node);
+                let node = this.nodeMap.get(key);
+                if (!node) {
+                    node = {
+                        value: val, rawValue: raw, level,
+                        parentKey, key, children: [],
+                        isSelected: false, isExpanded: false, isParentOfSelection: false,
+                        isLeaf: isLast, imageUrl, source: col.source,
+                        measureValue: null, tooltipFields: []
+                    };
+                    this.nodeMap.set(key, node);
+                    if (parentNode) {
+                        parentNode.children.push(node);
+                        parentNode.isLeaf = false;
+                    } else {
+                        this.roots.push(node);
                     }
                 }
+                // Fill in imageUrl if we now have one and node didn't before
+                if (node.imageUrl === null && imageUrl !== null) node.imageUrl = imageUrl;
+
+                // Tooltip extra fields — only captured once per node (first row that reaches it).
+                // Text/column tooltip fields arrive in `categories`; measure-typed ones (e.g. a
+                // DAX measure or aggregated numeric column) are moved by Power BI into `values`.
+                if (node.tooltipFields.length === 0 && (tipCols.length > 0 || (tooltipMeasureCols && tooltipMeasureCols.length > 0))) {
+                    const fromCats = tipCols.map(t => ({ name: t.source.displayName, value: t.values[i] }));
+                    const fromVals = (tooltipMeasureCols ?? []).map(t => ({ name: t.name, value: t.values[i] }));
+                    node.tooltipFields = [...fromCats, ...fromVals]
+                        .filter(t => t.value != null && String(t.value) !== "")
+                        .map(t => ({ name: t.name, value: String(t.value) }));
+                }
+
+                // Accumulate measure: every node along the path (L1, L2, L3) gets this row's value
+                if (rowMeasure !== null) {
+                    node.measureValue = (node.measureValue ?? 0) + rowMeasure;
+                }
+
+                parentKey  = key;
+                parentNode = node;
             }
         }
+
+        // Restore state from before the rebuild
+        this.nodeMap.forEach((n, k) => {
+            if (expandedKeys.has(k)) n.isExpanded = true;
+            if (selectedKeys.has(k)) n.isSelected  = true;
+        });
+        this.markParents();
+
+        // Grand total — used to compute "% of total" for the value badge/tooltip.
+        // Roots partition all rows, so summing root measures gives the true total.
+        this.measureTotal = this.roots.reduce((sum, r) => sum + (r.measureValue ?? 0), 0);
     }
 
-    /** Toggle selection on a node; handles multi-select and select-all */
-    public toggleNode(key: string, multiSelect: boolean, autoCollapse: boolean): void {
+    // Selection only — does NOT touch isExpanded (except auto-expand for newly selected parent)
+    toggleSelect(key: string, multiSelect: boolean, leafOnly: boolean): void {
         const node = this.nodeMap.get(key);
         if (!node) return;
 
-        if (!multiSelect) {
-            // Single-select: deselect everything first
-            this.nodeMap.forEach(n => n.isSelected = false);
+        if (leafOnly && !node.isLeaf) return; // non-selectable in leaf-only mode
+
+        const wasSelected = node.isSelected;
+        if (!multiSelect) this.clearAll();
+        node.isSelected = !wasSelected;
+
+        // Auto-expand a newly selected non-leaf so children become visible
+        if (node.isSelected && !node.isLeaf) {
+            node.isExpanded = true;
         }
 
-        node.isSelected = !node.isSelected;
-
-        // Expand/collapse children when selecting/deselecting a parent
-        if (node.children.length > 0) {
-            if (node.isSelected) {
-                node.isExpanded = true;
-            } else {
-                // Deselecting parent: collapse and deselect all descendants
-                this.collapseDescendants(node);
-            }
-        }
-
-        // Auto-collapse siblings at the same level
-        if (autoCollapse && node.isSelected && node.parentKey) {
-            const parent = this.nodeMap.get(node.parentKey);
-            if (parent) {
-                parent.children.forEach(sibling => {
-                    if (sibling.key !== key) {
-                        sibling.isExpanded = false;
-                        this.collapseDescendants(sibling);
-                    }
-                });
-            }
-        }
+        this.markParents();
     }
 
-    /** Toggle expand/collapse without changing selection */
-    public toggleExpand(key: string): void {
+    // Expand/collapse only — never touches isSelected
+    toggleExpand(key: string, autoCollapse: boolean): void {
         const node = this.nodeMap.get(key);
         if (!node) return;
         node.isExpanded = !node.isExpanded;
-    }
-
-    /** Clear all selections and collapse the tree */
-    public clearAll(): void {
-        this.nodeMap.forEach(n => {
-            n.isSelected = false;
-            n.isExpanded = false;
-        });
-    }
-
-    /** Returns nodes that are currently selected */
-    public getSelectedNodes(): HierarchyNode[] {
-        const result: HierarchyNode[] = [];
-        this.nodeMap.forEach(n => { if (n.isSelected) result.push(n); });
-        return result;
-    }
-
-    /**
-     * Recomputes isParentOfSelection for every node.
-     * A node is a "parent of selection" when it has at least one
-     * selected descendant but is not selected itself.
-     * Call this after any selection change, before rendering.
-     */
-    public markParents(): void {
-        // Reset all
-        this.nodeMap.forEach(n => n.isParentOfSelection = false);
-        // Walk up from each selected node
-        this.nodeMap.forEach(n => {
-            if (!n.isSelected) return;
-            let key = n.parentKey;
-            while (key) {
-                const parent = this.nodeMap.get(key);
-                if (!parent) break;
-                if (!parent.isSelected) parent.isParentOfSelection = true;
-                key = parent.parentKey;
-            }
-        });
-    }
-
-    /** Restore selection from persisted filter values */
-    public restoreFromFilter(jsonFilters: powerbi.IFilter[]): void {
-        if (!jsonFilters || jsonFilters.length === 0) return;
-
-        // We persist a BasicFilter on the deepest selected level.
-        // Re-select matching nodes, then expand their ancestors.
-        for (const filter of jsonFilters) {
-            const basic = filter as any;
-            if (!basic.values) continue;
-            for (const v of basic.values) {
-                const strV = String(v);
-                // Find node whose value matches and whose column matches filter column
-                this.nodeMap.forEach(node => {
-                    if (node.value === strV) {
-                        node.isSelected = true;
-                        this.expandAncestors(node);
-                    }
-                });
+        if (autoCollapse && node.isExpanded) {
+            const siblings = node.parentKey
+                ? (this.nodeMap.get(node.parentKey)?.children ?? this.roots)
+                : this.roots;
+            for (const sib of siblings) {
+                if (sib.key !== key) {
+                    sib.isExpanded = false;
+                    this.collapseDescendants(sib);
+                }
             }
         }
     }
 
-    // ── Private helpers ──────────────────────────────────────────────────────
+    clearAll(): void {
+        this.nodeMap.forEach(n => { n.isSelected = false; n.isParentOfSelection = false; });
+    }
 
-    private collapseDescendants(node: HierarchyNode): void {
-        node.isExpanded = false;
-        node.children.forEach(child => {
-            child.isSelected = false;
-            this.collapseDescendants(child);
+    getSelectedNodes(): HierarchyNode[] {
+        const sel: HierarchyNode[] = [];
+        this.nodeMap.forEach(n => { if (n.isSelected) sel.push(n); });
+        return sel;
+    }
+
+    markParents(): void {
+        this.nodeMap.forEach(n => { n.isParentOfSelection = false; });
+        this.nodeMap.forEach(n => {
+            if (n.isSelected && n.parentKey) {
+                let pk: string | null = n.parentKey;
+                while (pk) {
+                    const p = this.nodeMap.get(pk);
+                    if (p) { p.isParentOfSelection = true; pk = p.parentKey; }
+                    else break;
+                }
+            }
         });
     }
 
-    private expandAncestors(node: HierarchyNode): void {
-        if (!node.parentKey) return;
+    // Sets isSelected from filter — intentionally does NOT touch isExpanded.
+    // Call expandSelectedAncestors() separately when first loading to show context.
+    restoreFromFilter(filterValues: Map<number, Set<string>>): void {
+        this.nodeMap.forEach(n => {
+            const levelVals = filterValues.get(n.level);
+            n.isSelected = levelVals ? levelVals.has(String(n.rawValue)) : false;
+        });
+        this.markParents();
+    }
+
+    // Called once on first load: expands parents of selected nodes so they are visible.
+    expandSelectedAncestors(): void {
+        this.nodeMap.forEach(n => {
+            if (n.isSelected && !n.isLeaf) n.isExpanded = true;
+            if (n.isSelected || n.isParentOfSelection) this.expandAncestors(n.key);
+        });
+    }
+
+    applyDefaultSelection(mode: string): boolean {
+        if (this.getSelectedNodes().length > 0) return false;
+        if (mode === "first" && this.roots.length > 0) {
+            this.roots[0].isSelected = true;
+            this.markParents();
+            return true;
+        }
+        return false;
+    }
+
+    getNode(key: string): HierarchyNode | undefined {
+        return this.nodeMap.get(key);
+    }
+
+    private collapseDescendants(node: HierarchyNode): void {
+        node.isExpanded = false;
+        for (const c of node.children) this.collapseDescendants(c);
+    }
+
+    private expandAncestors(key: string): void {
+        const node = this.nodeMap.get(key);
+        if (!node || !node.parentKey) return;
         const parent = this.nodeMap.get(node.parentKey);
-        if (!parent) return;
-        parent.isExpanded = true;
-        this.expandAncestors(parent);
+        if (parent) { parent.isExpanded = true; this.expandAncestors(parent.key); }
     }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Visual
 // ─────────────────────────────────────────────────────────────────────────────
-
 export class Visual implements IVisual {
     private target: HTMLElement;
     private host: IVisualHost;
-    private container: HTMLElement;
-    private localizationManager: ILocalizationManager;
-    private licenseManager: IVisualLicenseManager;
-    private formattingSettingsService: FormattingSettingsService;
-    private formattingSettings: VisualSettingsModel;
     private selectionManager: ISelectionManager;
-
-    private isPro: boolean = false;
+    private formattingSettingsService: FormattingSettingsService;
+    private settings: VisualSettingsModel;
     private hierarchyManager: HierarchyManager = new HierarchyManager();
-    private lastOptions: VisualUpdateOptions | null = null;
-    private events: IVisualEventService;
+    private dataView: DataView | null = null;
+    private licenseManager: any;
+    private isPro: boolean = false;
+    private searchQuery: string = "";
+    private hasInitializedTree: boolean = false;
+    private measureDisplayName: string = "";
 
     constructor(options: VisualConstructorOptions) {
-        this.host = options.host;
         this.target = options.element;
-        this.localizationManager = options.host.createLocalizationManager();
-        this.licenseManager = options.host.licenseManager;
+        this.host = options.host;
+        this.selectionManager = this.host.createSelectionManager();
         this.formattingSettingsService = new FormattingSettingsService();
-        this.selectionManager = options.host.createSelectionManager();
-
-        this.events = options.host.eventService;
-
-        this.container = document.createElement("div");
-        this.container.className = "chip-slicer-container";
-        this.target.appendChild(this.container);
-
-        // High Contrast: listen for theme changes and re-render
-        options.host.colorPalette.isHighContrast &&
-            this.target.classList.add("high-contrast");
-
-        // ── AppSource req #1: context menu on empty space with null selectionId ──
-        this.target.addEventListener("contextmenu", (e: MouseEvent) => {
-            e.preventDefault();
-            this.selectionManager.showContextMenu(null, {
-                x: e.clientX,
-                y: e.clientY
-            });
-        });
+        this.settings = new VisualSettingsModel();
+        this.licenseManager = (options.host as any).licenseManager;
+        this.target.style.overflow = "auto";
+        this.target.style.boxSizing = "border-box";
     }
 
-    public async update(options: VisualUpdateOptions): Promise<void> {
-        this.events.renderingStarted(options);
+    async update(options: VisualUpdateOptions): Promise<void> {
+        this.host.eventService.renderingStarted(options);
         try {
             await this._update(options);
-            this.events.renderingFinished(options);
+            this.host.eventService.renderingFinished(options);
         } catch (e) {
-            this.events.renderingFailed(options, e as string);
+            this.host.eventService.renderingFailed(options, String(e));
         }
     }
 
     private async _update(options: VisualUpdateOptions): Promise<void> {
-        // ── License check ────────────────────────────────────────────────────
+        // License check // ISPRO_BLOCK_START
         try {
-            const licenseResult = await this.licenseManager.getAvailableServicePlans();
-            this.isPro = licenseResult.plans?.some(p => p.state === ServicePlanState.Active) ?? false;
+            const licenseResult = await this.licenseManager?.getAvailableServicePlans();
+            this.isPro = licenseResult?.plans?.some(
+                (p: any) => (p.state as unknown as number) === 1
+            ) ?? false;
         } catch {
             this.isPro = false;
-        }
-        // isPro is set from the license check above — do NOT force true here
+        } // ISPRO_BLOCK_END
 
         const dv = options.dataViews?.[0];
-        if (!dv?.categorical?.categories) {
-            this.container.replaceChildren();
+        if (!dv) { this.showLanding(); return; }
+
+        this.dataView = dv;
+        this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
+            VisualSettingsModel, dv
+        );
+
+        const s = this.settings.chipSettingsCard;
+
+        // Extract measure column (values role) — bound in categorical.values so
+        // Power BI actually aggregates it (SUM/COUNT/etc.) instead of treating it
+        // as a dimension. Values are row-aligned with dv.categorical.categories.
+        let measureValues: powerbi.PrimitiveValue[] | undefined;
+        this.measureDisplayName = "";
+        // Tooltip fields that Power BI moved into categorical.values because they're
+        // measures (or aggregated numeric columns) rather than plain text/dimension columns.
+        const tooltipMeasureCols: { name: string; values: powerbi.PrimitiveValue[] }[] = [];
+        const valCols = dv.categorical?.values;
+        if (valCols) {
+            for (const val of valCols) {
+                const roles = val.source.roles as Record<string, boolean>;
+                if (roles && roles["values"]) {
+                    measureValues = val.values as powerbi.PrimitiveValue[];
+                    this.measureDisplayName = val.source.displayName;
+                } else if (roles && roles["tooltips"]) {
+                    tooltipMeasureCols.push({ name: val.source.displayName, values: val.values as powerbi.PrimitiveValue[] });
+                }
+            }
+        }
+
+        this.hierarchyManager.buildTree(dv, Boolean(s.hideBlank.value), measureValues, tooltipMeasureCols);
+
+        // Restore filter state — only on first load (report open / bookmark restore).
+        // After that, buildTree already saves/restores selectedKeys from in-memory nodeMap
+        // so we don't risk overwriting selections with a mis-parsed filter.
+        if (!this.hasInitializedTree) {
+            const existingFilter = dv.metadata?.objects?.["general"]?.["filter"] as any;
+            if (existingFilter) {
+                try {
+                    const filterValues = this.parseFilter(existingFilter);
+                    this.hierarchyManager.restoreFromFilter(filterValues);
+                    this.hierarchyManager.expandSelectedAncestors();
+                } catch { /* ignore */ }
+            }
+            this.hasInitializedTree = true;
+        }
+
+        const defaultSel = (s.defaultSelection?.value as any)?.value ?? "none";
+        if (this.hierarchyManager.applyDefaultSelection(defaultSel)) {
+            await this.applyFilter();
             return;
         }
 
-        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(
-            VisualSettingsModel,
-            dv
-        );
-
-        // ── Bookmark restore ─────────────────────────────────────────────────
-        // Power BI passes jsonFilters when restoring a bookmark — we rely on
-        // restoreFromFilter() below which already handles this correctly.
-
-        // ── (Re)build the hierarchy tree ─────────────────────────────────────
-        // Keep selection state across non-data updates (e.g. resize)
-        const prevSelected = new Set(
-            this.hierarchyManager.getSelectedNodes().map(n => n.key)
-        );
-        const prevExpanded = new Set<string>();
-        // We need to preserve expanded state too — access via roots
-        const storeExpanded = (nodes: HierarchyNode[]) => {
-            nodes.forEach(n => {
-                if (n.isExpanded) prevExpanded.add(n.key);
-                storeExpanded(n.children);
-            });
-        };
-        storeExpanded(this.hierarchyManager.roots);
-
-        this.hierarchyManager.buildTree(dv);
-
-        // Restore from persisted JSON filters (initial load)
-        if (prevSelected.size === 0 && (options.jsonFilters?.length ?? 0) > 0) {
-            this.hierarchyManager.restoreFromFilter(options.jsonFilters);
-        } else {
-            // Restore in-memory selection after re-render
-            const roots = this.hierarchyManager.roots;
-            const restoreState = (nodes: HierarchyNode[]) => {
-                nodes.forEach(n => {
-                    if (prevSelected.has(n.key)) n.isSelected = true;
-                    if (prevExpanded.has(n.key)) n.isExpanded = true;
-                    restoreState(n.children);
-                });
-            };
-            restoreState(roots);
-        }
-
-        this.lastOptions = options;
         this.render();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Render — always vertical: one chip per row, children indented below
-    // ─────────────────────────────────────────────────────────────────────────
-
-    private render(): void {
-        this.container.replaceChildren();
-
-        const chip = this.formattingSettings.chipSettingsCard;
-        const hier = this.formattingSettings.hierarchySettingsCard;
-        const hasSelection = this.hierarchyManager.getSelectedNodes().length > 0;
-
-        // Container: vertical column, chips stack top-to-bottom
-        Object.assign(this.container.style, {
-            display: "flex",
-            flexDirection: "column",
-            flexWrap: "nowrap",
-            gap: `${chip.chipGap.value}px`,
-            padding: "8px",
-            overflowY: "auto",
-            overflowX: "hidden",
-            height: "100%",
-            width: "100%",
-            boxSizing: "border-box",
-            position: "relative"
-        });
-
-        // ── Select All chip ──────────────────────────────────────────────────
-        if (chip.showSelectAll.value) {
-            const isAll = !hasSelection;
-            const label = chip.selectAllLabel.value || "All";
-            const allRow = this.buildRowElement(0);
-            const allChip = this.buildChipElement(label, isAll, false, 0, 0);
-            allChip.onclick = () => {
-                this.hierarchyManager.clearAll();
-                this.hierarchyManager.markParents();
-                this.applyFilter();
-                this.render();
-            };
-            allRow.appendChild(allChip);
-            this.container.appendChild(allRow);
-        }
-
-        // ── Freemium gates ───────────────────────────────────────────────────
-        const maxLevels   = this.isPro ? 3 : 2;          // Free: 2 levels max
-        const maxValues   = this.isPro ? Infinity : 20;  // Free: 20 values per level
-        const canMultiSel = this.isPro ? chip.multiSelect.value : false;
-        const canCustomColors = this.isPro;               // Free: fixed default colors
-        const canReset    = this.isPro;                   // Free: no reset button
-
-        // ── Pre-compute equal chip width per level ───────────────────────────
-        const levelWidths: number[] = [];
-        const collectLabels = (nodes: HierarchyNode[], depth: number) => {
-            if (depth >= maxLevels) return;
-            const labels = nodes.map(n => n.value);
-            const w = this.computeLevelWidth(labels, depth);
-            if (!levelWidths[depth] || w > levelWidths[depth]) levelWidths[depth] = w;
-            nodes.forEach(n => collectLabels(n.children, depth + 1));
-        };
-        collectLabels(this.hierarchyManager.roots, 0);
-
-        // ── Reset button (after gates so canReset is declared) ──────────────
-        if (canReset && hier.showReset.value) {
-            this.container.appendChild(this.buildResetButton());
-        } else if (!canReset && hasSelection) {
-            // Free tier: minimal non-configurable reset icon
-            const freeReset = document.createElement("div");
-            freeReset.style.cssText = "display:flex;justify-content:flex-end;width:100%;flex-shrink:0";
-            const btn = document.createElement("button");
-            btn.innerText = "↺";
-            btn.title = "Reset selection";
-            Object.assign(btn.style, {
-                height: "20px", padding: "0 8px", fontSize: "12px",
-                borderRadius: "6px", border: "1px solid #D1D5DB",
-                backgroundColor: "#F3F4F6", color: "#6B7280",
-                cursor: "pointer", outline: "none", opacity: "0.85"
-            });
-            btn.onclick = () => {
-                this.hierarchyManager.clearAll();
-                this.hierarchyManager.markParents();
-                this.applyFilter();
-                this.render();
-            };
-            freeReset.appendChild(btn);
-            this.container.appendChild(freeReset);
-        }
-
-        // ── Mark parents before rendering ────────────────────────────────────
-        this.hierarchyManager.markParents();
-
-        // ── Render each node as its own row, children indented below ─────────
-        this.renderNodes(this.hierarchyManager.roots, 0, maxLevels, levelWidths, maxValues, canMultiSel, canCustomColors);
-
-        // ── Upgrade hint (free tier) ─────────────────────────────────────────
-        if (!this.isPro) {
-            const hint = document.createElement("div");
-            hint.style.cssText = [
-                "font-size:10px", "color:#FF4081", "font-weight:bold",
-                "margin-top:6px", "opacity:0.8", "padding-left:4px",
-                "cursor:pointer"
-            ].join(";");
-            const missing: string[] = [];
-            if (this.hierarchyManager.levelMeta.length > 2) missing.push("Level 3");
-            missing.push("multi-select", "custom colors", "reset button");
-            hint.innerText = `⭐ Pro unlocks: ${missing.join(", ")} · tcviz.com`;
-            this.container.appendChild(hint);
-        }
+    private showLanding(): void {
+        /* eslint-disable powerbi-visuals/no-inner-outer-html */
+        this.target.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:center;height:100%;
+                        color:#9CA3AF;font-family:sans-serif;font-size:13px;text-align:center;padding:16px">
+                Add data fields to Level 1 to start filtering.
+            </div>`;
+        /* eslint-enable powerbi-visuals/no-inner-outer-html */
     }
 
-    /** Builds the reset button element */
-    private buildResetButton(): HTMLElement {
-        const hier = this.formattingSettings.hierarchySettingsCard;
-        const chip = this.formattingSettings.chipSettingsCard;
+    private render(): void { this.renderChipMode(); }
+
+    // ─── MAIN RENDER ──────────────────────────────────────────────────────────
+    private renderChipMode(): void {
+        // Capture focus before any DOM mutation
+        const searchWasFocused = !!(document.activeElement &&
+            this.target.contains(document.activeElement) &&
+            (document.activeElement as HTMLElement).tagName === "INPUT");
+
+        const scrollTop = this.target.scrollTop;
+        const isHC   = this.host.colorPalette.isHighContrast;
+        const s      = this.settings.chipSettingsCard;
+        const hs     = this.settings.hierarchySettingsCard;
+        const ss     = this.settings.searchSettingsCard;
+        const layout = (s.layout?.value as any)?.value ?? "horizontal";
+
+        this.target.style.overflow = "auto";
 
         const wrapper = document.createElement("div");
-        wrapper.style.cssText = [
-            "display:flex",
-            "justify-content:flex-end",
-            "width:100%",
-            "flex-shrink:0"
-        ].join(";");
+        wrapper.style.cssText = `
+            display:flex; flex-direction:column; gap:6px; width:100%; height:100%;
+            overflow:auto; box-sizing:border-box; padding:4px;
+            font-family:${isHC ? "system-ui" : "sans-serif"};
+        `;
 
-        const btn = document.createElement("button");
-        btn.innerText = hier.resetLabel.value || "↺ Reset";
-
-        Object.assign(btn.style, {
-            height:          `${Math.max(20, chip.chipHeight.value - 10)}px`,
-            padding:         "0 10px",
-            fontSize:        `${Math.max(10, chip.fontSize.value - 1)}px`,
-            borderRadius:    "6px",
-            border:          `1px solid ${hier.resetBorder.value.value}`,
-            backgroundColor: hier.resetBg.value.value,
-            color:           hier.resetText.value.value,
-            cursor:          "pointer",
-            fontWeight:      "normal",
-            outline:         "none",
-            transition:      "opacity 0.15s ease",
-            opacity:         "0.85",
-            lineHeight:      "1"
-        });
-
-        btn.onmouseenter = () => { btn.style.opacity = "1"; };
-        btn.onmouseleave = () => { btn.style.opacity = "0.85"; };
-
-        btn.onclick = () => {
-            this.hierarchyManager.clearAll();
-            this.hierarchyManager.markParents();
-            this.applyFilter();
-            this.render();
-        };
-
-        wrapper.appendChild(btn);
-        return wrapper;
-    }
-
-    /** Builds an indented row wrapper for a given depth level */
-    private buildRowElement(depth: number): HTMLElement {
-        const hier = this.formattingSettings.hierarchySettingsCard;
-        const row = document.createElement("div");
-        row.style.cssText = [
-            "display:flex",
-            "flex-direction:row",
-            "align-items:center",
-            "flex-shrink:0",
-            `padding-left:${depth * hier.indentSize.value}px`
-        ].join(";");
-        return row;
-    }
-
-    /**
-     * Renders nodes recursively — each node on its own row.
-     * Expanded nodes show their children indented immediately below.
-     */
-    private renderNodes(
-        nodes: HierarchyNode[],
-        depth: number,
-        maxLevels: number,
-        levelWidths: number[],
-        maxValues: number,
-        canMultiSel: boolean,
-        canCustomColors: boolean
-    ): void {
-        if (nodes.length === 0 || depth >= maxLevels) return;
-
-        const chip = this.formattingSettings.chipSettingsCard;
-        const hier = this.formattingSettings.hierarchySettingsCard;
-        const lw   = levelWidths[depth] ?? 0;
-
-        // Free tier: cap the number of visible values per level
-        const visibleNodes = isFinite(maxValues) ? nodes.slice(0, maxValues) : nodes;
-        const isLimited = nodes.length > visibleNodes.length;
-
-        visibleNodes.forEach(node => {
-            const row = this.buildRowElement(depth);
-
-            // ── Expand/collapse icon ─────────────────────────────────────────
-            const iconSpan = document.createElement("span");
-            iconSpan.style.cssText = "width:18px;min-width:18px;text-align:center;font-size:10px;user-select:none;flex-shrink:0";
-
-            if (node.children.length > 0 && hier.expandIcon.value) {
-                iconSpan.innerText = node.isExpanded ? "▾" : "▸";
-                iconSpan.style.cursor = "pointer";
-                iconSpan.style.opacity = "0.6";
-                iconSpan.onclick = (e) => {
-                    e.stopPropagation();
-                    this.hierarchyManager.toggleExpand(node.key);
-                    this.render();
-                };
+        if (Boolean(ss.showSearch.value)) {
+            if (this.isPro) {
+                wrapper.appendChild(this.buildSearchBox(isHC));
+            } else {
+                const note = document.createElement("div");
+                note.style.cssText = "font-size:11px;color:#9CA3AF;padding:2px 4px;";
+                note.textContent = "🔍 Search requires Pro";
+                wrapper.appendChild(note);
             }
-            row.appendChild(iconSpan);
-
-            // ── Chip ─────────────────────────────────────────────────────────
-            const el = this.buildChipElement(node.value, node.isSelected, node.isParentOfSelection, depth, lw, canCustomColors);
-            el.onclick = () => {
-                this.hierarchyManager.toggleNode(
-                    node.key,
-                    canMultiSel,
-                    this.isPro ? hier.autoCollapse.value : false
-                );
-                this.hierarchyManager.markParents();
-                this.applyFilter();
-                this.render();
-            };
-            row.appendChild(el);
-
-            this.container.appendChild(row);
-
-            // ── Children rendered immediately below when expanded ────────────
-            if (node.isExpanded && node.children.length > 0) {
-                this.renderNodes(node.children, depth + 1, maxLevels, levelWidths, maxValues, canMultiSel, canCustomColors);
-            }
-        });
-
-        // Free tier: show upgrade hint when values are capped
-        if (isLimited) {
-            const row = this.buildRowElement(depth);
-            const hint = document.createElement("span");
-            hint.style.cssText = [
-                `padding-left:${(depth * this.formattingSettings.hierarchySettingsCard.indentSize.value) + 20}px`,
-                "font-size:10px",
-                "color:#FF4081",
-                "font-weight:bold",
-                "opacity:0.8",
-                "cursor:pointer"
-            ].join(";");
-            hint.innerText = `+${nodes.length - visibleNodes.length} more — Upgrade to Pro`;
-            hint.title = "Unlock unlimited values with ChipSlicer Hierarchy Pro";
-            row.appendChild(hint);
-            this.container.appendChild(row);
         }
-    }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Chip DOM element factory
-    // ─────────────────────────────────────────────────────────────────────────
+        if (Boolean(hs.showReset.value)) {
+            wrapper.appendChild(this.buildResetButton(isHC));
+        }
 
-    /**
-     * Returns hardcoded default colors for free tier (not configurable).
-     */
-    private defaultLevelColors(depth: number): any {
-        const defaults = [
-            // Level 1 — blue
-            {
-                activeBg:     { value: { value: "#378ADD" } },
-                activeBorder: { value: { value: "#378ADD" } },
-                activeText:   { value: { value: "#FFFFFF" } },
-                defaultBg:    { value: { value: "#F3F4F6" } },
-                defaultBorder:{ value: { value: "#E5E7EB" } },
-                defaultText:  { value: { value: "#374151" } },
-                parentBg:     { value: { value: "#D6EBFA" } },
-                parentBorder: { value: { value: "#378ADD" } },
-                parentText:   { value: { value: "#1A5FA8" } }
-            },
-            // Level 2 — teal
-            {
-                activeBg:     { value: { value: "#0F9B8E" } },
-                activeBorder: { value: { value: "#0F9B8E" } },
-                activeText:   { value: { value: "#FFFFFF" } },
-                defaultBg:    { value: { value: "#E8F5F4" } },
-                defaultBorder:{ value: { value: "#B2DDD9" } },
-                defaultText:  { value: { value: "#1B5E59" } },
-                parentBg:     { value: { value: "#C5EAE7" } },
-                parentBorder: { value: { value: "#0F9B8E" } },
-                parentText:   { value: { value: "#0A6B62" } }
-            },
-            // Level 3 — purple
-            {
-                activeBg:     { value: { value: "#7B5EA7" } },
-                activeBorder: { value: { value: "#7B5EA7" } },
-                activeText:   { value: { value: "#FFFFFF" } },
-                defaultBg:    { value: { value: "#F0EBF8" } },
-                defaultBorder:{ value: { value: "#D4BEF0" } },
-                defaultText:  { value: { value: "#3D1F7A" } },
-                parentBg:     { value: { value: "#E0D5F5" } },
-                parentBorder: { value: { value: "#7B5EA7" } },
-                parentText:   { value: { value: "#3D1F7A" } }
-            }
-        ];
-        return defaults[Math.min(depth, 2)];
-    }
-
-    /**
-     * Returns the colour card for the given depth level.
-     */
-    private levelColors(depth: number): any {
-        if (depth === 1) return this.formattingSettings.level2ColorsCard;
-        if (depth >= 2) return this.formattingSettings.level3ColorsCard;
-        return this.formattingSettings.level1ColorsCard;
-    }
-
-    /**
-     * Builds a chip element.
-     * @param label        Display text
-     * @param isActive     Node is directly selected
-     * @param isParent     Node is a parent of a selected descendant
-     * @param depth        Hierarchy level (0/1/2)
-     * @param levelWidth   Fixed width in px for this level (0 = auto)
-     */
-    private buildChipElement(
-        label: string,
-        isActive: boolean,
-        isParent: boolean,
-        depth: number,
-        levelWidth: number,
-        canCustomColors: boolean = true
-    ): HTMLElement {
-        const s = this.formattingSettings.chipSettingsCard;
-        // Free tier: always use default neutral colors regardless of format settings
-        const lc = canCustomColors ? this.levelColors(depth) : this.defaultLevelColors(depth);
-
-        let bg: string, border: string, text: string, fw: string;
-
-        if (isActive) {
-            bg     = lc.activeBg.value.value;
-            border = lc.activeBorder.value.value;
-            text   = lc.activeText.value.value;
-            fw     = "bold";
-        } else if (isParent && depth < 2) {
-            // parent-of-selection state (L3 has no children so skip)
-            bg     = lc.parentBg.value.value;
-            border = lc.parentBorder.value.value;
-            text   = lc.parentText.value.value;
-            fw     = "600";
+        const chipContainer = document.createElement("div");
+        chipContainer.style.cssText = `display:flex;flex-direction:column;gap:${s.chipGap.value}px;`;
+        if (this.searchQuery && this.isPro) {
+            this.renderSearchResults(chipContainer, isHC, layout);
         } else {
-            bg     = lc.defaultBg.value.value;
-            border = lc.defaultBorder.value.value;
-            text   = lc.defaultText.value.value;
-            fw     = "normal";
+            this.renderNodes(this.hierarchyManager.roots, chipContainer, isHC, layout, 0);
         }
+        wrapper.appendChild(chipContainer);
 
-        const el = document.createElement("div");
-        el.className = "chip-item";
-        el.innerText = label;
+        /* eslint-disable powerbi-visuals/no-inner-outer-html */
+        this.target.innerHTML = "";
+        /* eslint-enable powerbi-visuals/no-inner-outer-html */
+        this.target.appendChild(wrapper);
+        this.target.scrollTop = scrollTop;
 
-        // High Contrast override: use system colors
-        const isHC = this.target.classList.contains("high-contrast");
-        if (isHC) {
-            bg     = isActive ? "ButtonText"   : "Canvas";
-            border = isActive ? "ButtonText"   : "ButtonText";
-            text   = isActive ? "Canvas"       : "ButtonText";
-            fw     = isActive ? "bold"         : "normal";
+        if (searchWasFocused) {
+            const inp = this.target.querySelector("input") as HTMLInputElement;
+            if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
         }
-
-        Object.assign(el.style, {
-            height:          `${s.chipHeight.value}px`,
-            borderRadius:    `${s.chipRadius.value}px`,
-            padding:         `0 ${s.chipPaddingH.value}px`,
-            fontSize:        `${s.fontSize.value}px`,
-            display:         "inline-flex",
-            alignItems:      "center",
-            justifyContent:  "flex-start",
-            cursor:          "pointer",
-            userSelect:      "none",
-            transition:      "all 0.15s ease",
-            border:          "1.5px solid",
-            backgroundColor: bg,
-            borderColor:     border,
-            color:           text,
-            fontWeight:      fw,
-            whiteSpace:      "nowrap",
-            overflow:        "hidden",
-            textOverflow:    "ellipsis",
-            flexShrink:      "0"
-        });
-
-        // Equal width per level: if a fixed width is provided, apply it
-        if (levelWidth > 0) {
-            el.style.width    = `${levelWidth}px`;
-            el.style.minWidth = `${levelWidth}px`;
-        }
-
-        // ── AppSource req #2: tooltip on every chip ──
-        el.title = label;
-
-        return el;
     }
 
-    /**
-     * Measures the natural pixel width of a text label at the current font size.
-     * Uses a temporary off-screen canvas for accuracy.
-     */
-    private measureText(text: string, fontSize: number): number {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return text.length * (fontSize * 0.6);
-        ctx.font = `${fontSize}px sans-serif`;
-        return ctx.measureText(text).width;
+    // ─── SEARCH BOX ───────────────────────────────────────────────────────────
+    private buildSearchBox(isHC: boolean): HTMLElement {
+        const ss = this.settings.searchSettingsCard;
+        const wrap = document.createElement("div");
+        wrap.style.cssText = "position:relative;display:flex;align-items:center;margin-bottom:4px;";
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.placeholder = (ss.searchPlaceholder.value as string) || "Search…";
+        input.value = this.searchQuery;
+        input.style.cssText = `
+            width:100%; padding:6px 28px 6px 10px; border-radius:6px; box-sizing:border-box;
+            border:1px solid ${isHC ? "ButtonText" : (ss.searchBorder.value?.value ?? "#D1D5DB")};
+            background:${isHC ? "ButtonFace" : (ss.searchBg.value?.value ?? "#FFFFFF")};
+            color:${isHC ? "ButtonText" : (ss.searchText.value?.value ?? "#374151")};
+            font-size:13px; outline:none;
+        `;
+        input.addEventListener("input", () => { this.searchQuery = input.value; this.renderChipMode(); });
+        input.addEventListener("keydown", (e: KeyboardEvent) => e.stopPropagation());
+
+        const clr = document.createElement("span");
+        clr.textContent = "×";
+        clr.style.cssText = `
+            position:absolute; right:8px; cursor:pointer; color:#9CA3AF;
+            font-size:16px; line-height:1; display:${this.searchQuery ? "block" : "none"};
+        `;
+        clr.addEventListener("click", () => { this.searchQuery = ""; this.renderChipMode(); });
+
+        wrap.appendChild(input);
+        wrap.appendChild(clr);
+        return wrap;
     }
 
-    /**
-     * Computes the required chip width for a set of labels at a given depth.
-     * = max label width + 2 * horizontalPadding + icon space
-     */
-    private computeLevelWidth(labels: string[], depth: number): number {
-        const s = this.formattingSettings.chipSettingsCard;
-        if (labels.length === 0) return 0;
-        const maxLabelPx = Math.max(...labels.map(l => this.measureText(l, s.fontSize.value)));
-        return Math.ceil(maxLabelPx + 2 * s.chipPaddingH.value + 8);
-    }
+    // ─── SEARCH RESULTS ───────────────────────────────────────────────────────
+    private renderSearchResults(container: HTMLElement, isHC: boolean, layout: string): void {
+        const q = this.searchQuery.toLowerCase();
+        const matches: HierarchyNode[] = [];
+        const collect = (nodes: HierarchyNode[]) => {
+            for (const n of nodes) {
+                if (n.value.toLowerCase().includes(q)) matches.push(n);
+                collect(n.children);
+            }
+        };
+        collect(this.hierarchyManager.roots);
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Filter application — builds a TupleFilter or BasicFilter
-    // ─────────────────────────────────────────────────────────────────────────
-
-    private applyFilter(): void {
-        const selected = this.hierarchyManager.getSelectedNodes();
-
-        if (selected.length === 0) {
-            this.host.applyJsonFilter(null, "general", "filter", FilterAction.merge);
+        if (matches.length === 0) {
+            const empty = document.createElement("div");
+            empty.style.cssText = "color:#9CA3AF;font-size:12px;padding:4px;";
+            empty.textContent = "No results found";
+            container.appendChild(empty);
             return;
         }
 
-        const meta = this.hierarchyManager.levelMeta;
-
-        // Strategy: always filter using the DEEPEST selected level only,
-        // using a BasicFilter on that level's column.
-        //
-        // Why: Power BI BasicFilter on a child column already implies the
-        // parent — no need for TupleFilter. Filtering on L2="Cervezas"
-        // automatically restricts L1 and L3 in all related visuals.
-        // Mixing levels in one filter causes Power BI to ignore constraints.
-        //
-        // If the user has selected nodes at different levels (e.g. one L1
-        // and one L2), we apply only the deepest level's filter values.
-        // This matches the UX: the deepest selection is always the most specific.
-
-        // Find the deepest level that has selections
-        let deepestLevel = 0;
-        selected.forEach(n => {
-            if (n.level > deepestLevel) deepestLevel = n.level;
-        });
-
-        // Collect all selected nodes at that deepest level
-        const deepSelected = selected.filter(n => n.level === deepestLevel);
-        const m = meta[deepestLevel];
-        if (!m) return;
-
-        const toFilterValue = (raw: powerbi.PrimitiveValue): powerbi.PrimitiveValue => {
-            if (raw == null) return null;
-            const s = String(raw);
-            if (s === "true") return true;
-            if (s === "false") return false;
-            const num = Number(s);
-            return (!isNaN(num) && s !== "") ? num : s;
-        };
-
-        const values = deepSelected.map(n => toFilterValue(n.rawValue)) as (string | number | boolean)[];
-
-const filter = {
-    $schema: "http://powerbi.com/product/schema#basic",
-    target: { table: m.table, column: m.column },
-    operator: "In",
-    values: values,
-    filterType: 1
-};
-
-        this.host.applyJsonFilter(filter, "general", "filter", FilterAction.merge);
+        const row = document.createElement("div");
+        row.style.cssText = `display:flex;flex-wrap:wrap;gap:${this.settings.chipSettingsCard.chipGap.value}px;`;
+        for (const n of matches) row.appendChild(this.buildChipElement(n, isHC, layout));
+        container.appendChild(row);
     }
 
-    // ─────────────────────────────────────────────────────────────────────────
-    // Formatting model
-    // ─────────────────────────────────────────────────────────────────────────
+    // ─── CHIP TREE ────────────────────────────────────────────────────────────
+    private renderNodes(
+        nodes: HierarchyNode[],
+        container: HTMLElement,
+        isHC: boolean,
+        layout: string,
+        depth: number
+    ): void {
+        const s  = this.settings.chipSettingsCard;
+        const hs = this.settings.hierarchySettingsCard;
+        const indentSize   = hs.indentSize.value as number;
+        const showSelectAll = Boolean(s.showSelectAll.value);
 
+        if (layout === "vertical") {
+            if (depth === 0 && showSelectAll) {
+                container.appendChild(this.buildAllChip(isHC, "block"));
+            }
+            for (const node of nodes) {
+                const chip = this.buildChipElement(node, isHC, layout);
+                if (depth > 0) {
+                    chip.style.marginLeft = `${depth * indentSize}px`;
+                    chip.style.width = `calc(100% - ${depth * indentSize}px)`;
+                }
+                container.appendChild(chip);
+                if (node.isExpanded && node.children.length > 0) {
+                    this.renderNodes(node.children, container, isHC, layout, depth + 1);
+                }
+            }
+        } else {
+            // Horizontal: siblings in one wrapping row, children below
+            const row = document.createElement("div");
+            row.style.cssText = `
+                display:flex; flex-wrap:wrap;
+                gap:${s.chipGap.value}px;
+                margin-left:${depth * indentSize}px;
+            `;
+            if (depth === 0 && showSelectAll) {
+                row.appendChild(this.buildAllChip(isHC, "inline-flex"));
+            }
+            for (const node of nodes) row.appendChild(this.buildChipElement(node, isHC, layout));
+            container.appendChild(row);
+            for (const node of nodes) {
+                if (node.isExpanded && node.children.length > 0) {
+                    this.renderNodes(node.children, container, isHC, layout, depth + 1);
+                }
+            }
+        }
+    }
+
+    private buildAllChip(isHC: boolean, display: string): HTMLElement {
+        const s = this.settings.chipSettingsCard;
+        const anySelected = this.hierarchyManager.getSelectedNodes().length > 0;
+        const allLabel = (s.selectAllLabel.value as string) || "All";
+
+        const btn = document.createElement("button");
+        btn.textContent = allLabel;
+        btn.setAttribute("role", "button");
+        btn.setAttribute("aria-pressed", String(!anySelected));
+        btn.setAttribute("aria-label", allLabel);
+        btn.style.cssText = this.buildChipStyle(isHC, !anySelected, false, 1);
+        btn.style.display = display;
+        if (display === "block") {
+            btn.style.width = "100%";
+            btn.style.boxSizing = "border-box";
+        }
+        btn.addEventListener("click", async () => {
+            this.hierarchyManager.clearAll();
+            await this.applyFilter();
+            this.render();
+        });
+        return btn;
+    }
+
+    private buildChipElement(node: HierarchyNode, isHC: boolean, layout: string): HTMLElement {
+        const s  = this.settings.chipSettingsCard;
+        const is = this.settings.imageSettingsCard;
+        const hs = this.settings.hierarchySettingsCard;
+        const leafOnly = Boolean(s.leafOnly?.value);
+
+        const chip = document.createElement("button");
+        chip.setAttribute("role", "button");
+        chip.setAttribute("aria-pressed", String(node.isSelected));
+        chip.setAttribute("aria-label", node.value);
+        chip.setAttribute("tabindex", "0");
+        chip.style.cssText = this.buildChipStyle(isHC, node.isSelected, node.isParentOfSelection, node.level);
+
+        if (layout === "vertical") {
+            chip.style.display = "flex";
+            chip.style.width = "100%";
+            chip.style.boxSizing = "border-box";
+        }
+
+        if (leafOnly && !node.isLeaf) {
+            chip.style.opacity = "0.7";
+            chip.style.cursor = "default";
+        }
+
+        // Image — shown for any level that has an imageUrl
+        const imgPos = (is?.imagePosition?.value as any)?.value ?? "left";
+        if (node.imageUrl) {
+            const img = document.createElement("img");
+            img.src = node.imageUrl;
+            img.style.cssText = `height:${is.imageHeight.value}px;border-radius:${is.imageRadius.value}px;object-fit:cover;flex-shrink:0;`;
+            img.onerror = () => { img.style.display = "none"; };
+            const lbl = document.createElement("span");
+            lbl.textContent = node.value;
+            if (imgPos === "above") {
+                chip.style.flexDirection = "column";
+                chip.style.alignItems = "center";
+            } else {
+                chip.style.flexDirection = "row";
+                chip.style.alignItems = "center";
+                chip.style.gap = "6px";
+            }
+            chip.appendChild(img);
+            chip.appendChild(lbl);
+        } else {
+            chip.textContent = node.value;
+        }
+
+        // Value badge — shown between the label and the expand icon
+        const vs = this.settings?.valueSettingsCard;
+        if (vs && Boolean(vs.showValue?.value) && node.measureValue !== null && node.measureValue !== undefined) {
+            const fmt     = (vs.valueFormat?.value as any)?.value ?? "compact";
+            const badgeBg = isHC ? "ButtonFace" : (vs.valueBg.value?.value ?? "#E5E7EB");
+            const badgeFg = isHC ? "ButtonText" : (vs.valueText.value?.value ?? "#374151");
+            const badge   = document.createElement("span");
+            badge.textContent = this.formatMeasure(node.measureValue, fmt);
+            badge.style.cssText = `
+                display:inline-flex; align-items:center; justify-content:center;
+                background:${badgeBg}; color:${badgeFg};
+                font-size:${vs.valueFontSize.value}px;
+                border-radius:${vs.valueRadius.value}px;
+                padding:0 ${vs.valuePaddingH.value}px;
+                margin-left:auto; white-space:nowrap; flex-shrink:0;
+                line-height:1.4;
+            `;
+            chip.appendChild(badge);
+        }
+
+        // Expand icon for non-leaf — click expands/collapses only, does NOT trigger selection
+        if (!node.isLeaf && Boolean(hs.expandIcon.value)) {
+            const icon = document.createElement("span");
+            icon.textContent = node.isExpanded ? " ▲" : " ▼";
+            icon.style.cssText = "font-size:9px;margin-left:3px;opacity:0.6;cursor:pointer;";
+            icon.addEventListener("click", (e: MouseEvent) => {
+                e.stopPropagation(); // prevent chip body click from also firing
+                const hsCurrent = this.settings.hierarchySettingsCard;
+                const autoCollapse = Boolean(hsCurrent.autoCollapse.value);
+                this.hierarchyManager.toggleExpand(node.key, autoCollapse);
+                this.renderChipMode(); // no applyFilter — expand state is not persisted via PBI filter
+            });
+            chip.appendChild(icon);
+        }
+
+        this.attachTooltip(chip, node);
+
+        // Chip body click — selection only; always reads CURRENT settings
+        chip.addEventListener("click", async (e: MouseEvent) => {
+            e.stopPropagation();
+            const cs = this.settings.chipSettingsCard;
+            const multiSelect = Boolean(cs.multiSelect.value) || e.ctrlKey || e.metaKey;
+            const leafOnly2   = Boolean(cs.leafOnly?.value);
+            this.hierarchyManager.toggleSelect(node.key, multiSelect, leafOnly2);
+            await this.applyFilter();
+            this.renderChipMode();
+        });
+
+        chip.addEventListener("contextmenu", (e: MouseEvent) => {
+            e.preventDefault();
+            this.selectionManager.showContextMenu(null as any, { x: e.clientX, y: e.clientY });
+        });
+
+        chip.addEventListener("keydown", (e: KeyboardEvent) => {
+            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chip.click(); }
+        });
+
+        return chip;
+    }
+
+    private buildTooltipItems(node: HierarchyNode): any[] {
+        const items: any[] = [];
+
+        // Breadcrumb path
+        if (node.parentKey) {
+            let pk: string | null = node.parentKey;
+            const path: string[] = [];
+            while (pk) {
+                const p = this.hierarchyManager.getNode(pk);
+                if (p) { path.unshift(p.value); pk = p.parentKey; } else break;
+            }
+            if (path.length > 0) items.push({ displayName: "Path", value: path.join(" › ") });
+        }
+
+        // Node label
+        items.push({ displayName: node.source?.displayName ?? "Value", value: node.value });
+
+        // Measure value — shown when the option is on (badge doesn't need to be visible)
+        // Use optional chaining throughout: valueSettingsCard may not exist in older builds
+        const vs = this.settings?.valueSettingsCard;
+        if (vs && Boolean(vs.showInTooltip?.value) &&
+            node.measureValue !== null && node.measureValue !== undefined) {
+            const fmt = (vs.valueFormat?.value as any)?.value ?? "compact";
+            items.push({ displayName: this.measureDisplayName || "Value",
+                         value: this.formatMeasure(node.measureValue, fmt) });
+        }
+
+        // Extra tooltip fields (Tooltips bucket)
+        for (const tf of node.tooltipFields) {
+            items.push({ displayName: tf.name, value: tf.value });
+        }
+
+        return items;
+    }
+
+    private attachTooltip(el: HTMLElement, node: HierarchyNode): void {
+        // mouseenter fires ONCE per chip entry — do the (relatively) expensive item build
+        // and the full show() call here only.
+        // mousemove then just repositions the already-shown tooltip via move(), which is
+        // cheap — calling show() on every mousemove floods the host IPC bridge and can
+        // freeze Power BI Desktop when the user sweeps the cursor across several chips.
+        el.addEventListener("mouseenter", (event: MouseEvent) => {
+            this.host.tooltipService.show({
+                dataItems: this.buildTooltipItems(node), identities: [],
+                coordinates: [event.clientX, event.clientY], isTouchEvent: false
+            });
+        });
+        el.addEventListener("mousemove", (event: MouseEvent) => {
+            this.host.tooltipService.move({
+                dataItems: [], identities: [],
+                coordinates: [event.clientX, event.clientY], isTouchEvent: false
+            });
+        });
+        el.addEventListener("mouseleave", () => {
+            this.host.tooltipService.hide({ immediately: false, isTouchEvent: false });
+        });
+    }
+
+    private buildChipStyle(isHC: boolean, isActive: boolean, isParent: boolean, level: number): string {
+        const s  = this.settings.chipSettingsCard;
+        const h  = s.chipHeight.value as number;
+        const r  = s.chipRadius.value as number;
+        const fs = s.fontSize.value as number;
+        const ph = s.chipPaddingH.value as number;
+
+        let bg: string, border: string, text: string;
+
+        if (isHC) {
+            bg     = isActive ? "Highlight" : "ButtonFace";
+            border = "ButtonText";
+            text   = isActive ? "HighlightText" : "ButtonText";
+        } else {
+            const colors = level === 2 ? this.settings.level2ColorsCard
+                         : level === 3 ? this.settings.level3ColorsCard
+                         : this.settings.level1ColorsCard;
+            if (isActive) {
+                bg     = colors.activeBg.value?.value     ?? "#378ADD";
+                border = colors.activeBorder.value?.value ?? "#378ADD";
+                text   = colors.activeText.value?.value   ?? "#FFFFFF";
+            } else if (isParent) {
+                const cX: any = level === 2 ? this.settings.level2ColorsCard : this.settings.level1ColorsCard;
+                bg     = cX.parentBg?.value?.value     ?? "#D6EBFA";
+                border = cX.parentBorder?.value?.value  ?? "#378ADD";
+                text   = cX.parentText?.value?.value    ?? "#1A5FA8";
+            } else {
+                bg     = colors.defaultBg.value?.value     ?? "#F3F4F6";
+                border = colors.defaultBorder.value?.value ?? "#E5E7EB";
+                text   = colors.defaultText.value?.value   ?? "#374151";
+            }
+        }
+
+        return `
+            display:inline-flex; align-items:center; justify-content:flex-start;
+            height:${h}px; min-height:${h}px;
+            border-radius:${r}px;
+            font-size:${fs}px;
+            padding:0 ${ph}px;
+            background:${bg};
+            border:1.5px solid ${border};
+            color:${text};
+            cursor:pointer;
+            white-space:nowrap;
+            box-sizing:border-box;
+            outline:${isActive ? `2px solid ${border}` : "none"};
+            outline-offset:1px;
+            transition:opacity 0.1s;
+        `;
+    }
+
+    // ─── VALUE FORMAT ─────────────────────────────────────────────────────────
+    private formatMeasure(value: number, fmt: string): string {
+        const abs = Math.abs(value);
+        switch (fmt) {
+            case "number":
+                return value.toLocaleString();
+            case "currency":
+                return "$" + value.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            case "percent": {
+                const total = this.hierarchyManager.getMeasureTotal();
+                if (!total) return "0.0%";
+                return (value / total * 100).toFixed(1) + "%";
+            }
+            case "compact":
+            default:
+                if (abs >= 1e9) return (value / 1e9).toFixed(1) + "B";
+                if (abs >= 1e6) return (value / 1e6).toFixed(1) + "M";
+                if (abs >= 1e3) return (value / 1e3).toFixed(1) + "K";
+                return value.toFixed(0);
+        }
+    }
+
+    private buildResetButton(isHC: boolean): HTMLElement {
+        const hs = this.settings.hierarchySettingsCard;
+        const label  = (hs.resetLabel.value as string) || "↺ Reset";
+        const bg     = isHC ? "ButtonFace" : (hs.resetBg.value?.value     ?? "#F3F4F6");
+        const border = isHC ? "ButtonText" : (hs.resetBorder.value?.value ?? "#D1D5DB");
+        const color  = isHC ? "ButtonText" : (hs.resetText.value?.value   ?? "#6B7280");
+
+        const btn = document.createElement("button");
+        btn.textContent = label;
+        btn.setAttribute("aria-label", label);
+        btn.style.cssText = `
+            align-self:flex-end; padding:4px 10px; border-radius:6px;
+            border:1px solid ${border}; background:${bg}; color:${color};
+            font-size:11px; cursor:pointer;
+        `;
+        btn.addEventListener("click", async () => {
+            this.searchQuery = "";
+            this.hierarchyManager.clearAll();
+            await this.applyFilter();
+            this.renderChipMode();
+        });
+        return btn;
+    }
+
+    // ─── FILTER ───────────────────────────────────────────────────────────────
+    private async applyFilter(): Promise<void> {
+        const selected = this.hierarchyManager.getSelectedNodes();
+        if (!this.dataView) return;
+
+        if (selected.length === 0) {
+            await this.host.applyJsonFilter(null as any, "general", "filter", powerbi.FilterAction.remove);
+            return;
+        }
+
+        // Group selected nodes by level; keep the source column reference from the node itself
+        const byLevel: Map<number, { values: powerbi.PrimitiveValue[], source: powerbi.DataViewMetadataColumn }> = new Map();
+        for (const n of selected) {
+            if (!byLevel.has(n.level)) byLevel.set(n.level, { values: [], source: n.source });
+            byLevel.get(n.level)!.values.push(n.rawValue);
+        }
+
+        // Apply filter for the deepest level with selections
+        const primaryLevel = Math.max(...Array.from(byLevel.keys()));
+        const entry = byLevel.get(primaryLevel)!;
+        const qParts = (entry.source.queryName ?? "").split(".");
+
+        const filter: any = {
+            $schema: "http://powerbi.com/product/schema#basic",
+            target: {
+                table:  qParts[0] ?? entry.source.displayName,
+                column: qParts.slice(1).join(".") || entry.source.displayName
+            },
+            filterType: 1,
+            operator: "In",
+            values: entry.values,
+            requireSingleSelection: false
+        };
+
+        await this.host.applyJsonFilter(filter, "general", "filter", powerbi.FilterAction.merge);
+    }
+
+    private parseFilter(filter: any): Map<number, Set<string>> {
+        const result: Map<number, Set<string>> = new Map();
+        if (filter?.values && Array.isArray(filter.values)) {
+            const targetTable:  string = filter.target?.table  ?? "";
+            const targetColumn: string = filter.target?.column ?? "";
+            const cats = this.dataView?.categorical?.categories;
+            let level = 1;
+            if (cats) {
+                let catIndex = 0; // counts only "categories" role columns (not images)
+                for (const cat of cats) {
+                    const roles = cat.source.roles as Record<string, boolean>;
+                    if (!roles["categories"]) continue; // skip image columns
+                    catIndex++;
+                    const qParts = (cat.source.queryName ?? "").split(".");
+                    const catTable  = qParts[0] ?? "";
+                    const catColumn = qParts.slice(1).join(".") || cat.source.displayName;
+                    if (catTable === targetTable && catColumn === targetColumn) {
+                        level = catIndex; // position in categories role = level number
+                        break;
+                    }
+                }
+            }
+            const vals = new Set<string>(filter.values.map((v: any) => String(v)));
+            result.set(level, vals);
+        }
+        return result;
+    }
+
+    // ─── FORMATTING MODEL ─────────────────────────────────────────────────────
     public getFormattingModel(): powerbi.visuals.FormattingModel {
-        return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
+        return this.formattingSettingsService.buildFormattingModel(this.settings);
     }
 }

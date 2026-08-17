@@ -6,7 +6,7 @@ A hierarchical chip/pill slicer for Power BI with drill-down filtering across up
 **Category → SubCategory → Product**
 
 [![AppSource](https://img.shields.io/badge/AppSource-Available-0078D4?logo=microsoft)](https://appsource.microsoft.com)
-[![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)](./pbiviz.json)
+[![Version](https://img.shields.io/badge/version-1.0.0.1-brightgreen)](./pbiviz.json)
 [![License](https://img.shields.io/badge/license-Commercial-orange)](./docs/terms-of-use.html)
 
 ---
@@ -18,6 +18,8 @@ A hierarchical chip/pill slicer for Power BI with drill-down filtering across up
 | Hierarchy levels | 2 | **3** |
 | Values per level | 20 | **Unlimited** |
 | Multi-select | ✗ | **✓** |
+| Image chips | ✓ | ✓ |
+| Value badges | ✓ | ✓ |
 | Custom per-level colors | ✗ | **✓** |
 | Auto-collapse siblings | ✗ | **✓** |
 | Configurable reset button | ✗ | **✓** |
