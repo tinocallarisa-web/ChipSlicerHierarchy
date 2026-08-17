@@ -5,16 +5,16 @@ that field is cleared on every resubmission.
 
 ## Repository
 
-- Certification branch: `certification` (public, GitHub — replace `[repo-url]` below with the actual URL)
-- `[repo-url]/tree/certification`
+- Certification branch: `certification` (public, GitHub)
+- https://github.com/tinocallarisa-web/ChipSlicerHierarchy/tree/certification
 
 ## Public URLs
 
 | Page | URL |
 |---|---|
-| Privacy Policy | `[GitHub Pages URL]/privacy.html` |
-| Terms of Use | `[GitHub Pages URL]/terms.html` |
-| Support | `https://tcviz.com/support` |
+| Privacy Policy | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html |
+| Terms of Use | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html |
+| Support | https://tcviz.com/support |
 | Demo video | https://www.youtube.com/watch?v=Wt5CktHwN44 |
 
 ## License Validation

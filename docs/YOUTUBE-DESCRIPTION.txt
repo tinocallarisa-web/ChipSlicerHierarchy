@@ -43,9 +43,9 @@ Pro:
 LINKS
 Get it on Microsoft AppSource: [add AppSource listing link]
 Support & documentation: https://tcviz.com/support
-Privacy policy: [add GitHub Pages privacy.html link]
-Terms of use: [add GitHub Pages terms.html link]
-GitHub / issues: [add repo link]
+Privacy policy: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html
+Terms of use: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html
+GitHub / issues: https://github.com/tinocallarisa-web/ChipSlicerHierarchy
 
 #PowerBI #PowerBIVisuals #CustomVisual #DataVisualization #BusinessIntelligence #ChipSlicerHierarchy #Microsoft #DataAnalytics
 

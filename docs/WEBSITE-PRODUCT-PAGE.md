@@ -113,7 +113,7 @@ authentication, account, or payment system.
 
 **Privacy**
 No data leaves the Power BI environment. No network calls made by the visual itself.
-See the [Privacy Policy] for full detail.
+See the [Privacy Policy](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html) for full detail.
 
 **Dependencies**
 None beyond the Power BI Visuals API and `powerbi-visuals-utils-formattingmodel`.

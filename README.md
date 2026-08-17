@@ -98,4 +98,4 @@ Source code published for AppSource review transparency. Redistribution not perm
 
 - 📧 [support@tcviz.com](mailto:support@tcviz.com)  
 - 🌐 [tcviz.com/support](https://tcviz.com/support)  
-- 🐛 [Open an issue](https://github.com/tcviz/chipslicer-hierarchy/issues)
+- 🐛 [Open an issue](https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues)
