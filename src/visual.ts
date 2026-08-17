@@ -860,8 +860,10 @@ export class Visual implements IVisual {
         const entry = byLevel.get(primaryLevel)!;
         const qParts = (entry.source.queryName ?? "").split(".");
 
+        /* eslint-disable powerbi-visuals/no-http-string */
         const filter: any = {
-            $schema: "http://powerbi.com/product/schema#basic",
+            $schema: "http://powerbi.com/product/schema#basic", // required literal value of the IBasicFilter schema identifier, not a network call
+            /* eslint-enable powerbi-visuals/no-http-string */
             target: {
                 table:  qParts[0] ?? entry.source.displayName,
                 column: qParts.slice(1).join(".") || entry.source.displayName
