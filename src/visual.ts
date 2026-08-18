@@ -293,6 +293,12 @@ export class Visual implements IVisual {
         this.licenseManager = (options.host as any).licenseManager;
         this.target.style.overflow = "auto";
         this.target.style.boxSizing = "border-box";
+
+        // Empty-space context menu (required by AppSource certification)
+        this.target.addEventListener("contextmenu", (e: MouseEvent) => {
+            e.preventDefault();
+            this.selectionManager.showContextMenu(null as any, { x: e.clientX, y: e.clientY });
+        });
     }
 
     async update(options: VisualUpdateOptions): Promise<void> {
