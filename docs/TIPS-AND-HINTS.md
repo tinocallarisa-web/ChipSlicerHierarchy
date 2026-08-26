@@ -1,4 +1,4 @@
-# Chip Slicer Hierarchy — Tips & Hints (v1.0.0.1)
+# Chip Slicer Hierarchy — Tips & Hints (v1.0.0.3)
 
 Paste into the "Tips & Hints" page of the sample `.pbix`.
 See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text box.
@@ -42,6 +42,91 @@ See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text 
 | Auto-collapse siblings | No | Yes |
 | Configurable reset button | No | Yes |
 
+## Images — Format Required & How to Generate Them
+
+> **Important:** For security and AppSource certification compliance, the visual only
+> accepts images embedded as **Base64 data URIs**. External URLs (`http://`, `https://`,
+> `blob:`, etc.) are blocked and will not render.
+>
+> The accepted format is: `data:image/<type>;base64,<encoded data>`  
+> Examples: `data:image/png;base64,iVBOR…` · `data:image/svg+xml;base64,PHN2…`
+
+### Option 1 — Power Query (recommended for most users)
+
+Add a custom column in Power Query that reads an image file from a URL and converts
+it to Base64. Paste this M code as a new custom column:
+
+```
+"data:image/png;base64," &
+Binary.ToText(
+    Web.Contents("https://your-storage.com/image.png"),
+    BinaryEncoding.Base64
+)
+```
+
+> This fetches the image once at refresh time and embeds it permanently in the model.
+> No outbound requests are made when the report is open.
+
+### Option 2 — Python script (batch conversion)
+
+Use this script to convert a folder of PNG/JPG files into a CSV ready to merge with
+your data:
+
+```python
+import base64, csv, os
+
+folder = r"C:\my-images"   # change to your folder
+rows = []
+for fname in os.listdir(folder):
+    if fname.lower().endswith((".png", ".jpg", ".jpeg", ".svg")):
+        ext = fname.rsplit(".", 1)[1].lower()
+        mime = "svg+xml" if ext == "svg" else ext
+        with open(os.path.join(folder, fname), "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+        rows.append({"name": fname, "imageUrl": f"data:image/{mime};base64,{b64}"})
+
+with open("images.csv", "w", newline="") as f:
+    w = csv.DictWriter(f, ["name", "imageUrl"])
+    w.writeheader(); w.writerows(rows)
+```
+
+Then import `images.csv` into Power BI and join it to your data by file name.
+
+### Option 3 — DAX calculated column
+
+If images are already in a column as URLs, fetch and encode them with Power Query
+first (Option 1), then store the result as a text column. DAX alone cannot perform
+HTTP requests or Base64 encoding.
+
+### Option 4 — SVG generated in DAX
+
+For simple shapes or icons generated on the fly, build an SVG string in DAX:
+
+```
+ImageUrl =
+"data:image/svg+xml;base64," &
+Base64.Encode(
+    "<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'>"
+    & "<circle cx='24' cy='24' r='24' fill='" & [Color] & "'/>"
+    & "<text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' "
+    & "font-size='20' fill='#fff'>" & LEFT([Name],1) & "</text></svg>"
+)
+```
+
+> Note: `Base64.Encode` is available in Power Query M, not in DAX. Use a calculated
+> column in Power Query or a Python/R script step to do the encoding.
+
+### Quick rules
+
+- ✅ `data:image/png;base64,…`
+- ✅ `data:image/jpeg;base64,…`
+- ✅ `data:image/svg+xml;base64,…`
+- ❌ `https://example.com/image.png` — blocked
+- ❌ `blob:…` — blocked
+- ❌ Empty or null — ignored (no image shown, no error)
+
+---
+
 ## Tips & Best Practices
 
 - Keep Level 1 categories short — long labels wrap chip layout on narrow visuals.
@@ -70,8 +155,9 @@ See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text 
 
 - **Chips not filtering other visuals** — confirm the field used is also present (directly
   or via relationship) in the visuals you expect to be filtered.
-- **Images not showing** — the Images field must contain a full, publicly reachable image
-  URL per row; the visual does not fetch or proxy images itself.
+- **Images not showing** — the Images field must contain a Base64 data URI
+  (`data:image/...;base64,...`). External URLs (`http://`, `https://`) are blocked for
+  security. See the *Images — Format Required & How to Generate Them* section above.
 - **Third level not appearing** — you're on the Free tier (2-level limit) or only 2 fields
   are present in the Categories well.
 - **Colors not applying** — confirm you're editing the correct Level (1/2/3) color card;

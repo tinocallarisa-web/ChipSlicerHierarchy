@@ -1,6 +1,6 @@
 {
   "name": "chipslicer-hierarchy",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Hierarchical chip/pill slicer for Power BI",
   "scripts": {
     "build": "pbiviz package",

@@ -2,6 +2,30 @@
 
 All notable changes to Chip Slicer Hierarchy are documented here.
 
+## [1.0.0.3] - 2026-08-26
+
+### Security
+
+- Image URL sanitization: the Images data role now only accepts Base64 data URIs
+  (`data:image/*;base64,...`). External URLs (`http://`, `https://`, `blob:`, etc.)
+  are silently rejected at parse time and never reach `img.src`. This eliminates
+  unauthorized outbound HTTP requests and satisfies the AppSource CSP/sanitization
+  requirement raised in certification review.
+
+### Documentation
+
+- Tips & Hints: new section "Images — Format Required & How to Generate Them" with
+  four methods (Power Query, Python script, DAX/Power Query SVG, quick rules table).
+- Troubleshooting: corrected the "Images not showing" entry, which previously
+  stated that externally reachable URLs were required (the opposite of the current behavior).
+
+## [1.0.0.2] - 2026-08-22
+
+### Fixed
+
+- Context menu added on empty space (root-container `contextmenu` handler) in
+  addition to the existing per-chip menu, as required by certification feedback.
+
 ## [1.0.0.1] - 2026-08-17
 
 ### Added

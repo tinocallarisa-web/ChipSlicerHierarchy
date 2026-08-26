@@ -1,10 +1,12 @@
-# Certification Notes — Chip Slicer Hierarchy v1.0.0.2
+# Certification Notes — Chip Slicer Hierarchy v1.0.0.3
 
 ## Short version (paste this into the Partner Center box)
 
-Resubmission fix: added a context menu on empty space (root-container `contextmenu`
-handler calling `selectionManager.showContextMenu()`), in addition to the existing
-per-chip menu. See `src/visual.ts` constructor.
+Resubmission fix (Content policy — image URL sanitization): the visual now validates
+every value in the Images data role before assigning it to `img.src`. Only
+`data:image/*;base64,...` URIs are accepted; external URLs (http/https/blob) are
+rejected at parse time and never trigger outbound HTTP requests. See `isSafeImageUrl()`
+in `src/visual.ts`.
 
 License: resolved via official `IVisualLicenseManager` API only, async, never blocks
 render. No external calls — visual only reads the Power BI dataView (Categories,
@@ -71,9 +73,10 @@ standard Power BI context menu via `selectionManager.showContextMenu()`. See
   `dataView` (Categories, Images, Values, Tooltips roles defined in `capabilities.json`).
 - No `fetch`/`XMLHttpRequest` calls, no reads from local files outside the Power BI sandbox,
   no data persisted outside the `.pbix` (formatting settings only, via `persistProperties`).
-- The optional "Images" data role expects image URLs already present in the user's own data
-  model — the visual renders them as `<img src>` but does not fetch, cache, or transmit them
-  anywhere itself.
+- The optional "Images" data role accepts only Base64 data URIs (`data:image/*;base64,...`).
+  Values are validated by `isSafeImageUrl()` in `src/visual.ts` before being assigned to
+  `img.src`. External URLs, `blob:` URIs, and any other scheme are rejected silently at
+  parse time — no outbound HTTP request is ever made by the visual.
 
 ## Feature Summary
 
@@ -103,7 +106,8 @@ standard Power BI context menu via `selectionManager.showContextMenu()`. See
 - [x] Tooltips on every chip
 - [x] Privacy Policy and Terms of Use are separate pages
 - [x] Sample `.pbix` includes 13+ unique values and a Tips & Hints page
-- [x] Version in `pbiviz.json` matches this submission (`1.0.0.2`)
+- [x] Image URL sanitization: `isSafeImageUrl()` rejects non-data: URIs before `img.src` assignment
+- [x] Version in `pbiviz.json` matches this submission (`1.0.0.3`)
 
 ## Testing Instructions
 

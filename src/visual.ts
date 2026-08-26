@@ -14,6 +14,16 @@ import { VisualSettingsModel } from "./settings";
 const enum ServicePlanState { Active = 1 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Security — image URL sanitization (AppSource certification requirement)
+// Only data: URIs with an image/* MIME type are allowed.
+// External URLs (http://, https://, blob:, etc.) are rejected to prevent
+// unauthorized outbound HTTP requests and CSP violations.
+// ─────────────────────────────────────────────────────────────────────────────
+function isSafeImageUrl(url: string): boolean {
+    return /^data:image\/[a-z+.-]+;base64,/i.test(url);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Data model
 // ─────────────────────────────────────────────────────────────────────────────
 interface HierarchyNode {
@@ -105,7 +115,10 @@ class HierarchyManager {
                 let imageUrl: string | null = null;
                 if (imgCols[lvl]) {
                     const imgVal = imgCols[lvl].values[i];
-                    if (imgVal != null && String(imgVal) !== "") imageUrl = String(imgVal);
+                    if (imgVal != null && String(imgVal) !== "") {
+                        const raw = String(imgVal);
+                        imageUrl = isSafeImageUrl(raw) ? raw : null;
+                    }
                 }
 
                 let node = this.nodeMap.get(key);
@@ -608,9 +621,9 @@ export class Visual implements IVisual {
 
         // Image — shown for any level that has an imageUrl
         const imgPos = (is?.imagePosition?.value as any)?.value ?? "left";
-        if (node.imageUrl) {
+        if (node.imageUrl && isSafeImageUrl(node.imageUrl)) {
             const img = document.createElement("img");
-            img.src = node.imageUrl;
+            img.src = node.imageUrl; // safe: validated as data:image/* URI
             img.style.cssText = `height:${is.imageHeight.value}px;border-radius:${is.imageRadius.value}px;object-fit:cover;flex-shrink:0;`;
             img.onerror = () => { img.style.display = "none"; };
             const lbl = document.createElement("span");
