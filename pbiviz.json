@@ -5,13 +5,13 @@
     "guid": "chipSlicerHierarchy",
     "visualClassName": "Visual",
     "version": "1.0.0.3",
-    "description": "A hierarchical chip/pill slicer with drill-down filtering (Category \u2192 Subcategory \u2192 Product), multi-select, and professional customization.",
-    "supportUrl": "https://tcviz.com/support",
+    "description": "A hierarchical chip/pill slicer with drill-down filtering (Category → Subcategory → Product), multi-select, and professional customization.",
+    "supportUrl": "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html",
     "gitHubUrl": "https://github.com/tinocallarisa-web/ChipSlicerHierarchy",
     "privacyTermsLink": "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html"
   },
   "author": {
-    "name": "Tino Callarisa",
+    "name": "TCViz",
     "email": "support@tcviz.com"
   },
   "assets": {
