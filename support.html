@@ -7,40 +7,140 @@
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 24px 60px; color: #1a1a1a; line-height: 1.7; }
     h1 { font-size: 26px; font-weight: 600; margin-bottom: 4px; }
-    h2 { font-size: 16px; font-weight: 600; margin-top: 32px; margin-bottom: 8px; }
-    p { font-size: 15px; color: #333; margin-bottom: 10px; }
+    h2 { font-size: 18px; font-weight: 600; margin-top: 40px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #eee; }
+    h3 { font-size: 15px; font-weight: 600; margin: 20px 0 6px; }
+    p, li { font-size: 15px; color: #333; margin-bottom: 10px; }
+    ul, ol { padding-left: 22px; }
     a { color: #0066cc; }
-    .meta { font-size: 13px; color: #666; margin-bottom: 32px; }
+    code { background: #f1f3f5; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+    .meta { font-size: 13px; color: #666; margin-bottom: 24px; }
     .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; }
     .card h3 { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
     .card p { margin: 0; font-size: 14px; color: #555; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; display: block; overflow-x: auto; }
+    th, td { border: 1px solid #e9ecef; padding: 8px 10px; text-align: left; font-size: 14px; vertical-align: top; }
+    th { background: #f8f9fa; font-weight: 600; }
+    .pro { display: inline-block; background: #9C87F5; color: #fff; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; vertical-align: middle; }
+    #q { width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 15px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 6px; }
+    #qc { font-size: 13px; color: #666; min-height: 20px; }
+    .video { position: relative; padding-bottom: 56.25%; height: 0; margin: 12px 0 20px; }
+    .video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 8px; }
     footer { margin-top: 48px; font-size: 13px; color: #999; border-top: 1px solid #eee; padding-top: 16px; }
   </style>
 </head>
 <body>
-  <h1>Support — ChipSlicer Hierarchy</h1>
-  <p class="meta">by TCViz · Power BI Custom Visuals</p>
-  <p>We're here to help. Choose the support channel that works best for you.</p>
-  <div class="card">
-    <h3>📧 Email Support</h3>
-    <p>Send us your question and we'll respond within 1 business day.<br/>
-    <a href="mailto:support@tcviz.com">support@tcviz.com</a></p>
+  <h1>ChipSlicer Hierarchy &mdash; Support</h1>
+  <p class="meta">Version 1.0.0.4 &middot; Last updated: September 9, 2026 &middot; by TCViz</p>
+
+  <label for="q" style="font-size:13px;color:#666">Search this page</label>
+  <input id="q" type="search" placeholder="e.g. images, multi-select, tooltips&hellip;" autocomplete="off" />
+  <p id="qc" aria-live="polite"></p>
+  <h2 id="s-start">Quick start</h2>
+  <ol>
+    <li>Add the visual to your report canvas.</li>
+    <li>Drag one or more fields into <strong>Categories</strong>, in the order you want them nested: the first field is the top level, the next one sits under it, and so on.</li>
+    <li>Click a chip to filter the rest of the report. Click it again to clear it.</li>
+    <li>Click the arrow on a parent chip to expand or collapse its children.</li>
+  </ol>
+  <p>That is the whole setup. Everything else &mdash; images, value badges, colours, tooltips &mdash; is optional.</p>
+
+  <h2 id="s-video">Video walkthrough</h2>
+  <div class="video">
+    <iframe src="https://www.youtube.com/embed/Wt5CktHwN44" title="ChipSlicer Hierarchy walkthrough" allowfullscreen loading="lazy"></iframe>
   </div>
-  <div class="card">
-    <h3>🐛 Report a Bug</h3>
-    <p>Found an issue? Open a ticket on GitHub.<br/>
-    <a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues" target="_blank">github.com/tinocallarisa-web/ChipSlicerHierarchy/issues</a></p>
-  </div>
-  <div class="card">
-    <h3>📖 Documentation</h3>
-    <p>Check the Hints &amp; Tips page inside the sample .pbix file, or visit our website.<br/>
-    <a href="https://tcviz.com" target="_blank">tcviz.com</a></p>
-  </div>
-  <h2>Frequently Asked Questions</h2>
-  <p><strong>How do I add a third hierarchy level?</strong><br/>The third level requires a Pro licence. Drag your field into the Level 3 well and activate your licence via Microsoft AppSource.</p>
-  <p><strong>Why are my chips showing only 20 values?</strong><br/>The Free tier is limited to 20 values per level. Upgrade to Pro for unlimited values.</p>
-  <p><strong>How do I reset all selections?</strong><br/>Click the ↺ Reset button (Pro) or click the "All" chip to clear all filters.</p>
-  <p><strong>Does the visual work in Power BI Service?</strong><br/>Yes. ChipSlicer Hierarchy is fully compatible with Power BI Desktop and Power BI Service.</p>
-  <footer>© 2026 Tino Callarisa — <a href="https://tcviz.com">tcviz.com</a> · <a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Use</a></footer>
+
+  <h2 id="s-wells">Field wells</h2>
+  <table>
+    <tr><th>Well</th><th>Type</th><th>What it does</th></tr>
+    <tr><td><strong>Categories</strong></td><td>Grouping</td><td>The hierarchy itself. Field order defines the nesting: field 1 is the top level, field 2 its children, and so on. One field gives you a flat chip slicer. Required.</td></tr>
+    <tr><td><strong>Images</strong></td><td>Grouping</td><td>An image shown inside each chip. Must be a Base64 data URI (<code>data:image/*;base64,&hellip;</code>). External <code>http(s)://</code> URLs are rejected on purpose &mdash; see the FAQ. Optional.</td></tr>
+    <tr><td><strong>Values</strong></td><td>Measure</td><td>A measure shown as a badge on each chip &mdash; a count, a total, a share. Optional.</td></tr>
+    <tr><td><strong>Tooltips</strong></td><td>Grouping or measure</td><td>Extra fields shown when hovering a chip. Optional.</td></tr>
+  </table>
+
+  <h2 id="s-tiers">Free vs. Pro</h2>
+  <p>The slicer is complete without a licence. A Pro subscription adds one feature:</p>
+  <table>
+    <tr><th>Feature</th><th>Free</th><th>Pro</th></tr>
+    <tr><td>Hierarchy levels and number of values</td><td>Unlimited</td><td>Unlimited</td></tr>
+    <tr><td>Single and multi-select, drill-down, auto-collapse</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Per-level colours, images, value badges, reset button</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Keyboard activation and high-contrast support</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td><strong>Search box</strong> &mdash; filter chips across the whole hierarchy as you type</td><td>&mdash;</td><td><span class="pro">PRO</span></td></tr>
+  </table>
+  <p>Without a licence, the search box is replaced by a &ldquo;Search requires Pro&rdquo; notice. Licence status is resolved through the official Power BI licensing API; TCViz runs no licence server and receives no data from your report.</p>
+
+  <h2 id="s-format">Format pane reference</h2>
+  <h3>Chip settings</h3>
+  <p>Multi-select &middot; Leaf-only selection &middot; Hide blank values &middot; Default selection (None / First value) &middot; Layout (Horizontal / Vertical) &middot; Chip height &middot; Border radius &middot; Font size &middot; Gap &middot; Horizontal padding &middot; Show &lsquo;All&rsquo; button &middot; &lsquo;All&rsquo; button text</p>
+  <h3>Search <span class="pro">PRO</span></h3>
+  <p>Show search box &middot; Placeholder text &middot; Background &middot; Border color &middot; Text color</p>
+  <h3>Images</h3>
+  <p>Image height &middot; Image position (Left of label / Above label) &middot; Image border radius</p>
+  <h3>Values</h3>
+  <p>Show value badge &middot; Format (Compact K/M/B, Number, Currency, Percentage) &middot; Background &middot; Text color &middot; Font size &middot; Border radius &middot; Horizontal padding &middot; Show in tooltip</p>
+  <h3>Hierarchy</h3>
+  <p>Indent size &middot; Expand icon &middot; Auto-collapse &middot; Show reset &middot; Reset label &middot; Reset background &middot; Reset border &middot; Reset text</p>
+  <h3>Level 1, Level 2 and Level 3 colours</h3>
+  <p>Each level has its own card: Inactive background / border / text, Active background / border / text, and &mdash; for levels 1 and 2 &mdash; Parent-of-selection background / border / text, which highlights the ancestors of whatever is selected.</p>
+
+  <h2 id="s-a11y">Accessibility</h2>
+  <ul>
+    <li>Chips are reachable with <strong>Tab</strong> and activated with <strong>Enter</strong> or <strong>Space</strong>.</li>
+    <li>The right-click context menu is available on chips.</li>
+    <li>High-contrast themes are honoured: the visual follows the Power BI palette instead of its own colours.</li>
+    <li>Chips carry ARIA labels so screen readers announce the category and its state.</li>
+  </ul>
+  <p>Arrow-key navigation between chips is not implemented yet. If that blocks you, please <a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues">open an issue</a> &mdash; it helps us prioritise.</p>
+
+  <h2 id="s-faq">Frequently asked questions</h2>
+
+  <div class="card"><h3>How do I build a hierarchy?</h3><p>Put several fields in the <strong>Categories</strong> well, in order. There is no separate well per level: the order of the fields is the hierarchy. Levels and values are unlimited in both tiers.</p></div>
+
+  <div class="card"><h3>My images do not show. Why?</h3><p>The <strong>Images</strong> well only accepts Base64 data URIs (<code>data:image/png;base64,&hellip;</code>). External URLs are rejected at parse time and never requested. This is deliberate: it stops the visual from making outbound network calls, which is an AppSource security requirement. Convert your images to Base64 in Power Query or with a small script &mdash; see the Tips &amp; Hints page of the sample report.</p></div>
+
+  <div class="card"><h3>How do I clear all selections?</h3><p>Click the <strong>&lsquo;All&rsquo;</strong> chip, or the <strong>Reset</strong> button if you enabled it under Hierarchy. Both are available in the Free tier.</p></div>
+
+  <div class="card"><h3>What exactly does Pro unlock?</h3><p>The search box, and only the search box. Everything else in the visual works without a licence. If you read older Terms that described level or value limits in Free, those limits were never implemented and the text has been corrected as of 1.0.0.4.</p></div>
+
+  <div class="card"><h3>Does it work in Power BI Service?</h3><p>Yes. Desktop and Service are both supported, as are Power BI mobile apps.</p></div>
+
+  <div class="card"><h3>Does the visual send my data anywhere?</h3><p>No. All processing happens inside Power BI on your machine or tenant. The visual makes no network requests and stores nothing outside the report. See the <a href="privacy.html">Privacy Policy</a>.</p></div>
+
+  <h2 id="s-help">Still stuck?</h2>
+  <div class="card"><h3>Report a bug</h3><p><a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues">GitHub Issues</a> &mdash; please include your Power BI Desktop version, the visual version, and the shape of your data (number of rows, number of levels).</p></div>
+  <div class="card"><h3>Ask a question</h3><p><a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/discussions">GitHub Discussions</a> for usage questions and ideas.</p></div>
+  <div class="card"><h3>Email</h3><p><a href="mailto:support@tcviz.com">support@tcviz.com</a> &mdash; for licensing and anything you would rather not post publicly.</p></div>
+  <div class="card"><h3>What changed recently</h3><p><a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/blob/main/CHANGELOG.md">Changelog</a></p></div>
+
+  <footer>&copy; 2026 TCViz &mdash; <a href="https://tcviz.com">tcviz.com</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></footer>
+
+  <script>
+  // Progressive enhancement: only hides non-matching blocks, never builds content,
+  // so the full page stays readable if this script fails to load.
+  (function () {
+    var q = document.getElementById("q"), c = document.getElementById("qc");
+    if (!q || !c) return;
+    var blocks = [], cur = null;
+    Array.prototype.forEach.call(document.body.children, function (el) {
+      if (el.tagName === "H2") { cur = { head: el, nodes: [] }; blocks.push(cur); }
+      else if (cur && el.tagName !== "SCRIPT" && el.tagName !== "FOOTER") { cur.nodes.push(el); }
+    });
+    function apply() {
+      var t = q.value.trim().toLowerCase(), shown = 0;
+      blocks.forEach(function (b) {
+        var txt = b.head.textContent;
+        b.nodes.forEach(function (n) { txt += " " + n.textContent; });
+        var hit = !t || txt.toLowerCase().indexOf(t) !== -1;
+        b.head.hidden = !hit;
+        b.nodes.forEach(function (n) { n.hidden = !hit; });
+        if (hit) shown++;
+      });
+      c.textContent = t ? shown + " section" + (shown === 1 ? "" : "s") + " matching" : "";
+    }
+    q.addEventListener("input", apply);
+    q.addEventListener("keydown", function (e) { if (e.key === "Escape") { q.value = ""; apply(); } });
+  })();
+  </script>
 </body>
 </html>
