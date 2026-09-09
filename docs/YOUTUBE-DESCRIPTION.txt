@@ -5,7 +5,7 @@ Video: https://www.youtube.com/watch?v=Wt5CktHwN44
 
 --- LONG DESCRIPTION (main video) ---
 
-Chip Slicer Hierarchy is a Power BI custom visual that turns filtering into a modern, chip/pill-style hierarchy slicer — with drill-down across up to 3 levels: Category → SubCategory → Product.
+Chip Slicer Hierarchy is a Power BI custom visual that turns filtering into a modern, chip/pill-style hierarchy slicer. Drop several fields into one well and the field order becomes the hierarchy — click a chip to drill down.
 
 In this video you'll see how to set it up in a real report, how the hierarchy expands and filters as you click, and the difference between the Free and Pro tiers.
 
@@ -13,36 +13,37 @@ In this video you'll see how to set it up in a real report, how the hierarchy ex
 0:00 Adding the visual and field wells (Categories, Images, Values, Tooltips)
 0:00 Basic filtering — clicking a chip
 0:00 Drilling down through hierarchy levels
-0:00 Multi-select and leaf-only selection (Pro)
-0:00 Per-level colors and chip styling (Pro)
+0:00 Multi-select and leaf-only selection
+0:00 Per-level colors and chip styling
 0:00 Search box (Pro)
 0:00 Value badges and image chips
 0:00 Free vs Pro overview
 0:00 Wrap-up
 
 WHAT IT DOES
-• Hierarchical chip/pill slicer with drill-down filtering (up to 3 levels)
+• Hierarchical chip/pill slicer with drill-down filtering, no level limit
 • Click a chip to filter — child chips expand automatically
 • Optional image per chip and a value badge (compact / number / currency / percent)
 • Optional tooltip fields shown on hover
 • Fully theme-able: colors, fonts, spacing, per-level color sets
 
 FREE vs PRO
+The slicer is complete without a licence. Pro adds one feature.
+
 Free:
-• 2 hierarchy levels, up to 20 values per level
-• Single-select only
+• Unlimited hierarchy levels and values per level
+• Multi-select and leaf-only selection
+• Custom per-level colors
+• Auto-collapse siblings and configurable reset button
+• Image chips, value badges and tooltips
 
 Pro:
-• 3 hierarchy levels, unlimited values per level
-• Multi-select and leaf-only selection
-• Search box
-• Custom per-level colors
-• Auto-collapse siblings
-• Configurable reset button
+• Everything in Free, plus the search box — filter chips across the whole hierarchy
+  as you type. That is the only licensed feature.
 
 LINKS
 Get it on Microsoft AppSource: [add AppSource listing link]
-Support & documentation: https://tcviz.com/support
+Support & documentation: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html
 Privacy policy: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html
 Terms of use: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html
 GitHub / issues: https://github.com/tinocallarisa-web/ChipSlicerHierarchy

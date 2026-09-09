@@ -1,4 +1,4 @@
-# Chip Slicer Hierarchy — Tips & Hints (v1.0.0.3)
+# Chip Slicer Hierarchy — Tips & Hints (v1.0.0.4)
 
 Paste into the "Tips & Hints" page of the sample `.pbix`.
 See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text box.
@@ -15,7 +15,7 @@ See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text 
 
 | Well | Required | Purpose |
 |---|---|---|
-| Categories | Yes | Hierarchy fields, in order (up to 3 levels) |
+| Categories | Yes | Hierarchy fields, in order. The field order *is* the hierarchy. No level limit. |
 | Images | No | Image URL per level, same order as Categories |
 | Values | No | Measure shown as a badge on each chip |
 | Tooltips | No | Extra fields shown on hover (up to 5) |
@@ -31,16 +31,19 @@ See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text 
 
 ## Free vs Pro
 
+The slicer is complete without a licence. Pro adds one feature: the search box.
+
 | Feature | Free | Pro |
 |---|---|---|
-| Hierarchy levels | 2 | 3 |
-| Values per level | 20 | Unlimited |
-| Multi-select | No | Yes |
-| Leaf-only selection | No | Yes |
-| Search box | No | Yes |
-| Custom per-level colors | No | Yes |
-| Auto-collapse siblings | No | Yes |
-| Configurable reset button | No | Yes |
+| Hierarchy levels and values per level | Unlimited | Unlimited |
+| Multi-select and leaf-only selection | Yes | Yes |
+| Custom per-level colors | Yes | Yes |
+| Auto-collapse siblings | Yes | Yes |
+| Configurable reset button and 'All' chip | Yes | Yes |
+| Image chips, value badges, tooltips | Yes | Yes |
+| **Search box** | No | **Yes** |
+
+Without a licence, the search box is replaced by a "Search requires Pro" notice.
 
 ## Images — Format Required & How to Generate Them
 
@@ -135,20 +138,28 @@ Base64.Encode(
 - Use the Value Badge with a compact format for large numbers (K/M/B) to keep chips narrow.
 - Image chips work best with square, small (under ~64px) images for fast rendering.
 
-## Pro Features in Detail
+## Selection Modes in Detail
 
-- **Multi-select** — hold no modifier key; clicking additional chips adds to the selection.
+All of these are available without a licence.
+
+- **Multi-select** — clicking additional chips adds to the selection.
 - **Leaf-only selection** — restricts clicking to the deepest available level; useful when
   parent levels should only ever be used for navigation, not filtering.
 - **Auto-collapse siblings** — collapses other expanded branches automatically when a new
   one is expanded, keeping the chip list compact.
+
+## The Pro Feature
+
+- **Search box** — type to filter chips across the whole hierarchy, not just the level
+  currently visible. Enable it under *Search* in the format pane. It is the only feature
+  that requires a licence.
 
 ## Example Configurations
 
 - **Simple category filter**: 1 field in Categories, no other wells — behaves like a
   standard single-level slicer with chip styling.
 - **Product catalog browser**: Category, SubCategory, Product in Categories; Images well
-  populated with product thumbnail URLs; Values well with a Sales measure.
+  populated with Base64 thumbnails; Values well with a Sales measure.
 - **Compact sidebar slicer**: Vertical layout, small chip height, search enabled (Pro).
 
 ## Troubleshooting
@@ -158,7 +169,8 @@ Base64.Encode(
 - **Images not showing** — the Images field must contain a Base64 data URI
   (`data:image/...;base64,...`). External URLs (`http://`, `https://`) are blocked for
   security. See the *Images — Format Required & How to Generate Them* section above.
-- **Third level not appearing** — you're on the Free tier (2-level limit) or only 2 fields
-  are present in the Categories well.
+- **A level is not appearing** — check the number of fields in the Categories well: the
+  field order is the hierarchy, and there is no level limit in either tier. Also check
+  "Hide blank values" if the level has nulls.
 - **Colors not applying** — confirm you're editing the correct Level (1/2/3) color card;
   each level has an independent color set.

@@ -1,17 +1,17 @@
-CHIP SLICER HIERARCHY — TIPS & HINTS (v1.0.0.3)
+CHIP SLICER HIERARCHY — TIPS & HINTS (v1.0.0.4)
 =================================================
 (Plain-text version — safe to paste into a Power BI text box; no markdown tables)
 
 GETTING STARTED
 1. Drag a Category field into the Categories well (Level 1).
-2. Optionally add a second and third field to the same well for SubCategory and Product
-   -- field order determines hierarchy depth (1st = Level 1, 2nd = Level 2, 3rd = Level 3).
+2. Add as many further fields to the same well as you need -- field order determines
+   hierarchy depth (1st = Level 1, 2nd = Level 2, and so on). There is no level limit.
 3. Click a chip to filter the report. Child chips for the next level appear automatically.
 4. Click the expand icon (>) to browse a level without filtering.
 
 FIELD WELLS
-- Categories (required) .... hierarchy fields, in order, up to 3 levels
-- Images (optional) ........ image URL per level, same order as Categories
+- Categories (required) .... hierarchy fields, in order; the order IS the hierarchy
+- Images (optional) ........ Base64 data URI per level, same order as Categories
 - Values (optional) ........ measure shown as a badge on each chip
 - Tooltips (optional) ...... extra fields shown on hover, up to 5
 
@@ -25,14 +25,19 @@ FORMAT PANE
 - Level 1/2/3 Colors ... independent inactive / active / parent-of-selection colors per level
 
 FREE VS PRO
-- Hierarchy levels ......... Free: 2   -- Pro: 3
-- Values per level ......... Free: 20  -- Pro: Unlimited
-- Multi-select ............. Free: No  -- Pro: Yes
-- Leaf-only selection ...... Free: No  -- Pro: Yes
-- Search box ............... Free: No  -- Pro: Yes
-- Custom per-level colors .. Free: No  -- Pro: Yes
-- Auto-collapse siblings ... Free: No  -- Pro: Yes
-- Configurable reset button  Free: No  -- Pro: Yes
+The slicer is complete without a licence. Pro adds one feature: the search box.
+
+- Hierarchy levels ......... Free: Unlimited -- Pro: Unlimited
+- Values per level ......... Free: Unlimited -- Pro: Unlimited
+- Multi-select ............. Free: Yes -- Pro: Yes
+- Leaf-only selection ...... Free: Yes -- Pro: Yes
+- Custom per-level colors .. Free: Yes -- Pro: Yes
+- Auto-collapse siblings ... Free: Yes -- Pro: Yes
+- Reset button, All chip ... Free: Yes -- Pro: Yes
+- Image chips, value badges  Free: Yes -- Pro: Yes
+- SEARCH BOX ............... Free: No  -- Pro: YES
+
+Without a licence, the search box is replaced by a "Search requires Pro" notice.
 
 IMAGES — FORMAT REQUIRED & HOW TO GENERATE THEM
 IMPORTANT: The visual only accepts images embedded as Base64 data URIs.
@@ -96,16 +101,21 @@ TIPS & BEST PRACTICES
 - Use the Value Badge with compact format for large numbers (K/M/B) to keep chips narrow.
 - Image chips work best with square, small (under ~64px) images for fast rendering.
 
-PRO FEATURES IN DETAIL
+SELECTION MODES IN DETAIL  (all available without a licence)
 - Multi-select .......... click additional chips to add to the selection
 - Leaf-only selection ... restricts clicking to the deepest available level
 - Auto-collapse siblings  collapses other expanded branches when a new one is expanded
+
+THE PRO FEATURE
+- Search box ............ type to filter chips across the whole hierarchy, not just the
+                          level currently visible. Enable it under "Search" in the format
+                          pane. It is the only feature that requires a licence.
 
 EXAMPLE CONFIGURATIONS
 - Simple category filter: 1 field in Categories, nothing else -- behaves like a standard
   single-level slicer with chip styling.
 - Product catalog browser: Category, SubCategory, Product in Categories; Images well with
-  product thumbnail URLs; Values well with a Sales measure.
+  Base64 thumbnails; Values well with a Sales measure.
 - Compact sidebar slicer: vertical layout, small chip height, search enabled (Pro).
 
 TROUBLESHOOTING
@@ -114,7 +124,8 @@ TROUBLESHOOTING
 - Images not showing -> the Images field must contain a Base64 data URI
   (data:image/...;base64,...). External URLs (http/https) are blocked for security.
   See the "Images — Format Required & How to Generate Them" section above.
-- Third level not appearing -> you're on the Free tier (2-level limit) or only 2 fields are
-  present in the Categories well.
+- A level not appearing -> check how many fields are in the Categories well: the field
+  order is the hierarchy and there is no level limit in either tier. Check "Hide blank
+  values" too, if that level has nulls.
 - Colors not applying -> confirm you're editing the correct Level (1/2/3) color card; each
   level has an independent color set.
