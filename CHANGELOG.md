@@ -2,6 +2,24 @@
 
 All notable changes to Chip Slicer Hierarchy are documented here.
 
+## [1.0.0.4] - 2026-09-09
+
+### Fixed
+
+- Support URL: `supportUrl` pointed to `https://tcviz.com/support`, which returns 404.
+  It now points to the GitHub Pages support page, which is the one actually served.
+- Terms of Use: the published page was truncated mid-sentence and had no closing tags.
+  Rewritten in full.
+
+### Changed
+
+- Terms of Use now describe the tiers as they are actually implemented. The previous
+  text claimed the Free tier was limited to 2 hierarchy levels and 20 values per level,
+  with multi-select and custom colours disabled, and listed those as Pro features. None
+  of that was enforced in the code. The only Pro-gated feature is, and has always been,
+  the in-visual **search box** — which the previous text did not mention at all.
+  **No functionality changes for any user:** this corrects the description, not the product.
+
 ## [1.0.0.3] - 2026-08-26
 
 ### Security
