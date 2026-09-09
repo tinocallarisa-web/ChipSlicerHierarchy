@@ -1,4 +1,4 @@
-# Chip Slicer Hierarchy — Website Product Page Content (v1.0.0.1)
+# Chip Slicer Hierarchy — Website Product Page Content (v1.0.0.4)
 
 Content for the four tabs of the TCViz product page.
 
@@ -8,31 +8,33 @@ Content for the four tabs of the TCViz product page.
 
 **The problem it solves**
 Standard Power BI slicers flatten everything into one list. When your data is naturally
-hierarchical — Category → SubCategory → Product — users lose context and reports get
-cluttered with multiple linked slicers just to drill down manually.
+hierarchical — category, then subcategory, then product — users lose context and reports
+get cluttered with multiple linked slicers just to drill down manually.
 
 **How it works**
-Chip Slicer Hierarchy renders your hierarchy as clickable chips/pills. Click a top-level
-chip and its children appear inline — no separate visual, no bookmarks, no extra clicks.
-Filtering happens the moment you click; browsing without filtering is a tap away via the
-expand icon.
+Chip Slicer Hierarchy renders your hierarchy as clickable chips. Drop several fields into
+a single well and the field order becomes the hierarchy. Click a top-level chip and its
+children appear inline — no separate visual, no bookmarks, no extra clicks. Filtering
+happens the moment you click; browsing without filtering is one tap away via the expand
+icon.
 
 **Who it's for**
 Report builders and BI teams working with categorized data — product catalogs, org
-structures, geography, or any Category → SubCategory → Product-shaped dimension — who want
-a compact, modern filtering UI instead of a stack of dropdown slicers.
+structures, geography, any nested dimension — who want a compact, modern filtering UI
+instead of a stack of dropdown slicers.
 
 **What makes it different**
 - Native drill-down inside a single visual, not multiple linked slicers
 - Chip/pill visual language instead of list or dropdown UI
-- Independent color theming per hierarchy level
-- Optional image and value badges directly on each chip
+- Independent colour theming per hierarchy level, including the ancestors of whatever
+  is selected
+- Optional images and value badges directly on each chip
 
 **At a glance**
-- Up to 3 hierarchy levels (Free: 2, Pro: 3)
-- Multi-select and leaf-only selection modes (Pro)
-- Search box (Pro)
-- Full color/style customization per level
+- Unlimited hierarchy levels and values — the field order is the hierarchy
+- Single-select, multi-select and leaf-only selection
+- Search box (Pro) — the only licensed feature
+- Full colour and style customisation per level
 - Demo video: https://www.youtube.com/watch?v=Wt5CktHwN44
 
 ---
@@ -40,39 +42,44 @@ a compact, modern filtering UI instead of a stack of dropdown slicers.
 ## Tab 2: Features
 
 ### Filtering
-- Hierarchical drill-down across Category → SubCategory → Product
-- Single-select (Free) and multi-select (**Pro**)
-- Leaf-only selection mode (**Pro**) — restrict clicks to the deepest level
-- Auto-collapse siblings (**Pro**) — keep the chip list compact while browsing
+- Hierarchical drill-down across as many levels as you put in the Categories well
+- Single-select, multi-select and leaf-only selection — restrict clicks to the deepest level
+- Auto-collapse siblings — keep the chip list compact while browsing
+- Configurable reset button and an 'All' chip to clear selections
 
 ### Display
 - Optional image per chip, positioned left of or above the label
 - Optional value badge per chip (compact / number / currency / percent)
 - Optional tooltip fields on hover
 - Horizontal or vertical layout
-- Configurable chip height, radius, font size, gap, and padding
+- Configurable chip height, radius, font size, gap and padding
 
-### Search & Navigation
-- Search box to filter visible chips (**Pro**)
+### Search & navigation
+- **Search box (Pro)** — filters chips across the whole hierarchy as you type
 - Expand icon to browse a level without applying a filter
-- Configurable reset button (**Pro**)
+- Tab to focus a chip, Enter or Space to select
+- Right-click context menu on chips and on empty space
 
 ### Styling
-- Independent color sets per hierarchy level (**Pro**): inactive, active, and
-  parent-of-selection states, each with background/border/text colors
+- Independent colour sets per hierarchy level: inactive, active and parent-of-selection
+  states, each with background, border and text colours
+- High-contrast themes are honoured — the visual follows the Power BI palette
 
 ### Free vs Pro
 
+The visual is complete without a licence. Pro adds one feature.
+
 | Feature | Free | Pro |
 |---|---|---|
-| Hierarchy levels | 2 | 3 |
-| Values per level | 20 | Unlimited |
-| Multi-select | ✗ | ✓ |
-| Leaf-only selection | ✗ | ✓ |
-| Search box | ✗ | ✓ |
-| Custom per-level colors | ✗ | ✓ |
-| Auto-collapse siblings | ✗ | ✓ |
-| Configurable reset button | ✗ | ✓ |
+| Hierarchy levels and values per level | Unlimited | Unlimited |
+| Single-select, multi-select, leaf-only | ✓ | ✓ |
+| Auto-collapse, reset button, 'All' chip | ✓ | ✓ |
+| Custom per-level colours | ✓ | ✓ |
+| Image chips, value badges, tooltips | ✓ | ✓ |
+| Keyboard activation, context menu, high contrast | ✓ | ✓ |
+| **Search box** | ✗ | **✓** |
+
+Without a licence, the search box is replaced by a "Search requires Pro" notice.
 
 ---
 
@@ -80,48 +87,54 @@ a compact, modern filtering UI instead of a stack of dropdown slicers.
 
 **Specs**
 - API version: 5.10.0
-- Current version: 1.0.0.1
+- Current version: 1.0.0.4
 - Platform: Power BI Desktop & Power BI Service
 
 **Field wells**
-- Categories (required) — 1–3 grouping fields, in order
-- Images (optional) — up to 3 image URL fields, matching Categories order
-- Values (optional) — 1 measure, aggregated per level
-- Tooltips (optional) — up to 5 fields
+- **Categories** (required) — grouping fields, in order. The field order defines the
+  hierarchy: the first field is the top level, the next sits under it, and so on.
+- **Images** (optional) — Base64 data URIs (`data:image/*;base64,...`), matching the
+  Categories order. External URLs are rejected; see below.
+- **Values** (optional) — one measure, shown as a badge per chip
+- **Tooltips** (optional) — additional fields shown on hover
 
 **External file requirements**
-None. Image chips render from image URLs already present in the user's own data model;
-the visual does not require or fetch any external file.
+None. Images must already be embedded in the data model as Base64 data URIs. The visual
+does not fetch anything: external `http(s)://` and `blob:` values are rejected at parse
+time and never reach `img.src`. This is deliberate — it guarantees the visual makes no
+outbound network requests.
 
 **Performance**
 Categorical data view with a 2,000-row reduction algorithm on Categories; rendering events
-(`renderingStarted`/`renderingFinished`/`renderingFailed`) reported on every update.
+(`renderingStarted` / `renderingFinished` / `renderingFailed`) reported on every update.
 
 **Power BI integration**
-- Filter-in / cross-highlighting supported (dims non-highlighted chips)
-- Filter state synchronization across slicers (`supportsSynchronizingFilterState`)
-- Keyboard focus and multi-visual selection supported
+- Filter state synchronisation across slicers (`supportsSynchronizingFilterState`)
+- Multi-visual selection and keyboard focus supported
 - Landing page shown when no data is bound
+- Standard tooltips via the Power BI tooltip service
 
 **Compatibility**
-Power BI Desktop and Power BI Service, current and prior major releases supporting
-custom visuals API 5.x.
+Power BI Desktop and Power BI Service, current and prior major releases supporting custom
+visuals API 5.x.
 
 **Licensing**
 Managed exclusively through Microsoft's official `IVisualLicenseManager` API — no external
-authentication, account, or payment system.
+authentication, account or payment system. Licence resolution is asynchronous and never
+blocks rendering.
 
 **Privacy**
-No data leaves the Power BI environment. No network calls made by the visual itself.
-See the [Privacy Policy](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html) for full detail.
+No data leaves the Power BI environment. The visual makes no network calls and persists
+only its own formatting settings inside the `.pbix`.
+See the [Privacy Policy](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html).
 
 **Dependencies**
 None beyond the Power BI Visuals API and `powerbi-visuals-utils-formattingmodel`.
 
 **Support**
+- Docs: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html
+- Issues: https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues
 - Email: support@tcviz.com
-- Docs: https://tcviz.com/support
-- Issues: GitHub repository issue tracker
 
 ---
 
@@ -129,14 +142,25 @@ None beyond the Power BI Visuals API and `powerbi-visuals-utils-formattingmodel`
 
 (Mirror of `CHANGELOG.md` — keep both in sync on every release.)
 
+### 1.0.0.4
+- Fixed the support URL, which pointed to a page that returns 404
+- Rewrote the Terms of Use page, which was truncated mid-sentence and described licence
+  tiers that were never implemented. The only Pro feature is, and has always been, the
+  search box. No functionality changed for any user.
+- Rewrote the support page to document field wells, the format pane and the real tiers
+
+### 1.0.0.3
+- Images are now restricted to Base64 data URIs; external URLs are rejected at parse time
+
+### 1.0.0.2
+- Context menu on empty space, in addition to the existing per-chip context menu
+
 ### 1.0.0.1
 - Added image chips (optional image per hierarchy level)
 - Added value badges (optional measure shown as a badge per chip, with
   compact/number/currency/percent formatting)
 
 ### 1.0.0.0
-- Initial release: hierarchical chip/pill slicer with drill-down filtering across
-  Category → SubCategory → Product
-- Multi-select and leaf-only selection modes
-- Independent per-level color theming
-- Search box, auto-collapse, configurable reset button
+- Initial release: hierarchical chip slicer with drill-down filtering, multi-select and
+  leaf-only selection, independent per-level colour theming, search box, auto-collapse and
+  configurable reset button
