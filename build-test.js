@@ -43,10 +43,20 @@ process.on("exit",   restore);
 process.on("SIGINT", () => { restore(); process.exit(1); });
 
 try {
+    // Modo --free: NO se parchea isPro. El licenseManager no encuentra plan para
+    // este guid, asi que resuelve a Free por si mismo. Es la unica forma de ver
+    // el camino gratuito: con el guid real, Power BI sirve la version instalada
+    // desde AppSource y no la tuya.
+    const freeMode = process.argv.includes("--free");
+
     // ── 2. Parchear visual.ts ─────────────────────────────────────────────────
-    const patchedVisual = origVisual.replace(MARKER_REGEX, MARKER_TRUE);
-    fs.writeFileSync(VISUAL_TS, patchedVisual, "utf8");
-    console.log("🔧 visual.ts parcheado (bloque de licencia → isPro = true)");
+    if (freeMode) {
+        console.log("🔧 isPro → false  (--free: tier Free real, sin forzar)");
+    } else {
+        const patchedVisual = origVisual.replace(MARKER_REGEX, MARKER_TRUE);
+        fs.writeFileSync(VISUAL_TS, patchedVisual, "utf8");
+        console.log("🔧 visual.ts parcheado (bloque de licencia → isPro = true)");
+    }
 
     // ── 3. Parchear pbiviz.json ───────────────────────────────────────────────
     const pbivizObj = JSON.parse(origPbiviz);
@@ -55,7 +65,10 @@ try {
         console.error("❌ ERROR: El guid ya tiene '_test'. Restaura manualmente pbiviz.json.");
         process.exit(1);
     }
-    pbivizObj.visual.guid = realGuid + "_test";
+    // Guid propio para cada modo. Si compartieran sufijo, Power BI trataria las
+    // dos builds como el mismo visual y al importar la segunda seguirias viendo
+    // la primera.
+    pbivizObj.visual.guid = realGuid + (freeMode ? "_testfree" : "_test");
     fs.writeFileSync(PBIVIZ_JSON, JSON.stringify(pbivizObj, null, 2), "utf8");
     console.log(`🔧 pbiviz.json parcheado (guid: ${pbivizObj.visual.guid})`);
 

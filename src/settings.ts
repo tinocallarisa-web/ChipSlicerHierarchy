@@ -113,7 +113,7 @@ class ChipSettingsCard extends FormattingSettingsCard {
 class SearchSettingsCard extends FormattingSettingsCard {
     public showSearch = new formattingSettings.ToggleSwitch({
         name: "showSearch",
-        displayName: "Show search box",
+        displayName: "Show search box (Pro)",
         value: false
     });
 
@@ -143,7 +143,7 @@ class SearchSettingsCard extends FormattingSettingsCard {
     });
 
     name: string = "searchSettings";
-    displayName: string = "Search";
+    displayName: string = "Search (Pro)";
     slices: FormattingSettingsSlice[] = [
         this.showSearch,
         this.searchPlaceholder,

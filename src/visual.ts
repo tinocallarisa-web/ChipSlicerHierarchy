@@ -11,7 +11,13 @@ import ISelectionManager = powerbi.extensibility.ISelectionManager;
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
 import { VisualSettingsModel } from "./settings";
 
-const enum ServicePlanState { Active = 1 }
+import LicenseNotificationType = powerbi.LicenseNotificationType;
+
+/** El Service ID del plan en Partner Center. Debe coincidir caracter a caracter. */
+const PLAN_ID = "chip-slicer-hierarchy-tcviz";
+
+// Microsoft: "only the active and warning states represent a usable license".
+const enum ServicePlanState { Inactive = 0, Active = 1, Warning = 2 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Security — image URL sanitization (AppSource certification requirement)
@@ -37,6 +43,8 @@ interface HierarchyNode {
     isExpanded: boolean;
     isParentOfSelection: boolean;
     isLeaf: boolean;
+    /** False solo cuando hay resaltado activo y esta rama queda fuera. */
+    inHighlight: boolean;
     imageUrl: string | null;
     source: powerbi.DataViewMetadataColumn;
     measureValue: number | null; // aggregated measure — sum of all rows that belong to this node
@@ -57,8 +65,14 @@ class HierarchyManager {
         dataView: DataView,
         hideBlank: boolean,
         measureValues?: powerbi.PrimitiveValue[],
-        tooltipMeasureCols?: { name: string; values: powerbi.PrimitiveValue[] }[]
+        tooltipMeasureCols?: { name: string; values: powerbi.PrimitiveValue[] }[],
+        highlights?: powerbi.PrimitiveValue[]
     ): void {
+        // Resaltado cruzado: llega alineado por fila con la medida. Solo existe
+        // cuando hay una medida vinculada, que es opcional; sin ella no hay nada
+        // que atenuar y todo se pinta normal.
+        const hayResaltado = Array.isArray(highlights) &&
+            highlights.some(h => h != null);
         // Save expanded AND selected state before clearing
         const expandedKeys = new Set<string>();
         const selectedKeys  = new Set<string>();
@@ -95,6 +109,7 @@ class HierarchyManager {
             let parentNode: HierarchyNode | null = null;
 
             // Measure value for this row — null means no measure or null data
+            const filaResaltada = !hayResaltado || (highlights![i] != null);
             const rowMeasure = measureValues != null
                 ? (typeof measureValues[i] === "number" && !isNaN(measureValues[i] as number)
                     ? (measureValues[i] as number)
@@ -128,6 +143,9 @@ class HierarchyManager {
                         parentKey, key, children: [],
                         isSelected: false, isExpanded: false, isParentOfSelection: false,
                         isLeaf: isLast, imageUrl, source: col.source,
+                        // Arranca fuera; se enciende abajo si alguna de sus filas
+                        // esta resaltada.
+                        inHighlight: false,
                         measureValue: null, tooltipFields: []
                     };
                     this.nodeMap.set(key, node);
@@ -138,6 +156,11 @@ class HierarchyManager {
                         this.roots.push(node);
                     }
                 }
+                // Un chip queda dentro del resaltado si lo esta cualquiera de las
+                // filas que pasan por el: asi un padre sigue encendido cuando solo
+                // uno de sus hijos entra en la seleccion de otro visual.
+                if (filaResaltada) node.inHighlight = true;
+
                 // Fill in imageUrl if we now have one and node didn't before
                 if (node.imageUrl === null && imageUrl !== null) node.imageUrl = imageUrl;
 
@@ -293,8 +316,20 @@ export class Visual implements IVisual {
     private dataView: DataView | null = null;
     private licenseManager: any;
     private isPro: boolean = false;
+    /** False en Publish-to-Web, embebido, nubes nacionales y exportacion a PDF/PPT. */
+    private licenseEnvSupported = true;
+    /** False cuando la licencia no se pudo leer: sin conexion, o sin sesion iniciada. */
+    private licenseInfoAvailable = true;
+    /** Ya resuelta? Antes de saberlo no se notifica nada. */
+    private licenseResolved = false;
+    /** Ultima firma notificada, para no dar la lata. */
+    private lastBlockedNotice = "";
+    /** El icono persistente es de un solo disparo: queda hasta que se limpia. */
+    private licenseIconShown = false;
     private searchQuery: string = "";
     private hasInitializedTree: boolean = false;
+    /** True mientras esperamos el update que confirma un filtro aplicado por nosotros. */
+    private pendingSelfFilter: boolean = false;
     private measureDisplayName: string = "";
 
     constructor(options: VisualConstructorOptions) {
@@ -324,15 +359,104 @@ export class Visual implements IVisual {
         }
     }
 
+    /**
+     * Que ajustes de pago ha fijado el usuario.
+     *
+     * Se lee de metadata.objects, que solo contiene lo que el usuario ha puesto
+     * explicitamente. El modelo de ajustes no sirve: cada propiedad tiene un
+     * valor por defecto, asi que compararlo avisaria en un informe que nadie ha
+     * tocado. Aqui la presencia ES la accion, y por tanto la intencion de compra.
+     */
+    private attemptedProFeatures(): { labels: string[]; signature: string } {
+        const objs = (this.dataView?.metadata?.objects ?? {}) as any;
+        const labels: string[] = [];
+        const parts: string[] = [];
+
+        const v = objs?.["searchSettings"]?.["showSearch"];
+        if (v !== undefined && v !== false) {
+            labels.push("the search box");
+            parts.push(`searchSettings.showSearch=${JSON.stringify(v)}`);
+        }
+        return { labels, signature: parts.join("|") };
+    }
+
+    /** Retira el aviso: la licencia resolvio, o el usuario quito los ajustes Pro. */
+    private clearLicenseNotice(): void {
+        this.lastBlockedNotice = "";
+        if (!this.licenseIconShown) return;
+        this.licenseIconShown = false;
+        try {
+            this.licenseManager?.clearLicenseNotification?.();
+        } catch { /* best-effort */ }
+    }
+
+    /**
+     * Las notificaciones de la plataforma, que son las que llevan a la compra.
+     */
+    private notifyProFeatureBlocked(): void {
+        if (this.isPro) { this.clearLicenseNotice(); return; }
+
+        // Antes de saber la respuesta no se dice nada: isPro es false de entrada
+        // tambien para un cliente que tiene licencia.
+        if (!this.licenseResolved) return;
+
+        const { labels, signature } = this.attemptedProFeatures();
+        if (labels.length === 0) { this.clearLicenseNotice(); return; }
+
+        // Entorno sin licencias, o licencia ilegible: un cliente Pro cae aqui.
+        if (!this.licenseEnvSupported || !this.licenseInfoAvailable) return;
+
+        // El icono cubre el estado -una prueba caducada, donde el usuario no
+        // toca nada y la busqueda desaparece sola-. Power BI solo lo aplica en
+        // modo edicion, asi que quien lee el informe no ve nada.
+        if (!this.licenseIconShown) {
+            this.licenseIconShown = true;
+            try {
+                // const enum: TypeScript lo inlinea a 0. Referenciar el objeto
+                // del enum en runtime daria undefined.
+                this.licenseManager?.notifyLicenseRequired?.(LicenseNotificationType.General);
+            } catch { /* best-effort */ }
+        }
+
+        // El banner cubre la accion, y solo cuando hay una nueva: update() corre
+        // tambien al redimensionar y al refrescar datos.
+        if (signature === this.lastBlockedNotice) return;
+        this.lastBlockedNotice = signature;
+
+        try {
+            this.licenseManager?.notifyFeatureBlocked?.(
+                `ChipSlicer Hierarchy: ${labels[0]} is part of the Pro plan. ` +
+                `Get a licence to enable it.`
+            );
+        } catch { /* la notificacion nunca debe romper el render */ }
+    }
+
     private async _update(options: VisualUpdateOptions): Promise<void> {
         // License check // ISPRO_BLOCK_START
         try {
             const licenseResult = await this.licenseManager?.getAvailableServicePlans();
+
+            // spIdentifier: sin esto valia CUALQUIER plan activo del usuario, no el
+            // de este visual. Hoy no hace dano porque la oferta tiene un solo plan,
+            // pero deja de ser cierto en cuanto se anada un segundo.
+            //
+            // Warning es periodo de gracia por un problema de pago: la licencia
+            // sigue siendo usable y un cliente que paga no debe perder sus features.
             this.isPro = licenseResult?.plans?.some(
-                (p: any) => (p.state as unknown as number) === 1
+                (p: any) => p.spIdentifier === PLAN_ID &&
+                    ((p.state as unknown as number) === ServicePlanState.Active ||
+                     (p.state as unknown as number) === ServicePlanState.Warning)
             ) ?? false;
+
+            // Un cliente Pro se lee como Free en estos casos, asi que no se le
+            // puede pedir que compre lo que ya tiene.
+            this.licenseEnvSupported  = !licenseResult?.isLicenseUnsupportedEnv;
+            this.licenseInfoAvailable = licenseResult?.isLicenseInfoAvailable !== false;
+            this.licenseResolved = true;
         } catch {
             this.isPro = false;
+            this.licenseInfoAvailable = false;
+            this.licenseResolved = true;
         } // ISPRO_BLOCK_END
 
         const dv = options.dataViews?.[0];
@@ -349,6 +473,7 @@ export class Visual implements IVisual {
         // Power BI actually aggregates it (SUM/COUNT/etc.) instead of treating it
         // as a dimension. Values are row-aligned with dv.categorical.categories.
         let measureValues: powerbi.PrimitiveValue[] | undefined;
+        let highlightValues: powerbi.PrimitiveValue[] | undefined;
         this.measureDisplayName = "";
         // Tooltip fields that Power BI moved into categorical.values because they're
         // measures (or aggregated numeric columns) rather than plain text/dimension columns.
@@ -359,6 +484,7 @@ export class Visual implements IVisual {
                 const roles = val.source.roles as Record<string, boolean>;
                 if (roles && roles["values"]) {
                     measureValues = val.values as powerbi.PrimitiveValue[];
+                    highlightValues = (val as any).highlights as powerbi.PrimitiveValue[] | undefined;
                     this.measureDisplayName = val.source.displayName;
                 } else if (roles && roles["tooltips"]) {
                     tooltipMeasureCols.push({ name: val.source.displayName, values: val.values as powerbi.PrimitiveValue[] });
@@ -366,13 +492,18 @@ export class Visual implements IVisual {
             }
         }
 
-        this.hierarchyManager.buildTree(dv, Boolean(s.hideBlank.value), measureValues, tooltipMeasureCols);
+        this.hierarchyManager.buildTree(dv, Boolean(s.hideBlank.value), measureValues, tooltipMeasureCols, highlightValues);
 
         // Restore filter state — only on first load (report open / bookmark restore).
         // After that, buildTree already saves/restores selectedKeys from in-memory nodeMap
         // so we don't risk overwriting selections with a mis-parsed filter.
-        if (!this.hasInitializedTree) {
-            const existingFilter = dv.metadata?.objects?.["general"]?.["filter"] as any;
+        const existingFilter = dv.metadata?.objects?.["general"]?.["filter"] as any;
+
+        if (this.pendingSelfFilter) {
+            // Es el eco de nuestro propio filtro: no hay nada que restaurar.
+            this.pendingSelfFilter = false;
+            this.hasInitializedTree = true;
+        } else if (!this.hasInitializedTree) {
             if (existingFilter) {
                 try {
                     const filterValues = this.parseFilter(existingFilter);
@@ -381,6 +512,34 @@ export class Visual implements IVisual {
                 } catch { /* ignore */ }
             }
             this.hasInitializedTree = true;
+        } else {
+            // Bookmarks.
+            //
+            // Antes esto solo corria en la primera carga, asi que aplicar un
+            // bookmark despues no restauraba nada: los chips seguian mostrando la
+            // seleccion anterior mientras el informe estaba filtrado por otra. Y
+            // limpiar los filtros desde fuera dejaba chips marcados sin filtro
+            // detras.
+            //
+            // Se compara lo que Power BI tiene con lo que pintamos, y solo se
+            // toca cuando divergen. El eco de nuestro propio filtro ya se ha
+            // descartado arriba, asi que una divergencia aqui viene de fuera.
+            try {
+                const filterValues = existingFilter
+                    ? this.parseFilter(existingFilter)
+                    : new Map<number, Set<string>>();
+                const enFiltro = new Set<string>();
+                filterValues.forEach((vals, lvl) => vals.forEach(v => enFiltro.add(lvl + "|" + v)));
+                const enPantalla = new Set(
+                    this.hierarchyManager.getSelectedNodes().map(n => n.level + "|" + String(n.rawValue))
+                );
+                const iguales = enFiltro.size === enPantalla.size &&
+                    [...enFiltro].every(k => enPantalla.has(k));
+                if (!iguales) {
+                    this.hierarchyManager.restoreFromFilter(filterValues);
+                    this.hierarchyManager.expandSelectedAncestors();
+                }
+            } catch { /* ante la duda, dejar lo que hay en pantalla */ }
         }
 
         const defaultSel = (s.defaultSelection?.value as any)?.value ?? "none";
@@ -388,6 +547,10 @@ export class Visual implements IVisual {
             await this.applyFilter();
             return;
         }
+
+        // La licencia ya esta resuelta y los ajustes poblados: es el momento de
+        // decir algo si el usuario ha pedido una feature de pago.
+        this.notifyProFeatureBlocked();
 
         this.render();
     }
@@ -430,12 +593,11 @@ export class Visual implements IVisual {
         if (Boolean(ss.showSearch.value)) {
             if (this.isPro) {
                 wrapper.appendChild(this.buildSearchBox(isHC));
-            } else {
-                const note = document.createElement("div");
-                note.style.cssText = "font-size:11px;color:#9CA3AF;padding:2px 4px;";
-                note.textContent = "🔍 Search requires Pro";
-                wrapper.appendChild(note);
             }
+            // Sin licencia no se dibuja nada aqui. Antes habia un "Search requires
+            // Pro" en gris: UI de licencia propia, que la guia de Microsoft
+            // desaconseja, y ademas un callejon sin salida sin nada que pulsar.
+            // Ahora lo cubre notifyProFeatureBlocked, que si lleva a la compra.
         }
 
         if (Boolean(hs.showReset.value)) {
@@ -607,6 +769,10 @@ export class Visual implements IVisual {
         chip.setAttribute("aria-label", node.value);
         chip.setAttribute("tabindex", "0");
         chip.style.cssText = this.buildChipStyle(isHC, node.isSelected, node.isParentOfSelection, node.level);
+        // Filter-in: cuando otro visual resalta, los chips que quedan fuera se
+        // atenuan en lugar de ignorarlo. supportsHighlight estaba declarado en
+        // capabilities y no lo implementaba nadie.
+        if (!node.inHighlight) chip.style.opacity = "0.35";
 
         if (layout === "vertical") {
             chip.style.display = "flex";
@@ -681,6 +847,9 @@ export class Visual implements IVisual {
 
         // Chip body click — selection only; always reads CURRENT settings
         chip.addEventListener("click", async (e: MouseEvent) => {
+            // Power BI lo pone a false al exportar y en algunos modos de lectura:
+            // seleccionar entonces cambia el informe a espaldas del usuario.
+            if ((this.host as any).allowInteractions === false) return;
             e.stopPropagation();
             const cs = this.settings.chipSettingsCard;
             const multiSelect = Boolean(cs.multiSelect.value) || e.ctrlKey || e.metaKey;
@@ -859,6 +1028,10 @@ export class Visual implements IVisual {
 
     // ─── FILTER ───────────────────────────────────────────────────────────────
     private async applyFilter(): Promise<void> {
+        // El proximo update trae el filtro que estamos a punto de aplicar. Sin
+        // esta marca lo confundiriamos con un cambio externo y restauraríamos
+        // la seleccion anterior, deshaciendo el clic del usuario.
+        this.pendingSelfFilter = true;
         const selected = this.hierarchyManager.getSelectedNodes();
         if (!this.dataView) return;
 
