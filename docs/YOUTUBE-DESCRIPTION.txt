@@ -1,6 +1,6 @@
 =========================================================
-CHIP SLICER HIERARCHY — YouTube Description (v1.0.0.1)
-Video: https://www.youtube.com/watch?v=Wt5CktHwN44
+CHIP SLICER HIERARCHY — YouTube Description (v1.1.0.0)
+Video: [to be recorded for 1.1.0.0 — replace this line and the two links below]
 =========================================================
 
 --- LONG DESCRIPTION (main video) ---
@@ -15,7 +15,8 @@ In this video you'll see how to set it up in a real report, how the hierarchy ex
 0:00 Drilling down through hierarchy levels
 0:00 Multi-select and leaf-only selection
 0:00 Per-level colors and chip styling
-0:00 Search box (Pro)
+0:00 Search box with match highlighting (Pro)
+0:00 Value heatmap — colour by measure (Pro)
 0:00 Value badges and image chips
 0:00 Free vs Pro overview
 0:00 Wrap-up
@@ -26,9 +27,10 @@ WHAT IT DOES
 • Optional image per chip and a value badge (compact / number / currency / percent)
 • Optional tooltip fields shown on hover
 • Fully theme-able: colors, fonts, spacing, per-level color sets
+• Cross-filtering, cross-highlighting and bookmarks
 
 FREE vs PRO
-The slicer is complete without a licence. Pro adds one feature.
+The slicer is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the weight is.
 
 Free:
 • Unlimited hierarchy levels and values per level
@@ -36,10 +38,16 @@ Free:
 • Custom per-level colors
 • Auto-collapse siblings and configurable reset button
 • Image chips, value badges and tooltips
+• Cross-filtering, cross-highlighting, bookmarks, keyboard and high contrast
 
 Pro:
-• Everything in Free, plus the search box — filter chips across the whole hierarchy
-  as you type. That is the only licensed feature.
+• Search box — filter chips across the whole hierarchy as you type, with the matching
+  text marked inside each chip and the number of results shown.
+• Value heatmap — each chip tinted by its measure, scaled level by level so a child is
+  compared with its siblings rather than with the top of the hierarchy.
+
+Turn either on without a licence and Power BI shows its own notification with the link
+to obtain one. The setting is kept and applies as soon as the licence is active.
 
 LINKS
 Get it on Microsoft AppSource: [add AppSource listing link]
@@ -54,7 +62,7 @@ GitHub / issues: https://github.com/tinocallarisa-web/ChipSlicerHierarchy
 --- SHORT DESCRIPTION (Shorts / LinkedIn / social) ---
 -----------------------------------------------------------
 
-Chip Slicer Hierarchy brings a modern, chip-style drill-down slicer to Power BI — filter through Category → SubCategory → Product with a single click. Watch it in action: https://www.youtube.com/watch?v=Wt5CktHwN44
+Chip Slicer Hierarchy brings a modern, chip-style drill-down slicer to Power BI — filter through Category → SubCategory → Product with a single click. Watch it in action: [video link for 1.1.0.0]
 #PowerBI #PowerBIVisuals #DataVisualization
 
 -----------------------------------------------------------

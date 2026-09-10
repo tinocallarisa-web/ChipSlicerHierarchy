@@ -1,57 +1,68 @@
-# Certification Notes — Chip Slicer Hierarchy v1.0.0.4
+# Certification Notes — Chip Slicer Hierarchy v1.1.0.0
 
-## Short version (paste this into the Partner Center box)
+The short version to paste into Partner Center lives in
+[`CERTIFICATION-NOTES-SHORT.txt`](./CERTIFICATION-NOTES-SHORT.txt), written to fit the
+2,500-character limit of that field, which truncates without warning and mid-word. That
+field is cleared on every resubmission.
 
-Metadata-only fix. No code changes in this version.
+## What changed in 1.1.0.0
 
-1. `supportUrl` pointed to `https://tcviz.com/support`, which returns 404. It now points
-   to `https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html`, the page
-   actually served.
-2. The published Terms of Use page was truncated mid-sentence and described licence tiers
-   that were never implemented. It has been rewritten to match the code, and the support
-   page has been rewritten to document the visual properly.
+Two things: the licensing path was wrong in ways that affected paying customers, and the
+Pro tier was a single feature that few people ever discovered.
 
-Licence: resolved via the official `IVisualLicenseManager` API only, async, never blocks
-render. No external calls — the visual only reads the Power BI dataView (Categories,
-Images, Values, Tooltips roles); no fetch, no local file access, no data persisted outside
-the .pbix.
+### Licensing corrections
 
-Free: the complete slicer — unlimited hierarchy levels and values, single and multi-select,
-drill-down, auto-collapse, per-level colours, image chips, value badges, reset button,
-keyboard activation, high contrast.
-Pro: adds the in-visual search box. That is the only licence-gated feature.
+| Problem | Consequence | Fix |
+|---|---|---|
+| `spIdentifier` was never compared | Any active plan the user held counted as this visual's | The plan identifier is now matched |
+| Only `Active` was accepted | A licence in its payment grace period read as absent | `Warning` is accepted alongside `Active` |
+| `isLicenseUnsupportedEnv` / `isLicenseInfoAvailable` ignored | In Publish to Web, embedding and PDF export a Pro customer read as Free and was asked to buy what they already own | Both are read; no notification is raised there |
+| The Pro feature had no purchase path | The in-visual notice was grey text with nothing to click | Power BI's own `notifyFeatureBlocked` / `notifyLicenseRequired`, which carry the link |
 
-URLs: Privacy https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html —
-Terms https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html — Support
-https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html — Video
-https://www.youtube.com/watch?v=Wt5CktHwN44 —
-Repo https://github.com/tinocallarisa-web/ChipSlicerHierarchy/tree/certification
+The in-visual "Search requires Pro" notice has been removed. It was licensing UI of our
+own, which Microsoft's guidance advises against, and it was a dead end. A Pro setting
+turned on without a licence now leaves the free result on screen, keeps the setting, and
+raises Power BI's notification.
 
-Test: add fields to "Categories" in order — the field order is the hierarchy. Right-click
-a chip and empty space; both show the context menu. Without a licence everything works
-except the search box, which is replaced by a "Search requires Pro" notice.
+`notifyLicenseRequired` is raised while any Pro setting is on without a licence, not only
+at the moment of the click. This covers the expired trial, where the user changes nothing
+and the feature disappears on its own.
 
----
+The Pro settings default to `false` on purpose. Defaulting to `true` would leave a free
+user with no search box, no heatmap and no explanation — the invisible wall this release
+exists to remove.
 
-## Full reference (repo copy — not for pasting)
+### New Pro features
 
-Paste the short version into the "Notes for certification" field in Partner Center —
-that field is cleared on every resubmission.
+- **Value heatmap.** With a measure in the Values well, each chip is tinted between two
+  colours by its value. The scale is normalised per level, so a child is compared with its
+  siblings; normalising globally collapses everything below level one to one colour. Chip
+  text switches between dark and light by WCAG relative luminance so the label stays
+  readable at both ends.
+- **Search highlighting and result count.** Matches are marked inside the label and the
+  number of results is shown, so an empty hierarchy reads as "no matches" rather than as a
+  broken visual.
 
-## What changed in 1.0.0.4
+### Gaps from 1.0.0.4 now closed
 
-No source code changed. `pbiviz.json` (`supportUrl`, version), `package.json` (version,
-which was also out of sync at 1.0.2), `terms.html`, `support.html` and `CHANGELOG.md`.
+- **Bookmarks.** Restoring from the applied filter ran only on first load, so a bookmark
+  applied afterwards restored nothing: the chips kept the previous selection while the
+  report was filtered by another, and clearing filters from outside left chips marked with
+  nothing behind them. The visual now compares Power BI's filter against what is on screen
+  and acts only when they diverge; a flag discards the echo of its own filter, which would
+  otherwise undo the user's click.
+- **`supportsHighlight`** was declared in `capabilities.json` and implemented by nobody.
+  Chips outside a cross-highlight are now dimmed to 35%; a parent stays lit while any of
+  its children is. It applies only when a measure is bound, which is where highlights come
+  from.
+- **`allowInteractions`** is checked before selecting. Power BI sets it to false during
+  export and in some read modes, where selecting would change the report behind the user's
+  back.
 
-The previous Terms and support pages described a Free tier limited to 2 hierarchy levels
-and 20 values per level, with multi-select and custom colours presented as paid features.
-None of those limits existed in the code — `isPro` has only ever gated the search box,
-which in turn was not mentioned. **The documentation was wrong, not the product**: no user
-gains or loses functionality in this version.
+### Security
 
-The previous certification notes carried the same error, including testing steps that asked
-the reviewer to confirm limits that do not exist. The testing instructions below have been
-corrected accordingly.
+No `innerHTML` anywhere in the visual, and no lint suppression of `no-inner-outer-html`.
+Labels, including the search highlighting, are built with `createElement` and text nodes.
 
 ## Repository
 
@@ -65,90 +76,91 @@ corrected accordingly.
 | Privacy Policy | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html |
 | Terms of Use | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html |
 | Support | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html |
-| Demo video | https://www.youtube.com/watch?v=Wt5CktHwN44 |
+| Demo video | (to be updated for 1.1.0.0) |
 
 ## Licence validation
 
-- Uses the official Power BI `IVisualLicenseManager` API exclusively
+- The official Power BI `IVisualLicenseManager` API exclusively
   (`host.licenseManager` / `getAvailableServicePlans()`), via `powerbi-visuals-api` 5.x.
 - No external server, no custom auth, no payment processing performed by the visual.
-- Resolution is asynchronous and deferred (`setTimeout` + `.then()`), so it never blocks
-  the initial render. The visual renders in Free mode first, then re-renders in Pro mode
-  once/if the licence resolves — see `src/visual.ts`, `isPro` and the licence resolution
-  block around lines 328–336.
-- The Free tier has no watermark. The only gated feature is the search box; where it would
-  appear, Free users see a "Search requires Pro" notice.
+- Resolution is asynchronous and never blocks the initial render. The visual renders in
+  Free mode first and re-renders once the licence resolves. Nothing is notified before it
+  resolves, because `isPro` is false at start for a licensed user too.
+- No watermark and no artificial limits in the free tier.
 
 ## Data access & privacy
 
-- Reads only the data provided by Power BI through the standard categorical `dataView`
-  (Categories, Images, Values, Tooltips roles defined in `capabilities.json`).
-- No `fetch` / `XMLHttpRequest`, no reads from local files outside the Power BI sandbox,
-  no data persisted outside the `.pbix` (formatting settings only, via `persistProperties`).
-- The optional "Images" role accepts only Base64 data URIs (`data:image/*;base64,...`),
-  validated by `isSafeImageUrl()` in `src/visual.ts` before assignment to `img.src`.
-  External URLs, `blob:` URIs and any other scheme are rejected silently at parse time —
-  the visual never makes an outbound HTTP request.
+- Reads only the standard categorical `dataView` (Categories, Images, Values, Tooltips
+  roles defined in `capabilities.json`).
+- No `fetch` / `XMLHttpRequest`, no local file access, nothing persisted outside the
+  `.pbix` (formatting settings only, via `persistProperties`).
+- The "Images" role accepts only Base64 data URIs (`data:image/*;base64,...`), validated
+  before assignment to `img.src`. External URLs, `blob:` and every other scheme are
+  rejected at parse time — the visual makes no outbound request.
 
 ## Feature summary
 
 ### Free
 - Unlimited hierarchy levels and values — the field order in "Categories" is the hierarchy
 - Single-select, multi-select and leaf-only selection
-- Expand / collapse, auto-collapse siblings, configurable reset button
+- Expand / collapse, auto-collapse siblings, configurable reset button and 'All' chip
 - Per-level colours (inactive / active / parent-of-selection)
 - Image chips, value badges, tooltips
 - Chip styling: height, radius, font size, gap, padding, horizontal or vertical layout
+- Cross-filtering, cross-highlighting, bookmarks
 - Keyboard activation, context menu, high-contrast support
 
 ### Pro
-- In-visual search box, filtering chips across the whole hierarchy as you type
+- **Search (Pro)** — in-visual search across the whole hierarchy, with matches highlighted
+  and a result count
+- **Value Heatmap (Pro)** — each chip coloured by its measure, normalised per level
 
 ## Certification requirements checklist
 
-- [x] `renderingStarted` / `renderingFinished` / `renderingFailed` called on every `update()` path
-- [x] `supportsSynchronizingFilterState: true`
+- [x] `renderingStarted` / `renderingFinished` / `renderingFailed` on every `update()` path
+- [x] `supportsSynchronizingFilterState: true` — the visual persists a filter, so this applies
 - [x] `supportsLandingPage`, `supportsKeyboardFocus`, `supportsMultiVisualSelection` set
+- [x] `supportsHighlight: true` — declared and now implemented
 - [x] `privileges: []` present in `capabilities.json`
-- [x] Context menu on empty space — root-container `contextmenu` handler
-- [x] Context menu on individual chips
+- [x] Context menu on empty space and on individual chips
 - [x] Tooltips on every chip, via `host.tooltipService`
+- [x] `host.allowInteractions` checked before selecting
+- [x] Bookmarks restore the selection from the applied filter
 - [x] Privacy Policy and Terms of Use are separate pages, both reachable
 - [x] Support page documents field wells, format pane, tiers and FAQ
 - [x] Sample `.pbix` includes 13+ unique values and a Tips & Hints page
-- [x] Image URL sanitization: `isSafeImageUrl()` rejects non-`data:` URIs before `img.src`
-- [x] Version in `pbiviz.json` (1.0.0.4) matches this submission and is above the published 1.0.0.3
+- [x] Image sanitization: non-`data:` URIs rejected before `img.src`
+- [x] No `innerHTML`, no suppression of `no-inner-outer-html`
+- [x] Version in `pbiviz.json` (1.1.0.0) is above the published 1.0.0.4
 
 ### Known gaps, declared openly
 
-These are not claimed as implemented, and are scheduled for 1.1.0.0:
-
-- `supportsHighlight: true` is declared in `capabilities.json`, but the visual does not
-  currently dim chips in response to highlights from other visuals. As a slicer it drives
-  filtering rather than receiving it, so this has no user-visible effect today.
-- `host.allowInteractions` is not checked before selection.
 - Keyboard support covers Tab focus plus Enter / Space activation. Arrow-key navigation
   between chips is not implemented, and the support page states this explicitly.
-- Bookmarks: `registerOnSelectCallback` is not registered, so selection is not restored
-  when a bookmark is applied from outside the visual.
 - No report-tooltip (canvas tooltip page) support; standard tooltips only.
 
 ## Testing instructions
 
 ### Free tier
-1. Import the visual into Power BI Desktop with no licence/plan assigned.
-2. Add two or more fields to the "Categories" well. The field order defines the hierarchy:
-   1st = level 1, 2nd = level 2, and so on. Levels are not capped.
-3. Click a chip — confirm it filters the rest of the report.
-4. Confirm multi-select, per-level colours, auto-collapse and the reset button all work.
-   These are available without a licence.
-5. Enable "Show search box" under Search — confirm a "Search requires Pro" notice appears
-   in place of the search field. **This is the only difference between the tiers.**
-6. Right-click on a chip and on empty space inside the visual — confirm the standard
-   Power BI context menu appears in both cases.
-7. Tab to a chip and press Enter or Space — confirm it selects.
+1. Import the visual with no licence assigned.
+2. Add two or more fields to "Categories". The field order defines the hierarchy: 1st =
+   level 1, 2nd = level 2, and so on. Levels are not capped.
+3. Click a chip and confirm it filters the report; confirm multi-select, per-level colours,
+   auto-collapse and the reset button. All of that is free.
+4. Turn on **Search (Pro) → Show search box (Pro)**. The search box does not appear and
+   Power BI raises its own licence notification, with the link to obtain one. The setting
+   stays on.
+5. Bind a measure to "Values" and turn on **Value Heatmap (Pro) → Color chips by value
+   (Pro)**. Same behaviour: chips keep their configured colours and the notification is
+   raised.
+6. Right-click on a chip and on empty space — the context menu appears in both.
+7. Tab to a chip and press Enter or Space — it selects.
+8. Select something, save a bookmark, change the selection, apply the bookmark — the chips
+   return to the saved selection.
 
 ### Pro tier
 1. Assign a plan with the corresponding service plan entitlement.
-2. Repeat the steps above and confirm the search box now renders instead of the notice.
-3. Type in the search box — confirm chips are filtered across the whole hierarchy.
+2. Repeat step 4 — the search box now renders. Type in it: chips are filtered across the
+   whole hierarchy, matches are marked inside the label and the result count is shown.
+3. Repeat step 5 — chips are now tinted by their measure, with each level scaled against
+   its own siblings.

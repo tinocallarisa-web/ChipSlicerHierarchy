@@ -4,7 +4,7 @@
     "displayName": "Chip Slicer Hierarchy",
     "guid": "chipSlicerHierarchy",
     "visualClassName": "Visual",
-    "version": "1.0.0.4",
+    "version": "1.1.0.0",
     "description": "A hierarchical chip/pill slicer with drill-down filtering (Category → Subcategory → Product), multi-select, and professional customization.",
     "supportUrl": "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html",
     "gitHubUrl": "https://github.com/tinocallarisa-web/ChipSlicerHierarchy",

@@ -1,4 +1,4 @@
-CHIP SLICER HIERARCHY — TIPS & HINTS (v1.0.0.4)
+CHIP SLICER HIERARCHY — TIPS & HINTS (v1.1.0.0)
 =================================================
 (Plain-text version — safe to paste into a Power BI text box; no markdown tables)
 
@@ -18,14 +18,16 @@ FIELD WELLS
 FORMAT PANE
 - Chip Style ....... layout, multi-select, leaf-only, hide blanks, default selection,
                       chip size / radius / font / gap / padding, "All" button
-- Search ........... show/hide search box, placeholder, colors
+- Search (Pro) ..... show/hide search box, placeholder, colors
+- Value Heatmap (Pro)  color chips by value, low and high colors
 - Images ........... image height, position, border radius
 - Value Badge ...... show/hide, format (compact/number/currency/percent), colors, size
 - Hierarchy ........ indent per level, expand icon, auto-collapse siblings, reset button
 - Level 1/2/3 Colors ... independent inactive / active / parent-of-selection colors per level
 
 FREE VS PRO
-The slicer is complete without a licence. Pro adds one feature: the search box.
+The slicer is complete without a licence. Pro adds two things: finding what you need in
+a large hierarchy, and seeing where the weight is.
 
 - Hierarchy levels ......... Free: Unlimited -- Pro: Unlimited
 - Values per level ......... Free: Unlimited -- Pro: Unlimited
@@ -36,8 +38,10 @@ The slicer is complete without a licence. Pro adds one feature: the search box.
 - Reset button, All chip ... Free: Yes -- Pro: Yes
 - Image chips, value badges  Free: Yes -- Pro: Yes
 - SEARCH BOX ............... Free: No  -- Pro: YES
+- VALUE HEATMAP ............ Free: No  -- Pro: YES
 
-Without a licence, the search box is replaced by a "Search requires Pro" notice.
+Turn either on without a licence and Power BI shows its own notification with the link
+to obtain one. The setting is kept and applies as soon as the licence is active.
 
 IMAGES — FORMAT REQUIRED & HOW TO GENERATE THEM
 IMPORTANT: The visual only accepts images embedded as Base64 data URIs.
@@ -106,10 +110,18 @@ SELECTION MODES IN DETAIL  (all available without a licence)
 - Leaf-only selection ... restricts clicking to the deepest available level
 - Auto-collapse siblings  collapses other expanded branches when a new one is expanded
 
-THE PRO FEATURE
+THE PRO FEATURES
 - Search box ............ type to filter chips across the whole hierarchy, not just the
-                          level currently visible. Enable it under "Search" in the format
-                          pane. It is the only feature that requires a licence.
+                          level currently visible. The matching text is marked inside each
+                          chip and the number of results is shown. Enable it under
+                          "Search (Pro)".
+- Value heatmap ......... with a measure in the Values well, each chip is tinted between a
+                          low and a high colour by its value. The scale is worked out PER
+                          LEVEL, so a child is compared against its siblings and not
+                          against the top of the hierarchy. The label switches between dark
+                          and light text so it stays readable at both ends. Enable it under
+                          "Value Heatmap (Pro)". It combines with the value badge: the badge
+                          gives the figure, the colour gives the ranking at a glance.
 
 EXAMPLE CONFIGURATIONS
 - Simple category filter: 1 field in Categories, nothing else -- behaves like a standard

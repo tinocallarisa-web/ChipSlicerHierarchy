@@ -1,4 +1,4 @@
-# Chip Slicer Hierarchy — Tips & Hints (v1.0.0.4)
+# Chip Slicer Hierarchy — Tips & Hints (v1.1.0.0)
 
 Paste into the "Tips & Hints" page of the sample `.pbix`.
 See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text box.
@@ -23,7 +23,8 @@ See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text 
 ## Format Pane
 
 - **Chip Style** — layout (horizontal/vertical), multi-select, leaf-only selection, hide blanks, default selection, chip size/radius/font/gap/padding, "All" button
-- **Search** — show/hide search box, placeholder, colors
+- **Search (Pro)** — show/hide search box, placeholder, colors
+- **Value Heatmap (Pro)** — colour chips by value, low and high colours
 - **Images** — image height, position (left/above), border radius
 - **Value Badge** — show/hide, format (compact/number/currency/percent), colors, size
 - **Hierarchy** — indent per level, expand icon, auto-collapse siblings, reset button
@@ -31,7 +32,8 @@ See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text 
 
 ## Free vs Pro
 
-The slicer is complete without a licence. Pro adds one feature: the search box.
+The slicer is complete without a licence. Pro adds two things: finding what you need in a
+large hierarchy, and seeing where the weight is.
 
 | Feature | Free | Pro |
 |---|---|---|
@@ -41,9 +43,11 @@ The slicer is complete without a licence. Pro adds one feature: the search box.
 | Auto-collapse siblings | Yes | Yes |
 | Configurable reset button and 'All' chip | Yes | Yes |
 | Image chips, value badges, tooltips | Yes | Yes |
-| **Search box** | No | **Yes** |
+| **Search box**, with matches marked and counted | No | **Yes** |
+| **Value heatmap** — chips coloured by their measure | No | **Yes** |
 
-Without a licence, the search box is replaced by a "Search requires Pro" notice.
+Turn either on without a licence and Power BI shows its own notification with the link to
+obtain one. The setting is kept and applies as soon as the licence is active.
 
 ## Images — Format Required & How to Generate Them
 
@@ -148,11 +152,21 @@ All of these are available without a licence.
 - **Auto-collapse siblings** — collapses other expanded branches automatically when a new
   one is expanded, keeping the chip list compact.
 
-## The Pro Feature
+## The Pro Features
 
 - **Search box** — type to filter chips across the whole hierarchy, not just the level
-  currently visible. Enable it under *Search* in the format pane. It is the only feature
-  that requires a licence.
+  currently visible. The matching text is marked inside each chip and the number of results
+  is shown, so an empty hierarchy reads as "no matches" rather than as a broken visual.
+  Enable it under *Search (Pro)*.
+- **Value heatmap** — with a measure in the Values well, each chip is tinted between a low
+  and a high colour by its value. The scale is worked out **per level**, so a child is
+  compared against its siblings and not against the top of the hierarchy — otherwise
+  everything below level one comes out the same colour. The label switches between dark and
+  light text so it stays readable at both ends of the scale. Enable it under
+  *Value Heatmap (Pro)*.
+
+  It combines with the value badge rather than replacing it: the badge gives the figure,
+  the colour gives the ranking at a glance.
 
 ## Example Configurations
 

@@ -2,6 +2,66 @@
 
 All notable changes to Chip Slicer Hierarchy are documented here.
 
+## [1.1.0.0] - 2026-09-10
+
+### Added
+
+- **Value heatmap (Pro).** With a measure in the Values well, each chip is tinted
+  between two colours according to its value. The scale is normalised **per level**,
+  so a child is compared against its siblings and not against the top of the
+  hierarchy — otherwise every chip below the first level collapses to the same
+  colour. Chip text switches between dark and light by WCAG relative luminance, so
+  the label stays readable at both ends of the scale.
+- **Search highlighting and result count (Pro).** Matches are marked inside the chip
+  label and the number of results is shown, so an empty hierarchy reads as "no
+  matches" rather than as a broken visual.
+- `--free` mode in `build-test.js`, which builds with the real Free tier under a
+  separate guid. Without it the licensing path cannot be tested at all: with the
+  real guid Power BI serves the version installed from AppSource.
+
+### Changed
+
+- **A Pro setting now leads somewhere.** Turning on a Pro feature without a licence
+  raises Power BI's own notification, which carries the link to obtain one. The
+  setting is kept and applies as soon as the licence is active.
+- Removed the in-visual "Search requires Pro" notice. It was licensing UI of our own,
+  which Microsoft's guidance advises against, and it was a dead end: grey text with
+  nothing to click.
+- The setting and its card are now named **Search (Pro)**. The default stays `false`
+  on purpose — defaulting to `true` would leave a free user with no search box and no
+  explanation.
+- `notifyLicenseRequired` is raised while any Pro setting is on without a licence.
+  This covers the expired trial, where the user changes nothing and the feature
+  disappears on its own.
+
+### Fixed
+
+- **Licence check accepted any plan.** `spIdentifier` was never compared, so any
+  active plan the user held counted as this visual's. Harmless while the offer has a
+  single plan, and wrong the moment it has two.
+- **A licence in its payment grace period was treated as absent.** `Warning` is now
+  accepted alongside `Active`: a paying customer must not lose features while a
+  billing problem is resolved.
+- **Publish to Web, embedding and PDF export asked a paying customer to buy.** In
+  those environments a licence cannot be resolved, so a Pro user read as Free.
+  `isLicenseUnsupportedEnv` and `isLicenseInfoAvailable` are now read and no
+  notification is raised.
+- **Bookmarks did not restore the selection.** The restore ran only on first load, so
+  a bookmark applied later left the chips showing the previous selection while the
+  report was filtered by another — and clearing filters from outside left chips marked
+  with nothing behind them.
+- **`supportsHighlight` was declared and not implemented.** Chips outside a
+  cross-highlight are now dimmed; a parent stays lit while any of its children is.
+- **`allowInteractions` was not checked** before selecting. Power BI sets it to false
+  during export and in some read modes, where selecting would change the report behind
+  the user's back.
+
+### Security
+
+- No `innerHTML` anywhere in the visual, and no lint suppression of
+  `no-inner-outer-html`. Labels, including search highlighting, are built with
+  `createElement` and text nodes.
+
 ## [1.0.0.4] - 2026-09-09
 
 ### Fixed

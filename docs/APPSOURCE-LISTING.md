@@ -1,4 +1,4 @@
-# AppSource Listing — Chip Slicer Hierarchy v1.0.0.4
+# AppSource Listing — Chip Slicer Hierarchy v1.1.0.0
 
 Copy ready to paste into Partner Center. **The marketplace description is the
 documentation most people read and the one that goes stale fastest** — update it on every
@@ -58,9 +58,13 @@ The slicer is complete without a licence: unlimited levels and values, multi-sel
 per-level colours, auto-collapse, images, value badges and the reset button are all
 included.
 
-A Pro subscription adds one feature: the search box, which filters chips across the whole
-hierarchy as you type. Without a licence, a "Search requires Pro" notice appears in its
-place.
+Pro adds two things: finding what you need in a large hierarchy, and seeing where the
+weight is. The search box filters chips across every level as you type, marking the
+matches and counting them. The value heatmap tints each chip by its measure, scaled
+level by level so a child is compared with its siblings.
+
+Turn either on without a licence and Power BI shows its own notification with the link
+to obtain one. The setting is kept and applies as soon as the licence is active.
 
 Licensing is handled entirely through Microsoft AppSource. There is no external account,
 no separate payment system, and no licence server.
@@ -71,15 +75,20 @@ no separate payment system, and no licence server.
 ## What's new in this version
 
 ```
-Version 1.0.0.4
+Version 1.1.0.0
 
-• Fixed the support URL, which pointed to a page that no longer exists
-• Rewrote the Terms of Use page, which was truncated and described licence tiers that were
-  never enforced in the product. The only Pro feature is, and has always been, the search
-  box. No functionality has changed for any user — the description was wrong, not the
-  visual.
-• Rewrote the support documentation: field wells, format pane reference, accessibility
-  notes and FAQ
+• New in Pro: a value heatmap that colours each chip by its measure, scaled level by level
+  so a child is compared with its siblings rather than with the top of the hierarchy.
+• Search now marks the matching text inside each chip and shows how many results there are,
+  so an empty result reads as "no matches" instead of as a broken visual.
+• A Pro setting turned on without a licence now leads somewhere: Power BI shows its own
+  notification with the link to obtain one, and the setting is kept for when it arrives.
+  The old grey "Search requires Pro" notice had nothing to click.
+• Bookmarks restore the selection. Previously a bookmark applied after load left the chips
+  showing one selection while the report was filtered by another.
+• Cross-highlighting from other visuals now dims the chips that fall outside it.
+• Fixed: a licence in its payment grace period was treated as no licence, and in Publish to
+  Web, embedded reports and PDF export a paying customer was asked to buy what they own.
 ```
 
 ---
@@ -122,5 +131,5 @@ the PNG will silently carry the old text.
 - [ ] Support, privacy and terms URLs checked with a real request, not assumed
 - [ ] Certification notes pasted from `docs/CERTIFICATION-NOTES.md` (Partner Center clears
       that field on every resubmission)
-- [ ] Version 1.0.0.4 is above the published version
+- [ ] Version 1.1.0.0 is above the published 1.0.0.4
 - [ ] Sample .pbix includes the Tips & Hints page, updated for this version

@@ -6,7 +6,7 @@ A hierarchical chip/pill slicer for Power BI. Drop several fields into one well 
 field order becomes the hierarchy — click a chip to filter, expand it to drill down.
 
 [![AppSource](https://img.shields.io/badge/AppSource-Available-0078D4?logo=microsoft)](https://appsource.microsoft.com)
-[![Version](https://img.shields.io/badge/version-1.0.0.4-brightgreen)](./pbiviz.json)
+[![Version](https://img.shields.io/badge/version-1.1.0.0-brightgreen)](./pbiviz.json)
 [![License](https://img.shields.io/badge/license-Commercial-orange)](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html)
 
 📖 **[Documentation & Support](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html)** ·
@@ -17,7 +17,8 @@ field order becomes the hierarchy — click a chip to filter, expand it to drill
 
 ## Features
 
-The slicer is complete without a licence. Pro adds one feature: the in-visual search box.
+The slicer is complete without a licence. Pro adds two things: finding what you need in a
+large hierarchy, and seeing where the weight is.
 
 | Feature | Free | Pro |
 |---|---|---|
@@ -28,11 +29,13 @@ The slicer is complete without a licence. Pro adds one feature: the in-visual se
 | Image chips, value badges, tooltips | ✓ | ✓ |
 | Configurable reset button and 'All' chip | ✓ | ✓ |
 | Keyboard activation, context menu, high contrast | ✓ | ✓ |
-| **Search box** — filter chips across the whole hierarchy | ✗ | **✓** |
+| **Search box** — filter across the whole hierarchy, with matches highlighted and a result count | ✗ | **✓** |
+| **Value heatmap** — colour each chip by its measure | ✗ | **✓** |
 
-Without a licence, the search box is replaced by a "Search requires Pro" notice.
-Licence status is resolved through the official Power BI licensing API; TCViz runs no
-licence server and receives no data from your report.
+Without a licence these are simply not applied, and Power BI shows its own notification
+with a link to obtain one — the setting you changed is kept and takes effect as soon as
+the licence is active. Licence status is resolved through the official Power BI licensing
+API; TCViz runs no licence server and receives no data from your report.
 
 ## How it works
 
@@ -58,7 +61,8 @@ npm install
 
 npm start          # dev server, live reload in Power BI Desktop
 npm run build      # .pbiviz package, output in dist/
-node build-test.js # test build: patches isPro and appends _test to the guid
+node build-test.js         # test build, isPro forced, guid ..._test
+node build-test.js --free  # test build, real Free tier, guid ..._testfree
 ```
 
 ## Project structure
@@ -93,8 +97,12 @@ The three public pages live in the repository root and are served by GitHub Page
 - [x] No watermark and no artificial limits in the free tier
 - [x] Images restricted to Base64 data URIs — the visual makes no outbound requests
 
-Known gaps, tracked for 1.1.0.0: arrow-key navigation between chips, bookmark selection
-restore, report-tooltip pages, and `allowInteractions` handling. See
+- [x] Bookmarks restore the selection from the applied filter
+- [x] `allowInteractions` checked before selecting
+- [x] `supportsHighlight` implemented: chips outside a cross-highlight are dimmed
+- [x] No `innerHTML` anywhere, and no suppression of `no-inner-outer-html`
+
+Known gaps: arrow-key navigation between chips and report-tooltip pages. See
 [docs/CERTIFICATION-NOTES.md](./docs/CERTIFICATION-NOTES.md).
 
 ## Privacy

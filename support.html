@@ -30,7 +30,7 @@
 </head>
 <body>
   <h1>ChipSlicer Hierarchy &mdash; Support</h1>
-  <p class="meta">Version 1.0.0.4 &middot; Last updated: September 9, 2026 &middot; by TCViz</p>
+  <p class="meta">Version 1.1.0.0 &middot; Last updated: September 9, 2026 &middot; by TCViz</p>
 
   <label for="q" style="font-size:13px;color:#666">Search this page</label>
   <input id="q" type="search" placeholder="e.g. images, multi-select, tooltips&hellip;" autocomplete="off" />
@@ -59,22 +59,23 @@
   </table>
 
   <h2 id="s-tiers">Free vs. Pro</h2>
-  <p>The slicer is complete without a licence. A Pro subscription adds one feature:</p>
+  <p>The slicer is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the weight is.</p>
   <table>
     <tr><th>Feature</th><th>Free</th><th>Pro</th></tr>
     <tr><td>Hierarchy levels and number of values</td><td>Unlimited</td><td>Unlimited</td></tr>
     <tr><td>Single and multi-select, drill-down, auto-collapse</td><td>Yes</td><td>Yes</td></tr>
     <tr><td>Per-level colours, images, value badges, reset button</td><td>Yes</td><td>Yes</td></tr>
     <tr><td>Keyboard activation and high-contrast support</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td><strong>Search box</strong> &mdash; filter chips across the whole hierarchy as you type</td><td>&mdash;</td><td><span class="pro">PRO</span></td></tr>
+    <tr><td><strong>Search box</strong> &mdash; filter chips across the whole hierarchy, with matches highlighted and a result count</td><td>&mdash;</td><td><span class="pro">PRO</span></td></tr>
+    <tr><td><strong>Value heatmap</strong> &mdash; colour each chip by its measure, so the weight of the hierarchy is visible at a glance</td><td>&mdash;</td><td><span class="pro">PRO</span></td></tr>
   </table>
-  <p>Without a licence, the search box is replaced by a &ldquo;Search requires Pro&rdquo; notice. Licence status is resolved through the official Power BI licensing API; TCViz runs no licence server and receives no data from your report.</p>
+  <p>Without a licence these are simply not applied, and Power BI shows its own notification with a link to obtain one &mdash; the setting you changed is kept and takes effect as soon as the licence is active. Licence status is resolved through the official Power BI licensing API; TCViz runs no licence server and receives no data from your report.</p>
 
   <h2 id="s-format">Format pane reference</h2>
   <h3>Chip settings</h3>
   <p>Multi-select &middot; Leaf-only selection &middot; Hide blank values &middot; Default selection (None / First value) &middot; Layout (Horizontal / Vertical) &middot; Chip height &middot; Border radius &middot; Font size &middot; Gap &middot; Horizontal padding &middot; Show &lsquo;All&rsquo; button &middot; &lsquo;All&rsquo; button text</p>
   <h3>Search <span class="pro">PRO</span></h3>
-  <p>Show search box &middot; Placeholder text &middot; Background &middot; Border color &middot; Text color</p>
+  <p>Show search box &middot; Highlight matches &middot; Show result count &middot; Placeholder text &middot; Background &middot; Border color &middot; Text color</p>
   <h3>Images</h3>
   <p>Image height &middot; Image position (Left of label / Above label) &middot; Image border radius</p>
   <h3>Values</h3>
@@ -101,7 +102,7 @@
 
   <div class="card"><h3>How do I clear all selections?</h3><p>Click the <strong>&lsquo;All&rsquo;</strong> chip, or the <strong>Reset</strong> button if you enabled it under Hierarchy. Both are available in the Free tier.</p></div>
 
-  <div class="card"><h3>What exactly does Pro unlock?</h3><p>The search box, and only the search box. Everything else in the visual works without a licence. If you read older Terms that described level or value limits in Free, those limits were never implemented and the text has been corrected as of 1.0.0.4.</p></div>
+  <div class="card"><h3>What exactly does Pro unlock?</h3><p>Two things, as of 1.1.0.0: the <strong>search box</strong>, with matches highlighted and a result count; and the <strong>value heatmap</strong>, which colours each chip by its measure. Everything else &mdash; unlimited levels and values, multi-select, per-level colours, auto-collapse, images, value badges, the reset button &mdash; works without a licence. If you read older Terms that described level or value limits in Free, those limits were never implemented and the text was corrected in 1.0.0.4.</p></div>
 
   <div class="card"><h3>Does it work in Power BI Service?</h3><p>Yes. Desktop and Service are both supported, as are Power BI mobile apps.</p></div>
 

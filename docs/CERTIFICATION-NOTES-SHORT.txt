@@ -1,0 +1,43 @@
+Chip Slicer Hierarchy 1.1.0.0. Full notes:
+https://github.com/tinocallarisa-web/ChipSlicerHierarchy/blob/certification/docs/CERTIFICATION-NOTES.md
+
+WHAT CHANGED
+Licensing: spIdentifier was never compared, so any active plan the user held counted as
+this visual's; a payment grace period (Warning) read as absent; and in Publish to Web,
+embedding and PDF export a Pro customer read as Free. All three are fixed. The in-visual "Search requires Pro" notice is
+gone, replaced by Power BI's own notifyFeatureBlocked / notifyLicenseRequired, which carry
+the link to obtain a licence. A Pro setting turned on without one keeps the setting and
+applies as soon as the licence is active.
+New in Pro: a value heatmap (chips coloured by their measure, normalised per level, text
+contrast by WCAG luminance) and search match highlighting with a result count.
+Closed from 1.0.0.4: bookmarks restore the selection from the applied filter;
+supportsHighlight, declared but not implemented, now dims chips outside a highlight;
+allowInteractions is checked before selecting. No innerHTML, and no suppression of
+no-inner-outer-html.
+
+LICENCE
+Official IVisualLicenseManager only (getAvailableServicePlans), async, never blocks
+render. No licence server, no external auth, no payment handled by the visual. No
+watermark and no limits in the free tier.
+
+DATA
+Reads only the categorical dataView (Categories, Images, Values, Tooltips). No fetch or
+XMLHttpRequest, no local file access, nothing persisted outside the .pbix. The Images role
+accepts only data:image/*;base64 URIs; every other scheme is rejected before img.src, so
+the visual makes no outbound request.
+
+TIERS
+Free: the whole slicer - unlimited levels and values, single/multi/leaf selection,
+drill-down, auto-collapse, per-level colours, image chips, value badges, reset and All
+chips, cross-filtering, highlighting, bookmarks, keyboard, high contrast.
+Pro: Search (Pro) and Value Heatmap (Pro).
+
+TEST
+Add fields to "Categories" - the field order is the hierarchy. Right-click a chip and empty
+space: context menu in both. Without a licence, turn on Search (Pro) > Show search box:
+no box appears and Power BI raises its licence notification. Bind a measure to Values and
+turn on Value Heatmap (Pro): same. With a licence, both render.
+
+URLs: Privacy https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html - Terms
+.../terms.html - Support .../support.html - Repo
+https://github.com/tinocallarisa-web/ChipSlicerHierarchy/tree/certification

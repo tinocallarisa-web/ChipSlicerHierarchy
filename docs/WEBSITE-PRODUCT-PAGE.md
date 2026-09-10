@@ -1,4 +1,4 @@
-# Chip Slicer Hierarchy — Website Product Page Content (v1.0.0.4)
+# Chip Slicer Hierarchy — Website Product Page Content (v1.1.0.0)
 
 Content for the four tabs of the TCViz product page.
 
@@ -33,7 +33,8 @@ instead of a stack of dropdown slicers.
 **At a glance**
 - Unlimited hierarchy levels and values — the field order is the hierarchy
 - Single-select, multi-select and leaf-only selection
-- Search box (Pro) — the only licensed feature
+- Search box (Pro) — filter across the whole hierarchy, matches marked and counted
+- Value heatmap (Pro) — each chip coloured by its measure, scaled per level
 - Full colour and style customisation per level
 - Demo video: https://www.youtube.com/watch?v=Wt5CktHwN44
 
@@ -55,7 +56,11 @@ instead of a stack of dropdown slicers.
 - Configurable chip height, radius, font size, gap and padding
 
 ### Search & navigation
-- **Search box (Pro)** — filters chips across the whole hierarchy as you type
+- **Search box (Pro)** — filters chips across the whole hierarchy as you type, marking the
+  matching text inside each chip and showing the number of results
+- **Value heatmap (Pro)** — each chip tinted between two colours by its measure, normalised
+  per level so a child is compared with its siblings; the label switches between dark and
+  light so it stays readable at both ends of the scale
 - Expand icon to browse a level without applying a filter
 - Tab to focus a chip, Enter or Space to select
 - Right-click context menu on chips and on empty space
@@ -67,7 +72,10 @@ instead of a stack of dropdown slicers.
 
 ### Free vs Pro
 
-The visual is complete without a licence. Pro adds one feature.
+The visual is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the
+weight is. The search box filters chips across every level as you type, marking the
+matches and counting them. The value heatmap tints each chip by its measure, scaled
+level by level so a child is compared with its siblings.
 
 | Feature | Free | Pro |
 |---|---|---|
@@ -77,9 +85,11 @@ The visual is complete without a licence. Pro adds one feature.
 | Custom per-level colours | ✓ | ✓ |
 | Image chips, value badges, tooltips | ✓ | ✓ |
 | Keyboard activation, context menu, high contrast | ✓ | ✓ |
-| **Search box** | ✗ | **✓** |
+| **Search box**, with matches marked and counted | ✗ | **✓** |
+| **Value heatmap** — chips coloured by their measure | ✗ | **✓** |
 
-Without a licence, the search box is replaced by a "Search requires Pro" notice.
+Turn either on without a licence and Power BI shows its own notification with the link to
+obtain one. The setting is kept and applies as soon as the licence is active.
 
 ---
 
@@ -87,7 +97,7 @@ Without a licence, the search box is replaced by a "Search requires Pro" notice.
 
 **Specs**
 - API version: 5.10.0
-- Current version: 1.0.0.4
+- Current version: 1.1.0.0
 - Platform: Power BI Desktop & Power BI Service
 
 **Field wells**
@@ -141,6 +151,16 @@ None beyond the Power BI Visuals API and `powerbi-visuals-utils-formattingmodel`
 ## Tab 4: Changelog
 
 (Mirror of `CHANGELOG.md` — keep both in sync on every release.)
+
+### 1.1.0.0
+- **Added:** value heatmap (Pro) — chips coloured by their measure, scaled per level
+- **Added:** search match highlighting and result count (Pro)
+- **Changed:** a Pro setting without a licence now raises Power BI's own notification, with
+  the link to obtain one; the in-visual "Search requires Pro" notice is gone
+- **Added:** bookmarks restore the selection, cross-highlighting dims chips out of scope,
+  and `allowInteractions` is honoured
+- **Fixed:** a licence in its payment grace period read as absent, and Publish to Web,
+  embedding and PDF export asked a paying customer to buy what they already own
 
 ### 1.0.0.4
 - Fixed the support URL, which pointed to a page that returns 404
