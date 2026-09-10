@@ -62,7 +62,8 @@
   <p>The slicer is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the weight is.</p>
   <table>
     <tr><th>Feature</th><th>Free</th><th>Pro</th></tr>
-    <tr><td>Hierarchy levels and number of values</td><td>Unlimited</td><td>Unlimited</td></tr>
+    <tr><td>Hierarchy levels</td><td>Up to 3</td><td>Up to 3</td></tr>
+    <tr><td>Values in the hierarchy</td><td>Up to 2,000</td><td>Up to 2,000</td></tr>
     <tr><td>Single and multi-select, drill-down, auto-collapse</td><td>Yes</td><td>Yes</td></tr>
     <tr><td>Per-level colours, images, value badges, reset button</td><td>Yes</td><td>Yes</td></tr>
     <tr><td>Keyboard activation and high-contrast support</td><td>Yes</td><td>Yes</td></tr>
@@ -96,13 +97,13 @@
 
   <h2 id="s-faq">Frequently asked questions</h2>
 
-  <div class="card"><h3>How do I build a hierarchy?</h3><p>Put several fields in the <strong>Categories</strong> well, in order. There is no separate well per level: the order of the fields is the hierarchy. Levels and values are unlimited in both tiers.</p></div>
+  <div class="card"><h3>How do I build a hierarchy?</h3><p>Put several fields in the <strong>Categories</strong> well, in order. There is no separate well per level: the order of the fields is the hierarchy. The well takes up to three fields, and the hierarchy up to 2,000 values. Both limits are the same in the Free and Pro tiers &mdash; nothing is reduced for a Free user.</p></div>
 
   <div class="card"><h3>My images do not show. Why?</h3><p>The <strong>Images</strong> well only accepts Base64 data URIs (<code>data:image/png;base64,&hellip;</code>). External URLs are rejected at parse time and never requested. This is deliberate: it stops the visual from making outbound network calls, which is an AppSource security requirement. Convert your images to Base64 in Power Query or with a small script &mdash; see the Tips &amp; Hints page of the sample report.</p></div>
 
   <div class="card"><h3>How do I clear all selections?</h3><p>Click the <strong>&lsquo;All&rsquo;</strong> chip, or the <strong>Reset</strong> button if you enabled it under Hierarchy. Both are available in the Free tier.</p></div>
 
-  <div class="card"><h3>What exactly does Pro unlock?</h3><p>Two things, as of 1.1.0.0: the <strong>search box</strong>, with matches highlighted and a result count; and the <strong>value heatmap</strong>, which colours each chip by its measure. Everything else &mdash; unlimited levels and values, multi-select, per-level colours, auto-collapse, images, value badges, the reset button &mdash; works without a licence. If you read older Terms that described level or value limits in Free, those limits were never implemented and the text was corrected in 1.0.0.4.</p></div>
+  <div class="card"><h3>What exactly does Pro unlock?</h3><p>Two things, as of 1.1.0.0: the <strong>search box</strong>, with matches highlighted and a result count; and the <strong>value heatmap</strong>, which colours each chip by its measure. Everything else &mdash; all three hierarchy levels, multi-select, per-level colours, auto-collapse, images, value badges, the reset button &mdash; works without a licence. The visual supports up to three levels and 2,000 values, and those limits are identical in both tiers: nothing is reduced for a Free user. If you read older Terms that described <em>smaller</em> limits in Free, those were never implemented and the text was corrected in 1.0.0.4.</p></div>
 
   <div class="card"><h3>Does it work in Power BI Service?</h3><p>Yes. Desktop and Service are both supported, as are Power BI mobile apps.</p></div>
 

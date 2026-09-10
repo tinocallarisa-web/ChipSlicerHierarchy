@@ -29,7 +29,7 @@ slicers.
 
 WHAT YOU GET
 
-• Unlimited hierarchy levels — the order of the fields in the Categories well is the
+• Up to three hierarchy levels — the order of the fields in the Categories well is the
   hierarchy, so adding a level is just adding a field
 • Single-select, multi-select and leaf-only selection, so parent levels can be used for
   navigation only
@@ -54,7 +54,7 @@ before they are ever loaded, which guarantees the visual cannot call out to anyw
 
 FREE VS PRO
 
-The slicer is complete without a licence: unlimited levels and values, multi-select,
+The slicer is complete without a licence: all three hierarchy levels, multi-select,
 per-level colours, auto-collapse, images, value badges and the reset button are all
 included.
 

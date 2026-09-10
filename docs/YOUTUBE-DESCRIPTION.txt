@@ -22,7 +22,7 @@ In this video you'll see how to set it up in a real report, how the hierarchy ex
 0:00 Wrap-up
 
 WHAT IT DOES
-• Hierarchical chip/pill slicer with drill-down filtering, no level limit
+• Hierarchical chip/pill slicer with drill-down filtering, up to three levels
 • Click a chip to filter — child chips expand automatically
 • Optional image per chip and a value badge (compact / number / currency / percent)
 • Optional tooltip fields shown on hover
@@ -33,7 +33,7 @@ FREE vs PRO
 The slicer is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the weight is.
 
 Free:
-• Unlimited hierarchy levels and values per level
+• Up to three hierarchy levels (Category > SubCategory > Product)
 • Multi-select and leaf-only selection
 • Custom per-level colors
 • Auto-collapse siblings and configurable reset button

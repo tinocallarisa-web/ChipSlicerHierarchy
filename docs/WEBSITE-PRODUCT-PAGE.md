@@ -31,7 +31,7 @@ instead of a stack of dropdown slicers.
 - Optional images and value badges directly on each chip
 
 **At a glance**
-- Unlimited hierarchy levels and values — the field order is the hierarchy
+- Up to three hierarchy levels — the field order is the hierarchy
 - Single-select, multi-select and leaf-only selection
 - Search box (Pro) — filter across the whole hierarchy, matches marked and counted
 - Value heatmap (Pro) — each chip coloured by its measure, scaled per level
@@ -79,7 +79,8 @@ level by level so a child is compared with its siblings.
 
 | Feature | Free | Pro |
 |---|---|---|
-| Hierarchy levels and values per level | Unlimited | Unlimited |
+| Hierarchy levels | Up to 3 | Up to 3 |
+| Values in the hierarchy | Up to 2,000 | Up to 2,000 |
 | Single-select, multi-select, leaf-only | ✓ | ✓ |
 | Auto-collapse, reset button, 'All' chip | ✓ | ✓ |
 | Custom per-level colours | ✓ | ✓ |

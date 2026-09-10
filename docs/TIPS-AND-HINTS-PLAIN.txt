@@ -4,8 +4,8 @@ CHIP SLICER HIERARCHY — TIPS & HINTS (v1.1.0.0)
 
 GETTING STARTED
 1. Drag a Category field into the Categories well (Level 1).
-2. Add as many further fields to the same well as you need -- field order determines
-   hierarchy depth (1st = Level 1, 2nd = Level 2, and so on). There is no level limit.
+2. Add up to two further fields to the same well -- field order determines hierarchy
+   depth (1st = Level 1, 2nd = Level 2, 3rd = Level 3). Three levels is the maximum.
 3. Click a chip to filter the report. Child chips for the next level appear automatically.
 4. Click the expand icon (>) to browse a level without filtering.
 
@@ -29,8 +29,8 @@ FREE VS PRO
 The slicer is complete without a licence. Pro adds two things: finding what you need in
 a large hierarchy, and seeing where the weight is.
 
-- Hierarchy levels ......... Free: Unlimited -- Pro: Unlimited
-- Values per level ......... Free: Unlimited -- Pro: Unlimited
+- Hierarchy levels ......... Free: Up to 3 -- Pro: Up to 3
+- Values in the hierarchy .. Free: Up to 2,000 -- Pro: Up to 2,000
 - Multi-select ............. Free: Yes -- Pro: Yes
 - Leaf-only selection ...... Free: Yes -- Pro: Yes
 - Custom per-level colors .. Free: Yes -- Pro: Yes
@@ -137,7 +137,8 @@ TROUBLESHOOTING
   (data:image/...;base64,...). External URLs (http/https) are blocked for security.
   See the "Images — Format Required & How to Generate Them" section above.
 - A level not appearing -> check how many fields are in the Categories well: the field
-  order is the hierarchy and there is no level limit in either tier. Check "Hide blank
-  values" too, if that level has nulls.
+  order is the hierarchy and the well takes at most three fields. A fourth is refused by
+  Power BI rather than shown as a fourth level. Check "Hide blank values" too, if that
+  level has nulls.
 - Colors not applying -> confirm you're editing the correct Level (1/2/3) color card; each
   level has an independent color set.

@@ -37,7 +37,8 @@ large hierarchy, and seeing where the weight is.
 
 | Feature | Free | Pro |
 |---|---|---|
-| Hierarchy levels and values per level | Unlimited | Unlimited |
+| Hierarchy levels | Up to 3 | Up to 3 |
+| Values in the hierarchy | Up to 2,000 | Up to 2,000 |
 | Multi-select and leaf-only selection | Yes | Yes |
 | Custom per-level colors | Yes | Yes |
 | Auto-collapse siblings | Yes | Yes |
@@ -184,7 +185,8 @@ All of these are available without a licence.
   (`data:image/...;base64,...`). External URLs (`http://`, `https://`) are blocked for
   security. See the *Images — Format Required & How to Generate Them* section above.
 - **A level is not appearing** — check the number of fields in the Categories well: the
-  field order is the hierarchy, and there is no level limit in either tier. Also check
-  "Hide blank values" if the level has nulls.
+  field order is the hierarchy, and the well takes at most three fields. A fourth is
+  refused by Power BI rather than shown as a fourth level. Also check "Hide blank values"
+  if the level has nulls.
 - **Colors not applying** — confirm you're editing the correct Level (1/2/3) color card;
   each level has an independent color set.

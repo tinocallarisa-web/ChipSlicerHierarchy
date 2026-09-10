@@ -22,7 +22,8 @@ large hierarchy, and seeing where the weight is.
 
 | Feature | Free | Pro |
 |---|---|---|
-| Hierarchy levels and values per level | Unlimited | Unlimited |
+| Hierarchy levels | Up to 3 | Up to 3 |
+| Values in the hierarchy | Up to 2,000 | Up to 2,000 |
 | Single-select, multi-select, leaf-only selection | ✓ | ✓ |
 | Expand / collapse, auto-collapse siblings | ✓ | ✓ |
 | Custom per-level colours | ✓ | ✓ |

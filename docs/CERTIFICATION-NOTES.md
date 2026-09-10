@@ -101,7 +101,9 @@ Labels, including the search highlighting, are built with `createElement` and te
 ## Feature summary
 
 ### Free
-- Unlimited hierarchy levels and values — the field order in "Categories" is the hierarchy
+- Up to three hierarchy levels — the field order in "Categories" is the hierarchy. The
+  limits are identical in both tiers: `categories` is capped at 3 in `capabilities.json`
+  and the data reduction at 2,000 rows. Nothing is reduced for a Free user.
 - Single-select, multi-select and leaf-only selection
 - Expand / collapse, auto-collapse siblings, configurable reset button and 'All' chip
 - Per-level colours (inactive / active / parent-of-selection)

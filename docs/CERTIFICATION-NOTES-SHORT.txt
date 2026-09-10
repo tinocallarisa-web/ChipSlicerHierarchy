@@ -27,7 +27,7 @@ accepts only data:image/*;base64 URIs; every other scheme is rejected before img
 the visual makes no outbound request.
 
 TIERS
-Free: the whole slicer - unlimited levels and values, single/multi/leaf selection,
+Free: the whole slicer - all 3 hierarchy levels, single/multi/leaf selection,
 drill-down, auto-collapse, per-level colours, image chips, value badges, reset and All
 chips, cross-filtering, highlighting, bookmarks, keyboard, high contrast.
 Pro: Search (Pro) and Value Heatmap (Pro).

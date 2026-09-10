@@ -53,7 +53,7 @@ Add a **Table** or **Card** visual so reviewers can see the filter working:
 
 **Pro tier unlocks:**  
 ✅ 3rd hierarchy level  
-✅ Unlimited values per level  
+✅ Up to 2,000 values in the hierarchy  
 ✅ Multi-select  
 ✅ Custom colours per level  
 ✅ Auto-collapse siblings  
