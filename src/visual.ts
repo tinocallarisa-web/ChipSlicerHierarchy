@@ -565,13 +565,22 @@ export class Visual implements IVisual {
     }
 
     private showLanding(): void {
-        /* eslint-disable powerbi-visuals/no-inner-outer-html */
-        this.target.innerHTML = `
-            <div style="display:flex;align-items:center;justify-content:center;height:100%;
-                        color:#9CA3AF;font-family:sans-serif;font-size:13px;text-align:center;padding:16px">
-                Add data fields to Level 1 to start filtering.
-            </div>`;
-        /* eslint-enable powerbi-visuals/no-inner-outer-html */
+        // Con DOM y no con innerHTML. El contenido es estatico, asi que era
+        // inofensivo, pero obligaba a suprimir powerbi-visuals/no-inner-outer-html
+        // — y una supresion de esa regla es una senal de alarma para quien revisa,
+        // mas aun en un visual que ya fue rechazado por XSS una vez.
+        this.vaciar(this.target);
+        const box = document.createElement("div");
+        box.style.cssText = "display:flex;align-items:center;justify-content:center;" +
+            "height:100%;color:#9CA3AF;font-family:sans-serif;font-size:13px;" +
+            "text-align:center;padding:12px;";
+        box.textContent = "Add data fields to Level 1 to start filtering.";
+        this.target.appendChild(box);
+    }
+
+    /** Vacia un elemento sin pasar por innerHTML. */
+    private vaciar(el: HTMLElement): void {
+        while (el.firstChild) el.removeChild(el.firstChild);
     }
 
     private render(): void { this.renderChipMode(); }
@@ -629,9 +638,7 @@ export class Visual implements IVisual {
         }
         wrapper.appendChild(chipContainer);
 
-        /* eslint-disable powerbi-visuals/no-inner-outer-html */
-        this.target.innerHTML = "";
-        /* eslint-enable powerbi-visuals/no-inner-outer-html */
+        this.vaciar(this.target);
         this.target.appendChild(wrapper);
         this.target.scrollTop = scrollTop;
 
