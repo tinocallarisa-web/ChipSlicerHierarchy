@@ -36,7 +36,7 @@ instead of a stack of dropdown slicers.
 - Search box (Pro) — filter across the whole hierarchy, matches marked and counted
 - Value heatmap (Pro) — each chip coloured by its measure, scaled per level
 - Full colour and style customisation per level
-- Demo video: https://www.youtube.com/watch?v=Wt5CktHwN44
+- Demo video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
 
 ---
 

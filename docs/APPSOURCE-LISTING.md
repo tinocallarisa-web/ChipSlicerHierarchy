@@ -101,7 +101,7 @@ Version 1.1.0.0
 | Privacy policy | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html |
 | Terms of use | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html |
 | Repository (certification branch) | https://github.com/tinocallarisa-web/ChipSlicerHierarchy/tree/certification |
-| Demo video | https://www.youtube.com/watch?v=Wt5CktHwN44 |
+| Demo video | https://www.youtube.com/watch?v=rdZLCxpP6Pk |
 
 **`privacyTermsLink` does not travel inside the `.pbiviz`.** Verified by unpacking the
 package: the `visual` block contains only `description`, `displayName`, `gitHubUrl`,

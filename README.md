@@ -10,7 +10,7 @@ field order becomes the hierarchy — click a chip to filter, expand it to drill
 [![License](https://img.shields.io/badge/license-Commercial-orange)](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html)
 
 📖 **[Documentation & Support](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html)** ·
-🎬 **[Video walkthrough](https://www.youtube.com/watch?v=Wt5CktHwN44)** ·
+🎬 **[Video walkthrough](https://www.youtube.com/watch?v=rdZLCxpP6Pk)** ·
 📝 **[Changelog](./CHANGELOG.md)**
 
 ---

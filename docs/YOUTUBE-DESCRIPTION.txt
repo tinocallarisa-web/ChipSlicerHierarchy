@@ -1,53 +1,66 @@
 =========================================================
 CHIP SLICER HIERARCHY — YouTube Description (v1.1.0.0)
-Video: [to be recorded for 1.1.0.0 — replace this line and the two links below]
+Video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
 =========================================================
+
+--- TITLE ---
+
+Three Levels, One Well: Chip Slicer Hierarchy for Power BI   <- PUBLICADO
+
+Alternatives (not used):
+1. Chip Slicer Hierarchy for Power BI — Drill Down Without Leaving the Slicer
+2. Filter Category → SubCategory → Product With One Click | Power BI Custom Visual
+3. A Slicer That Drills Down: Chip Slicer Hierarchy for Power BI
+4. Power BI Hierarchy Slicer With Search and Value Heatmap | Chip Slicer Hierarchy
 
 --- LONG DESCRIPTION (main video) ---
 
-Chip Slicer Hierarchy is a Power BI custom visual that turns filtering into a modern, chip/pill-style hierarchy slicer. Drop several fields into one well and the field order becomes the hierarchy — click a chip to drill down.
+Chip Slicer Hierarchy turns filtering in Power BI into a chip/pill slicer that drills
+down. Drop up to three fields into one well and the field order becomes the hierarchy:
+click a chip to filter, expand it to browse the level below without filtering.
 
-In this video you'll see how to set it up in a real report, how the hierarchy expands and filters as you click, and the difference between the Free and Pro tiers.
+No separate well per level, and no second visual to show the next level.
 
-0:00 Intro
-0:00 Adding the visual and field wells (Categories, Images, Values, Tooltips)
-0:00 Basic filtering — clicking a chip
-0:00 Drilling down through hierarchy levels
-0:00 Multi-select and leaf-only selection
-0:00 Per-level colors and chip styling
-0:00 Search box with match highlighting (Pro)
-0:00 Value heatmap — colour by measure (Pro)
-0:00 Value badges and image chips
-0:00 Free vs Pro overview
-0:00 Wrap-up
+WHAT YOU SEE IN THIS VIDEO
+Setting it up in a real report, the hierarchy expanding and filtering as you click, and
+the two features a Pro licence adds: search across the whole hierarchy, and a value
+heatmap that colours each chip by its measure.
 
 WHAT IT DOES
-• Hierarchical chip/pill slicer with drill-down filtering, up to three levels
-• Click a chip to filter — child chips expand automatically
-• Optional image per chip and a value badge (compact / number / currency / percent)
-• Optional tooltip fields shown on hover
-• Fully theme-able: colors, fonts, spacing, per-level color sets
+• Up to three hierarchy levels (Category → SubCategory → Product) from a single well
+• Click a chip to filter; expand to browse a level without filtering
+• Multi-select, leaf-only selection and auto-collapse of sibling branches
+• An image per chip and a value badge (compact / number / currency / percent)
+• Independent colour sets per level: inactive, active and parent-of-selection
 • Cross-filtering, cross-highlighting and bookmarks
+• Keyboard activation and high-contrast support
 
 FREE vs PRO
-The slicer is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the weight is.
+The slicer is complete without a licence. Pro adds two things: finding what you need in
+a large hierarchy, and seeing where the weight is.
 
 Free:
-• Up to three hierarchy levels (Category > SubCategory > Product)
+• All three hierarchy levels, up to 2,000 values
 • Multi-select and leaf-only selection
-• Custom per-level colors
-• Auto-collapse siblings and configurable reset button
+• Custom per-level colours
+• Auto-collapse siblings, reset button and 'All' chip
 • Image chips, value badges and tooltips
 • Cross-filtering, cross-highlighting, bookmarks, keyboard and high contrast
 
 Pro:
 • Search box — filter chips across the whole hierarchy as you type, with the matching
-  text marked inside each chip and the number of results shown.
+  text marked inside each chip and the number of results shown
 • Value heatmap — each chip tinted by its measure, scaled level by level so a child is
-  compared with its siblings rather than with the top of the hierarchy.
+  compared with its siblings rather than with the top of the hierarchy
 
 Turn either on without a licence and Power BI shows its own notification with the link
 to obtain one. The setting is kept and applies as soon as the licence is active.
+30-day free trial on AppSource.
+
+PRIVACY
+No network calls of any kind. Images must be embedded in your model as Base64 — external
+URLs are rejected before they are ever loaded, which is what makes that claim literally
+true.
 
 LINKS
 Get it on Microsoft AppSource: [add AppSource listing link]
@@ -56,21 +69,19 @@ Privacy policy: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.
 Terms of use: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html
 GitHub / issues: https://github.com/tinocallarisa-web/ChipSlicerHierarchy
 
-#PowerBI #PowerBIVisuals #CustomVisual #DataVisualization #BusinessIntelligence #ChipSlicerHierarchy #Microsoft #DataAnalytics
+#PowerBI #PowerBIVisuals #CustomVisual #DataVisualization #BusinessIntelligence
+
+--- CHAPTERS ---
+
+Not written: the timestamps have to come from the published video. YouTube needs a
+chapter at 0:00 and at least three chapters of 10 seconds or more, or it shows none of
+them. A wrong timestamp is worse than no chapters at all.
 
 -----------------------------------------------------------
 --- SHORT DESCRIPTION (Shorts / LinkedIn / social) ---
 -----------------------------------------------------------
 
-Chip Slicer Hierarchy brings a modern, chip-style drill-down slicer to Power BI — filter through Category → SubCategory → Product with a single click. Watch it in action: [video link for 1.1.0.0]
+Chip Slicer Hierarchy brings a chip-style drill-down slicer to Power BI — filter through
+Category → SubCategory → Product with a single click, from one field well.
+Watch it in action: https://www.youtube.com/watch?v=rdZLCxpP6Pk
 #PowerBI #PowerBIVisuals #DataVisualization
-
------------------------------------------------------------
---- 5 ALTERNATIVE TITLES ---
------------------------------------------------------------
-
-1. Chip Slicer Hierarchy — Hierarchical Drill-Down Slicer for Power BI
-2. Power BI Custom Visual: Chip Slicer Hierarchy (Drill-Down Filtering)
-3. Hierarchical Pill Slicer for Power BI | Chip Slicer Hierarchy Demo
-4. Filter Your Power BI Report Like a Pro — Chip Slicer Hierarchy
-5. Category → SubCategory → Product: One-Click Drill-Down in Power BI

@@ -76,7 +76,7 @@ Labels, including the search highlighting, are built with `createElement` and te
 | Privacy Policy | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html |
 | Terms of Use | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html |
 | Support | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html |
-| Demo video | (to be updated for 1.1.0.0) |
+| Demo video | https://www.youtube.com/watch?v=rdZLCxpP6Pk |
 
 ## Licence validation
 

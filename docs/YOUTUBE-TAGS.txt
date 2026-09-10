@@ -1,15 +1,20 @@
 =========================================================
-CHIP SLICER HIERARCHY — YouTube Tags (v1.0.0.1)
-Video: https://www.youtube.com/watch?v=Wt5CktHwN44
+CHIP SLICER HIERARCHY — YouTube Tags (v1.1.0.0)
+Video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
 =========================================================
 
---- MAIN TAG BLOCK (fits YouTube's 500-character limit) ---
+--- MAIN TAG BLOCK (487 chars, YouTube's limit is 500) ---
 
-power bi,power bi custom visual,chip slicer,chip slicer hierarchy,hierarchy slicer,drill down filter,power bi slicer,power bi hierarchy,pill slicer,multi-select slicer,power bi appsource,power bi tutorial,data visualization,business intelligence,microsoft power bi,power bi dashboard,power bi report,tcviz
+power bi,power bi custom visual,hierarchy slicer,chip slicer,chip slicer hierarchy,power bi slicer,drill down slicer,power bi drill down,pill slicer,hierarchical filter,power bi filtering,multi select slicer,category subcategory product,power bi search slicer,heatmap slicer,power bi appsource,power bi visuals,power bi dashboard,power bi report,data visualization,business intelligence,microsoft power bi,power bi tips,tcviz
+
+Changed from the 1.0.0.1 block: added "power bi search slicer" and "heatmap slicer",
+which are the two Pro features and terms with real search intent. Dropped
+"power bi tutorial" — this is a product demo, not a tutorial, and that queue is owned by
+training channels, which costs click-through rather than gaining reach.
 
 --- VARIANT: feature/demo-focused video ---
 
-power bi,power bi custom visual,drill down slicer,hierarchical filter,chip ui,pill ui,power bi filtering,category subcategory product,power bi field wells,power bi formatting pane
+power bi,power bi custom visual,drill down slicer,hierarchical filter,chip ui,pill ui,power bi filtering,category subcategory product,power bi field wells,power bi formatting pane,power bi conditional colors
 
 --- VARIANT: tutorial/how-to video ---
 
