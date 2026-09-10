@@ -117,6 +117,18 @@ class SearchSettingsCard extends FormattingSettingsCard {
         value: false
     });
 
+    public highlightMatches = new formattingSettings.ToggleSwitch({
+        name: "highlightMatches",
+        displayName: "Highlight matches (Pro)",
+        value: true
+    });
+
+    public showResultCount = new formattingSettings.ToggleSwitch({
+        name: "showResultCount",
+        displayName: "Show result count (Pro)",
+        value: true
+    });
+
     public searchPlaceholder = new formattingSettings.TextInput({
         name: "searchPlaceholder",
         displayName: "Placeholder text",
@@ -328,6 +340,36 @@ class Level3ColorsCard extends FormattingSettingsCard {
 // ─────────────────────────────────────────────────────────────────────────────
 // Hierarchy behaviour card
 // ─────────────────────────────────────────────────────────────────────────────
+// ─── Value Heatmap (Pro) ─────────────────────────────────────────────────────
+
+class HeatmapSettingsCard extends FormattingSettingsCard {
+    public showHeatmap = new formattingSettings.ToggleSwitch({
+        name: "showHeatmap",
+        displayName: "Color chips by value (Pro)",
+        value: false
+    });
+
+    public colorLow = new formattingSettings.ColorPicker({
+        name: "colorLow",
+        displayName: "Low value",
+        value: { value: "#EDE9DE" }
+    });
+
+    public colorHigh = new formattingSettings.ColorPicker({
+        name: "colorHigh",
+        displayName: "High value",
+        value: { value: "#C96442" }
+    });
+
+    name: string = "heatmapSettings";
+    displayName: string = "Value Heatmap (Pro)";
+    slices: FormattingSettingsSlice[] = [
+        this.showHeatmap,
+        this.colorLow,
+        this.colorHigh
+    ];
+}
+
 class HierarchySettingsCard extends FormattingSettingsCard {
     public indentSize = new formattingSettings.NumUpDown({
         name: "indentSize",
@@ -400,6 +442,7 @@ export class VisualSettingsModel extends FormattingSettingsModel {
     public searchSettingsCard    = new SearchSettingsCard();
     public imageSettingsCard     = new ImageSettingsCard();
     public valueSettingsCard     = new ValueSettingsCard();
+    public heatmapSettingsCard   = new HeatmapSettingsCard();
     public hierarchySettingsCard = new HierarchySettingsCard();
     public level1ColorsCard      = new Level1ColorsCard();
     public level2ColorsCard      = new Level2ColorsCard();
@@ -410,6 +453,7 @@ export class VisualSettingsModel extends FormattingSettingsModel {
         this.searchSettingsCard,
         this.imageSettingsCard,
         this.valueSettingsCard,
+        this.heatmapSettingsCard,
         this.hierarchySettingsCard,
         this.level1ColorsCard,
         this.level2ColorsCard,

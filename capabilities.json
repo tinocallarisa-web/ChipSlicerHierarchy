@@ -151,6 +151,14 @@
             "bool": true
           }
         },
+        "highlightMatches": {
+          "displayName": "Highlight matches (Pro)",
+          "type": { "bool": true }
+        },
+        "showResultCount": {
+          "displayName": "Show result count (Pro)",
+          "type": { "bool": true }
+        },
         "searchPlaceholder": {
           "displayName": "Placeholder text",
           "type": {
@@ -296,6 +304,23 @@
           "type": {
             "bool": true
           }
+        }
+      }
+    },
+    "heatmapSettings": {
+      "displayName": "Value Heatmap (Pro)",
+      "properties": {
+        "showHeatmap": {
+          "displayName": "Color chips by value (Pro)",
+          "type": { "bool": true }
+        },
+        "colorLow": {
+          "displayName": "Low value",
+          "type": { "fill": { "solid": { "color": true } } }
+        },
+        "colorHigh": {
+          "displayName": "High value",
+          "type": { "fill": { "solid": { "color": true } } }
         }
       }
     },

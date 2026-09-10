@@ -372,10 +372,16 @@ export class Visual implements IVisual {
         const labels: string[] = [];
         const parts: string[] = [];
 
-        const v = objs?.["searchSettings"]?.["showSearch"];
-        if (v !== undefined && v !== false) {
-            labels.push("the search box");
-            parts.push(`searchSettings.showSearch=${JSON.stringify(v)}`);
+        const pares: [string, string, string][] = [
+            ["searchSettings",  "showSearch",  "the search box"],
+            ["heatmapSettings", "showHeatmap", "colouring chips by value"],
+        ];
+        for (const [card, prop, etiqueta] of pares) {
+            const v = objs?.[card]?.[prop];
+            if (v !== undefined && v !== false) {
+                labels.push(etiqueta);
+                parts.push(`${card}.${prop}=${JSON.stringify(v)}`);
+            }
         }
         return { labels, signature: parts.join("|") };
     }
@@ -424,9 +430,12 @@ export class Visual implements IVisual {
         this.lastBlockedNotice = signature;
 
         try {
+            const lista = labels.length === 1
+                ? labels[0]
+                : labels.slice(0, -1).join(", ") + " and " + labels[labels.length - 1];
             this.licenseManager?.notifyFeatureBlocked?.(
-                `ChipSlicer Hierarchy: ${labels[0]} is part of the Pro plan. ` +
-                `Get a licence to enable it.`
+                `ChipSlicer Hierarchy: ${lista} ${labels.length === 1 ? "is" : "are"} part of ` +
+                `the Pro plan. Get a licence to enable ${labels.length === 1 ? "it" : "them"}.`
             );
         } catch { /* la notificacion nunca debe romper el render */ }
     }
@@ -568,7 +577,14 @@ export class Visual implements IVisual {
     private render(): void { this.renderChipMode(); }
 
     // ─── MAIN RENDER ──────────────────────────────────────────────────────────
+    /** Rango por nivel, recalculado una vez por render y no por chip. */
+    private rangoHeatmap: Map<number, { min: number; max: number }> | null = null;
+
     private renderChipMode(): void {
+        const hm = this.settings?.heatmapSettingsCard;
+        this.rangoHeatmap = (this.isPro && hm && Boolean(hm.showHeatmap.value))
+            ? this.rangoPorNivel()
+            : null;
         // Capture focus before any DOM mutation
         const searchWasFocused = !!(document.activeElement &&
             this.target.contains(document.activeElement) &&
@@ -673,14 +689,29 @@ export class Visual implements IVisual {
         if (matches.length === 0) {
             const empty = document.createElement("div");
             empty.style.cssText = "color:#9CA3AF;font-size:12px;padding:4px;";
-            empty.textContent = "No results found";
+            empty.textContent = `No results for "${this.searchQuery}"`;
             container.appendChild(empty);
             return;
         }
 
+        const ss = this.settings.searchSettingsCard;
+
+        // Contador: en una jerarquia grande, saber que hay 47 coincidencias
+        // cambia como se lee el resultado. Antes solo salian los chips.
+        if (Boolean(ss.showResultCount?.value)) {
+            const cnt = document.createElement("div");
+            cnt.style.cssText = "color:#6B7280;font-size:11px;padding:2px 4px 6px;";
+            cnt.textContent = matches.length === 1
+                ? "1 result"
+                : `${matches.length} results`;
+            container.appendChild(cnt);
+        }
+
+        const resaltar = Boolean(ss.highlightMatches?.value) ? this.searchQuery : undefined;
+
         const row = document.createElement("div");
         row.style.cssText = `display:flex;flex-wrap:wrap;gap:${this.settings.chipSettingsCard.chipGap.value}px;`;
-        for (const n of matches) row.appendChild(this.buildChipElement(n, isHC, layout));
+        for (const n of matches) row.appendChild(this.buildChipElement(n, isHC, layout, resaltar));
         container.appendChild(row);
     }
 
@@ -757,7 +788,88 @@ export class Visual implements IVisual {
         return btn;
     }
 
-    private buildChipElement(node: HierarchyNode, isHC: boolean, layout: string): HTMLElement {
+    /**
+     * Rango de la medida por nivel, para el mapa de calor.
+     *
+     * Se normaliza por nivel y no globalmente: un chip de nivel 1 agrega a todos
+     * sus hijos, asi que compararlo con uno de nivel 3 pintaria la jerarquia
+     * entera de oscuro arriba y claro abajo, que no dice nada.
+     */
+    private rangoPorNivel(): Map<number, { min: number; max: number }> {
+        const out = new Map<number, { min: number; max: number }>();
+        const visit = (nodes: HierarchyNode[]) => {
+            for (const n of nodes) {
+                if (typeof n.measureValue === "number" && !isNaN(n.measureValue)) {
+                    const r = out.get(n.level);
+                    if (!r) out.set(n.level, { min: n.measureValue, max: n.measureValue });
+                    else {
+                        if (n.measureValue < r.min) r.min = n.measureValue;
+                        if (n.measureValue > r.max) r.max = n.measureValue;
+                    }
+                }
+                visit(n.children);
+            }
+        };
+        visit(this.hierarchyManager.roots);
+        return out;
+    }
+
+    /** Interpola dos colores hex. t va de 0 a 1. */
+    private mezclar(a: string, b: string, t: number): string {
+        const hex = (c: string) => {
+            const v = c.replace("#", "");
+            const f = v.length === 3 ? v.split("").map(x => x + x).join("") : v;
+            return [parseInt(f.slice(0, 2), 16), parseInt(f.slice(2, 4), 16), parseInt(f.slice(4, 6), 16)];
+        };
+        const [r1, g1, b1] = hex(a);
+        const [r2, g2, b2] = hex(b);
+        const m = (x: number, y: number) => Math.round(x + (y - x) * Math.max(0, Math.min(1, t)));
+        return `rgb(${m(r1, r2)},${m(g1, g2)},${m(b1, b2)})`;
+    }
+
+    /**
+     * Texto legible sobre un fondo dado.
+     *
+     * Sin esto, un chip oscuro del extremo alto del rango se queda con el texto
+     * oscuro por defecto y no se lee. Luminancia relativa segun WCAG.
+     */
+    private textoSobre(rgb: string): string {
+        const m = /rgb\((\d+),(\d+),(\d+)\)/.exec(rgb);
+        if (!m) return "#1F2937";
+        const canal = (v: number) => {
+            const x = v / 255;
+            return x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4);
+        };
+        const L = 0.2126 * canal(+m[1]) + 0.7152 * canal(+m[2]) + 0.0722 * canal(+m[3]);
+        return L > 0.45 ? "#1F2937" : "#FFFFFF";
+    }
+
+    /**
+     * El texto del chip con la coincidencia resaltada.
+     *
+     * Se construye con createElement y textContent, nunca con innerHTML: esto es
+     * dato del usuario, y un visual hermano fue rechazado por XSS por
+     * exactamente ese camino.
+     */
+    private etiquetaConCoincidencia(texto: string, q: string): DocumentFragment {
+        const frag = document.createDocumentFragment();
+        const i = q ? texto.toLowerCase().indexOf(q.toLowerCase()) : -1;
+        if (i < 0) {
+            frag.appendChild(document.createTextNode(texto));
+            return frag;
+        }
+        if (i > 0) frag.appendChild(document.createTextNode(texto.slice(0, i)));
+        const mark = document.createElement("span");
+        mark.textContent = texto.slice(i, i + q.length);
+        mark.style.cssText = "font-weight:700;text-decoration:underline;";
+        frag.appendChild(mark);
+        if (i + q.length < texto.length) {
+            frag.appendChild(document.createTextNode(texto.slice(i + q.length)));
+        }
+        return frag;
+    }
+
+    private buildChipElement(node: HierarchyNode, isHC: boolean, layout: string, resaltar?: string): HTMLElement {
         const s  = this.settings.chipSettingsCard;
         const is = this.settings.imageSettingsCard;
         const hs = this.settings.hierarchySettingsCard;
@@ -773,6 +885,26 @@ export class Visual implements IVisual {
         // atenuan en lugar de ignorarlo. supportsHighlight estaba declarado en
         // capabilities y no lo implementaba nadie.
         if (!node.inHighlight) chip.style.opacity = "0.35";
+
+        // Mapa de calor (Pro): el fondo del chip segun su medida, normalizado
+        // dentro de su nivel. No se aplica al chip seleccionado -su color activo
+        // es lo que hace visible la seleccion- ni en alto contraste, donde el
+        // significado no puede ir codificado en el relleno.
+        if (this.rangoHeatmap && !isHC && !node.isSelected &&
+            typeof node.measureValue === "number" && !isNaN(node.measureValue)) {
+            const r = this.rangoHeatmap.get(node.level);
+            if (r) {
+                const t = r.max === r.min ? 0.5 : (node.measureValue - r.min) / (r.max - r.min);
+                const hmS = this.settings.heatmapSettingsCard;
+                const bg = this.mezclar(
+                    hmS.colorLow.value?.value ?? "#EDE9DE",
+                    hmS.colorHigh.value?.value ?? "#C96442",
+                    t
+                );
+                chip.style.background = bg;
+                chip.style.color = this.textoSobre(bg);
+            }
+        }
 
         if (layout === "vertical") {
             chip.style.display = "flex";
@@ -793,7 +925,8 @@ export class Visual implements IVisual {
             img.style.cssText = `height:${is.imageHeight.value}px;border-radius:${is.imageRadius.value}px;object-fit:cover;flex-shrink:0;`;
             img.onerror = () => { img.style.display = "none"; };
             const lbl = document.createElement("span");
-            lbl.textContent = node.value;
+            if (resaltar) lbl.appendChild(this.etiquetaConCoincidencia(node.value, resaltar));
+            else lbl.textContent = node.value;
             if (imgPos === "above") {
                 chip.style.flexDirection = "column";
                 chip.style.alignItems = "center";
@@ -804,6 +937,8 @@ export class Visual implements IVisual {
             }
             chip.appendChild(img);
             chip.appendChild(lbl);
+        } else if (resaltar) {
+            chip.appendChild(this.etiquetaConCoincidencia(node.value, resaltar));
         } else {
             chip.textContent = node.value;
         }
