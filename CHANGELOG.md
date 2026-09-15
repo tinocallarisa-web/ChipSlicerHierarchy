@@ -2,6 +2,17 @@
 
 All notable changes to Chip Slicer Hierarchy are documented here.
 
+## [1.1.1.0] - 2026-09-15
+
+### Fixed
+
+- **Pro never unlocked for a paying customer.** The licence check compared
+  `spIdentifier` with `chip-slicer-hierarchy-tcviz`, a plan identifier that does not
+  exist in the offer. The Pro plan is `chipslicer-hierarchy-pro`. The comparison also
+  used strict equality, while the Licensing API returns the full Service ID
+  (`publisher.offer.plan`). The visual now uses the correct Plan ID and accepts either
+  the full Service ID or the Plan ID on its own.
+
 ## [1.1.0.0] - 2026-09-10
 
 ### Added

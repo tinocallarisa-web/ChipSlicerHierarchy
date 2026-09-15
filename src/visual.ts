@@ -14,7 +14,15 @@ import { VisualSettingsModel } from "./settings";
 import LicenseNotificationType = powerbi.LicenseNotificationType;
 
 /** El Service ID del plan en Partner Center. Debe coincidir caracter a caracter. */
-const PLAN_ID = "chip-slicer-hierarchy-tcviz";
+// Plan ID tal como aparece en Partner Center (verificado 2026-09-15). Antes ponia
+// "chip-slicer-hierarchy-tcviz", que no existe: Pro no se activaba nunca.
+const PLAN_ID = "chipslicer-hierarchy-pro";
+
+// spIdentifier = Service ID completo (editor.oferta.plan); se acepta también el Plan ID solo
+function matchesPlan(spIdentifier: unknown, planId: string): boolean {
+    const sp = String(spIdentifier ?? "");
+    return sp === planId || sp.endsWith("." + planId);
+}
 
 // Microsoft: "only the active and warning states represent a usable license".
 const enum ServicePlanState { Inactive = 0, Active = 1, Warning = 2 }
@@ -452,7 +460,7 @@ export class Visual implements IVisual {
             // Warning es periodo de gracia por un problema de pago: la licencia
             // sigue siendo usable y un cliente que paga no debe perder sus features.
             this.isPro = licenseResult?.plans?.some(
-                (p: any) => p.spIdentifier === PLAN_ID &&
+                (p: any) => matchesPlan(p.spIdentifier, PLAN_ID) &&
                     ((p.state as unknown as number) === ServicePlanState.Active ||
                      (p.state as unknown as number) === ServicePlanState.Warning)
             ) ?? false;

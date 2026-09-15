@@ -1,0 +1,28 @@
+Category,Subcategory,Product,Category_Image,Subcategory_Image,Product_Image,Sales,Units
+Electronics,Smartphones,iPhone 15,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/smartphone/80/80,https://picsum.photos/seed/iphone15/80/80,125000,250
+Electronics,Smartphones,Galaxy S24,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/smartphone/80/80,https://picsum.photos/seed/galaxy24/80/80,98500,197
+Electronics,Smartphones,Pixel 8,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/smartphone/80/80,https://picsum.photos/seed/pixel8/80/80,67200,134
+Electronics,Laptops,MacBook Pro,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/laptop/80/80,https://picsum.photos/seed/macbook/80/80,210000,140
+Electronics,Laptops,Dell XPS 15,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/laptop/80/80,https://picsum.photos/seed/dellxps/80/80,156000,120
+Electronics,Laptops,ThinkPad X1,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/laptop/80/80,https://picsum.photos/seed/thinkpad/80/80,134500,103
+Electronics,Audio,AirPods Pro,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/audio/80/80,https://picsum.photos/seed/airpods/80/80,89000,445
+Electronics,Audio,Sony WH-1000XM5,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/audio/80/80,https://picsum.photos/seed/sonywh/80/80,76500,255
+Electronics,Audio,Bose QC45,https://picsum.photos/seed/electronics/80/80,https://picsum.photos/seed/audio/80/80,https://picsum.photos/seed/boseqc/80/80,62300,208
+Fashion,Men's,Wool Jacket,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/menswear/80/80,https://picsum.photos/seed/wooljacket/80/80,45600,152
+Fashion,Men's,Oxford Shirt,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/menswear/80/80,https://picsum.photos/seed/oxfordshirt/80/80,18900,378
+Fashion,Men's,Chino Pants,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/menswear/80/80,https://picsum.photos/seed/chinopants/80/80,22400,320
+Fashion,Women's,Summer Dress,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/womenswear/80/80,https://picsum.photos/seed/summerdress/80/80,38700,258
+Fashion,Women's,Floral Top,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/womenswear/80/80,https://picsum.photos/seed/floraltop/80/80,15600,520
+Fashion,Women's,Skinny Jeans,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/womenswear/80/80,https://picsum.photos/seed/skinnyjeans/80/80,28900,289
+Fashion,Kids,Graphic Tee,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/kidswear/80/80,https://picsum.photos/seed/graphictee/80/80,12300,410
+Fashion,Kids,Sport Shorts,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/kidswear/80/80,https://picsum.photos/seed/sportshorts/80/80,9800,327
+Fashion,Kids,Canvas Shoes,https://picsum.photos/seed/fashion/80/80,https://picsum.photos/seed/kidswear/80/80,https://picsum.photos/seed/canvasshoes/80/80,16700,334
+Sports,Running,Nike Pegasus,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/running/80/80,https://picsum.photos/seed/nikepeg/80/80,54200,361
+Sports,Running,Adidas Ultraboost,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/running/80/80,https://picsum.photos/seed/ultraboost/80/80,68900,459
+Sports,Running,ASICS Gel-Nimbus,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/running/80/80,https://picsum.photos/seed/asicsgel/80/80,43100,287
+Sports,Cycling,Trek FX 3,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/cycling/80/80,https://picsum.photos/seed/trekfx/80/80,87600,146
+Sports,Cycling,Giant Escape 2,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/cycling/80/80,https://picsum.photos/seed/giantescape/80/80,72100,120
+Sports,Cycling,Specialized Sirrus,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/cycling/80/80,https://picsum.photos/seed/sirrus/80/80,95400,159
+Sports,Swimming,Speedo Goggles,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/swimming/80/80,https://picsum.photos/seed/speedog/80/80,8900,445
+Sports,Swimming,Arena Swimsuit,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/swimming/80/80,https://picsum.photos/seed/arenasuit/80/80,14700,294
+Sports,Swimming,TYR Cap,https://picsum.photos/seed/sports/80/80,https://picsum.photos/seed/swimming/80/80,https://picsum.photos/seed/tyrcap/80/80,5600,560

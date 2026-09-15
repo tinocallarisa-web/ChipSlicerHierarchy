@@ -1,9 +1,20 @@
-# Certification Notes — Chip Slicer Hierarchy v1.1.0.0
+# Certification Notes — Chip Slicer Hierarchy v1.1.1.0
 
 The short version to paste into Partner Center lives in
 [`CERTIFICATION-NOTES-SHORT.txt`](./CERTIFICATION-NOTES-SHORT.txt), written to fit the
 2,500-character limit of that field, which truncates without warning and mid-word. That
 field is cleared on every resubmission.
+
+## What changed in 1.1.1.0
+
+A licence fix and nothing else. 1.1.0.0 is published and certified.
+
+| Problem | Consequence | Fix |
+|---|---|---|
+| The code compared `spIdentifier` with `chip-slicer-hierarchy-tcviz`, which is not a plan of this offer | Pro never unlocked for a buyer | The real Pro Plan ID, `chipslicer-hierarchy-pro` |
+| Strict equality, while the Licensing API returns the full Service ID (`publisher.offer.plan`) | Even the right Plan ID would not have matched | `matchesPlan()` accepts the full Service ID or the Plan ID on its own |
+
+No feature, data role, formatting property or UI changed.
 
 ## What changed in 1.1.0.0
 

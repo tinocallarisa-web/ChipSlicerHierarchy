@@ -1,0 +1,27 @@
+Level 1 (Country),Level 2 (Region),Level 3 (City),Flag URL,Sales,Units
+Spain,Cataluña,Barcelona,https://flagcdn.com/w80/es.png,632046.86,254
+Spain,Cataluña,Tarragona,https://flagcdn.com/w80/es.png,730596.23,2056
+Spain,Madrid,Madrid,https://flagcdn.com/w80/es.png,230398.36,889
+Spain,Madrid,Alcalá de Henares,https://flagcdn.com/w80/es.png,668015.01,4517
+Spain,Andalucía,Sevilla,https://flagcdn.com/w80/es.png,98895.97,3506
+Spain,Andalucía,Málaga,https://flagcdn.com/w80/es.png,45670.29,817
+France,Île-de-France,París,https://flagcdn.com/w80/fr.png,225985.65,4189
+France,Île-de-France,Versailles,https://flagcdn.com/w80/fr.png,595948.07,4647
+France,Provence,Marsella,https://flagcdn.com/w80/fr.png,206878.33,4514
+France,Provence,Niza,https://flagcdn.com/w80/fr.png,419836.63,3729
+Germany,Bavaria,Múnich,https://flagcdn.com/w80/de.png,583641.38,103
+Germany,Bavaria,Nuremberg,https://flagcdn.com/w80/de.png,747249.11,1357
+Germany,Berlín,Berlín,https://flagcdn.com/w80/de.png,688704.52,2837
+Germany,Berlín,Potsdam,https://flagcdn.com/w80/de.png,283145.84,1813
+Japan,Kantō,Tokio,https://flagcdn.com/w80/jp.png,938710.61,2807
+Japan,Kantō,Yokohama,https://flagcdn.com/w80/jp.png,113632.92,3162
+Japan,Kansai,Osaka,https://flagcdn.com/w80/jp.png,108331.3,2867
+Japan,Kansai,Kioto,https://flagcdn.com/w80/jp.png,597595.62,405
+USA,California,Los Ángeles,https://flagcdn.com/w80/us.png,719191.17,4442
+USA,California,San Francisco,https://flagcdn.com/w80/us.png,135457.25,3150
+USA,New York,Nueva York,https://flagcdn.com/w80/us.png,91042.19,2451
+USA,New York,Buffalo,https://flagcdn.com/w80/us.png,815375.5,3012
+Italy,Lazio,Roma,https://flagcdn.com/w80/it.png,572144.82,619
+Italy,Lazio,Viterbo,https://flagcdn.com/w80/it.png,59220.53,1916
+Italy,Lombardía,Milán,https://flagcdn.com/w80/it.png,761010.95,703
+Italy,Lombardía,Bérgamo,https://flagcdn.com/w80/it.png,840381.6,877
