@@ -165,6 +165,7 @@
         <li><i class="ti ti-circle-check"></i> Custom per-level colors</li>
         <li><i class="ti ti-circle-check"></i> Image chips &amp; value badges</li>
         <li><i class="ti ti-circle-check"></i> Auto-collapse &amp; reset button</li>
+        <li><i class="ti ti-circle-check"></i> Format pane in English and Spanish</li>
       </ul>
     </div>
 
@@ -184,7 +185,7 @@
         <li><i class="ti ti-circle-check"></i> <b>Everything in Free</b></li>
         <li><i class="ti ti-circle-check"></i> <b>Search box</b> &mdash; across every<br>level, matches marked and counted</li>
         <li><i class="ti ti-circle-check"></i> <b>Value heatmap</b> &mdash; each chip<br>coloured by its measure, per level</li>
-        <li style="opacity:.75">Power BI shows the link<br>to obtain a licence.</li>
+        <li><i class="ti ti-eye"></i> <b>Pro preview</b> &mdash; try both on<br>your own data before buying</li>
       </ul>
     </div>
   </div>
@@ -277,11 +278,19 @@ window.addEventListener('load', function(){ setTimeout(checkFit, 300); });
 
 function downloadPng(){
   const el = document.getElementById('infographic');
+  const btn = document.getElementById('dlbtn');
   html2canvas(el, { width:1366, height:768, scale:1, backgroundColor:'#FAF9F5' }).then(canvas => {
     const link = document.createElement('a');
     link.download = 'chip-slicer-hierarchy-infographic.png';
     link.href = canvas.toDataURL('image/png');
     link.click();
+  }).catch(e => {
+    // Sin esto el fallo era mudo: se pulsaba el boton y no pasaba nada. Le ocurrio a la
+    // infografia de Tile Grid, donde una <img> enlazada contaminaba el lienzo con file://
+    // y toDataURL() reventaba en silencio.
+    btn.textContent = 'Error: ' + (e && e.message ? e.message : e);
+    btn.style.background = '#B00020';
+    console.error(e);
   });
 }
 </script>
