@@ -1,9 +1,59 @@
-# Certification Notes — Chip Slicer Hierarchy v1.1.1.0
+# Certification Notes — Chip Slicer Hierarchy v1.2.0.0
 
 The short version to paste into Partner Center lives in
 [`CERTIFICATION-NOTES-SHORT.txt`](./CERTIFICATION-NOTES-SHORT.txt), written to fit the
 2,500-character limit of that field, which truncates without warning and mid-word. That
 field is cleared on every resubmission.
+
+## What changed in 1.2.0.0
+
+### The purchase path was broken
+
+`notifyLicenseRequired` was raised before `notifyFeatureBlocked`, in the same update. Power
+BI shows one notification at a time and the last call replaces the previous one, so the
+banner wiped out the persistent Upgrade bar; when the banner faded some ten seconds later, a
+free user who had just reached for a Pro feature was left with **no way to buy at all**.
+
+The sequence is now: clear any standing notice, raise the banner naming the feature, and
+raise the Upgrade bar 10.5 s later, once the banner has gone. The timer is cancelled in
+`destroy()`, because Power BI recreates the visual on every page change and a live timer
+would notify on behalf of a slicer that no longer exists.
+
+### Pro preview
+
+Turning on the search box or heat-map colouring without a licence did **nothing at all** —
+the setting was accepted and then ignored, which reads as a visual that is broken rather
+than as something worth buying. Both are now drawn *working*, under a "Pro preview"
+watermark that names them, while the user edits a report without a licence.
+
+The preview is granted **per feature**, never in bulk: inserting the visual hands out
+nothing, because nothing has been asked for yet. It requires the licence to have **resolved**
+and the environment to support licensing — at start-up `isPro` is false for a paying
+customer too, and where the licence cannot be read (Publish to Web, embedding, export) a Pro
+customer reads as Free, so the watermark there would land in front of someone who has
+already paid.
+
+In reading view the free result renders with no watermark and no prompt, so a published
+report never uses a feature nobody paid for.
+
+The watermark is a `div` built with `createElement` and `textContent`. There is no
+`innerHTML` anywhere in this visual, which matters more here than elsewhere: it was rejected
+for XSS once.
+
+### Format pane in Spanish
+
+Forty keys were already written *and translated* in `stringResources`, and none of them
+reached the screen: `settings.ts` never referenced them with `displayNameKey`, and
+`FormattingSettingsService` was built without a localization manager. There are now 74 keys
+complete in `en-US` and `es-ES`, covering the cards, the settings and the four field wells.
+
+### Toolchain
+
+Tools 7.2.1, API 5.11.1 (the manifest still declared 5.10.0), TypeScript 5.5.4 and the
+`qs`/`uuid` overrides. Lint had no configuration in the format `pbiviz` expects, so every
+build printed *"Can't run lint validation"* and packaged anyway — and that is where the
+certification rules are checked. `npm audit` reports 0 vulnerabilities, lint runs clean, and
+`pbiviz package --certification-audit` finds no external requests.
 
 ## What changed in 1.1.1.0
 
@@ -144,7 +194,7 @@ Labels, including the search highlighting, are built with `createElement` and te
 - [x] Sample `.pbix` includes 13+ unique values and a Tips & Hints page
 - [x] Image sanitization: non-`data:` URIs rejected before `img.src`
 - [x] No `innerHTML`, no suppression of `no-inner-outer-html`
-- [x] Version in `pbiviz.json` (1.1.0.0) is above the published 1.0.0.4
+- [x] Version in `pbiviz.json` (1.2.0.0) is above the published 1.1.1.0
 
 ### Known gaps, declared openly
 

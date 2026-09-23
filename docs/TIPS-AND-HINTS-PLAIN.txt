@@ -1,4 +1,4 @@
-CHIP SLICER HIERARCHY — TIPS & HINTS (v1.1.0.0)
+CHIP SLICER HIERARCHY — TIPS & HINTS (v1.2.0.0)
 =================================================
 (Plain-text version — safe to paste into a Power BI text box; no markdown tables)
 

@@ -6,7 +6,7 @@ A hierarchical chip/pill slicer for Power BI. Drop several fields into one well 
 field order becomes the hierarchy — click a chip to filter, expand it to drill down.
 
 [![AppSource](https://img.shields.io/badge/AppSource-Available-0078D4?logo=microsoft)](https://appsource.microsoft.com)
-[![Version](https://img.shields.io/badge/version-1.1.0.0-brightgreen)](./pbiviz.json)
+[![Version](https://img.shields.io/badge/version-1.2.0.0-brightgreen)](./pbiviz.json)
 [![License](https://img.shields.io/badge/license-Commercial-orange)](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html)
 
 📖 **[Documentation & Support](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html)** ·

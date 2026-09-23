@@ -1,4 +1,4 @@
-# AppSource Listing — Chip Slicer Hierarchy v1.1.0.0
+# AppSource Listing — Chip Slicer Hierarchy v1.2.0.0
 
 Copy ready to paste into Partner Center. **The marketplace description is the
 documentation most people read and the one that goes stale fastest** — update it on every
@@ -63,8 +63,16 @@ weight is. The search box filters chips across every level as you type, marking 
 matches and counting them. The value heatmap tints each chip by its measure, scaled
 level by level so a child is compared with its siblings.
 
-Turn either on without a licence and Power BI shows its own notification with the link
-to obtain one. The setting is kept and applies as soon as the licence is active.
+SEE IT BEFORE YOU BUY IT
+
+Turn either on without a licence and it is drawn working, under a "Pro preview" watermark
+that names it: your own hierarchy searched, your own chips coloured by your own measure —
+not a screenshot of someone else's data. Power BI shows its own notification with the link
+to obtain a licence.
+
+Reading view shows the free result with no watermark, so a published report never uses a
+feature nobody paid for. The preview covers only the setting you turned on, not both at
+once.
 
 Licensing is handled entirely through Microsoft AppSource. There is no external account,
 no separate payment system, and no licence server.
@@ -75,6 +83,16 @@ no separate payment system, and no licence server.
 ## What's new in this version
 
 ```
+Version 1.2.0.0
+
+• Pro preview: the search box and the value heatmap can now be seen working on your own
+  data before you buy them, under a watermark that names them. Reading view shows the free
+  result with no watermark.
+• Fixed: the Upgrade option could disappear before you had a chance to use it. The notice
+  naming the blocked feature was replacing it instead of following it, so once that notice
+  faded there was nothing left to click.
+• The format pane is available in Spanish.
+
 Version 1.1.0.0
 
 • New in Pro: a value heatmap that colours each chip by its measure, scaled level by level
@@ -131,5 +149,5 @@ the PNG will silently carry the old text.
 - [ ] Support, privacy and terms URLs checked with a real request, not assumed
 - [ ] Certification notes pasted from `docs/CERTIFICATION-NOTES.md` (Partner Center clears
       that field on every resubmission)
-- [ ] Version 1.1.0.0 is above the published 1.0.0.4
+- [ ] Version 1.2.0.0 is above the published 1.1.1.0
 - [ ] Sample .pbix includes the Tips & Hints page, updated for this version

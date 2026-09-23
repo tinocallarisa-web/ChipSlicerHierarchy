@@ -1,4 +1,4 @@
-# Chip Slicer Hierarchy — Tips & Hints (v1.1.0.0)
+# Chip Slicer Hierarchy — Tips & Hints (v1.2.0.0)
 
 Paste into the "Tips & Hints" page of the sample `.pbix`.
 See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text box.

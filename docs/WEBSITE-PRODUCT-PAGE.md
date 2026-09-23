@@ -1,4 +1,4 @@
-# Chip Slicer Hierarchy — Website Product Page Content (v1.1.0.0)
+# Chip Slicer Hierarchy — Website Product Page Content (v1.2.0.0)
 
 Content for the four tabs of the TCViz product page.
 
@@ -98,7 +98,7 @@ obtain one. The setting is kept and applies as soon as the licence is active.
 
 **Specs**
 - API version: 5.10.0
-- Current version: 1.1.0.0
+- Current version: 1.2.0.0
 - Platform: Power BI Desktop & Power BI Service
 
 **Field wells**
@@ -152,6 +152,19 @@ None beyond the Power BI Visuals API and `powerbi-visuals-utils-formattingmodel`
 ## Tab 4: Changelog
 
 (Mirror of `CHANGELOG.md` — keep both in sync on every release.)
+
+### 1.2.0.0
+
+**Added**
+- Pro preview: turn on the search box or the value heatmap without a licence and it is
+  drawn working, under a watermark that names it, so you can try it on your own hierarchy
+  before deciding. Reading view shows the free result, with no watermark
+- Format pane in Spanish
+
+**Fixed**
+- The Upgrade option could disappear before you could use it: the notice naming the blocked
+  feature was replacing it instead of following it, so once it faded there was nothing left
+  to click
 
 ### 1.1.0.0
 - **Added:** value heatmap (Pro) — chips coloured by their measure, scaled per level
