@@ -1,36 +1,45 @@
-Chip Slicer Hierarchy 1.1.1.0. Full notes: docs/CERTIFICATION-NOTES.md in the repo below.
+Chip Slicer Hierarchy 1.2.0.0. Full notes: docs/CERTIFICATION-NOTES.md in the repo below.
 
-WHAT CHANGED IN 1.1.1.0
-Licence fix only; no feature, data or UI change. 1.1.0.0 is published. Its licence check
-compared spIdentifier with "chip-slicer-hierarchy-tcviz", which is not a plan of this
-offer, and used strict equality, while the Licensing API returns the full Service ID
-(publisher.offer.plan). Pro never unlocked for a buyer. The check now matches the real
-Pro plan "chipslicer-hierarchy-pro", as the full Service ID or the Plan ID on its own.
+WHAT CHANGED IN 1.2.0.0
+1. THE PURCHASE PATH WAS BROKEN. notifyLicenseRequired went before notifyFeatureBlocked,
+and Power BI shows one notification at a time: the banner wiped out the Upgrade bar and,
+once it faded, a free user had no way to buy. Now: clear, banner, Upgrade bar 10.5 s later,
+cancelled in destroy().
+2. PRO PREVIEW. Turning on the search box or heat-map colouring without a licence did
+nothing: a broken visual, not something to buy. Editing without a licence, once resolved,
+the feature draws WORKING under a "Pro preview" watermark naming it, per feature. Reading
+view or unreadable licence: free result. The watermark is a div built with createElement,
+textContent and no innerHTML.
+3. Toolchain current (tools 7.2.1, API 5.11.1), npm audit 0, lint clean (it had no config
+and was skipped), --certification-audit finds nothing.
+
+1.1.1.0 fixed the licence check to match the full Service ID by suffix against
+"chipslicer-hierarchy-pro"; before that Pro never unlocked for a buyer.
 
 LICENCE
-Official IVisualLicenseManager only (getAvailableServicePlans). Active and Warning (grace
-period) accepted. isLicenseUnsupportedEnv and isLicenseInfoAvailable honoured: no purchase
-prompt where a Pro customer cannot be recognised. Nothing is notified before the licence
-resolves. No licence server, no external auth, no payment in the visual. No watermark, no
-artificial free limits. Purchase path: notifyFeatureBlocked and notifyLicenseRequired.
+IVisualLicenseManager only. Active and Warning (grace period) accepted.
+isLicenseUnsupportedEnv and isLicenseInfoAvailable honoured; nothing notified before the
+licence resolves. No licence server, no external auth, no payment, no licensing UI of its
+own.
 
-DATA
-Only the categorical dataView (Categories, Images, Values, Tooltips). No fetch, no XHR, no
-local file access. The Images role accepts only data:image/*;base64 URIs; every other
-scheme is rejected before img.src, so the visual makes no outbound request.
+DATA: only the categorical dataView. No fetch, no XHR, no file access. The Images role
+accepts only data:image/*;base64 URIs; anything else is rejected before img.src.
 
 TIERS
-Free: the whole slicer - all 3 levels, single/multi/leaf selection, drill-down,
-auto-collapse, per-level colours, image chips, value badges, reset and All chips,
-cross-filtering, highlighting, bookmarks, keyboard, high contrast.
+Free: the whole slicer - 3 levels, single/multi/leaf selection, drill-down, auto-collapse,
+per-level colours, image chips, value badges, reset and All chips, cross-filtering,
+bookmarks, keyboard.
 Pro: Search (Pro) and Value Heatmap (Pro).
 
-TEST
-Add fields to "Categories" - the field order is the hierarchy. Without a licence turn on
-Search (Pro) > Show search box: no box appears and Power BI raises its notification. Bind
-a measure to Values and turn on Value Heatmap (Pro): same. With an active
-"chipslicer-hierarchy-pro" plan, both render.
+TEST - FREE (no plan)
+1. Add fields to "Categories": the field order is the hierarchy.
+2. EDITING, turn on Search (Pro): the box draws under a "Pro preview" watermark, a banner
+   names it, and ten seconds later the Upgrade bar appears and stays. Turn it off:
+   watermark and notice clear.
+3. Values + Value Heatmap (Pro): the same. 4. Reading view: none of it, no prompt.
+5. Page away and back: no stray notification from the disposed visual.
+TEST - PRO: both render, no watermark, no notice.
 
 Video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
-URLs: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/ + privacy.html, terms.html,
-support.html - Repo github.com/tinocallarisa-web/ChipSlicerHierarchy (certification)
+URLs: tinocallarisa-web.github.io/ChipSlicerHierarchy/ - Repo
+github.com/tinocallarisa-web/ChipSlicerHierarchy, branch certification

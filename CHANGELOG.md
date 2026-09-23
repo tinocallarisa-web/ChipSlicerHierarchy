@@ -2,6 +2,22 @@
 
 All notable changes to Chip Slicer Hierarchy are documented here.
 
+## [1.2.0.0] - 2026-09-23
+
+### Fixed
+
+- **The purchase path was broken.** `notifyLicenseRequired` was raised before `notifyFeatureBlocked`. Power BI shows one notification at a time and the last call replaces the previous one, so the banner wiped out the persistent Upgrade bar; once the banner faded some ten seconds later, a free user who had just reached for a Pro feature had no way to buy at all. The sequence is now: clear any standing notice, raise the banner naming the feature, and raise the Upgrade bar 10.5 seconds later, once the banner has gone. The timer is cancelled in `destroy()`, because Power BI recreates the visual on every page change and a live timer would notify on behalf of a slicer that no longer exists.
+
+### Added
+
+- **Pro preview.** Turning on the search box or heat-map colouring without a licence did **nothing at all** — the setting was accepted and then ignored, which reads as a visual that is broken rather than as something to buy. Both are now drawn *working*, under a "Pro preview" watermark that names them, while you edit a report without a licence. In reading view — and anywhere the licence cannot be read, such as Publish to Web, embedding or export — the free result renders with no watermark and no prompt, so a published report never uses a feature nobody paid for. The preview is granted **per feature**, never in bulk. The watermark is a `div` built with `createElement` and `textContent`: there is no `innerHTML` anywhere in this visual, which matters more here than elsewhere because it was rejected for XSS once.
+
+### Changed
+
+- **Toolchain on current versions.** Tools 7.2.1, API 5.11.1 (the manifest still declared 5.10.0), TypeScript 5.5.4, `@types/node` pinned to 22 and the `qs`/`uuid` overrides. Lint had no configuration in the format `pbiviz` expects, so every build printed *"Can't run lint validation"* and packaged anyway — and that is where the certification rules are checked. `npm audit` now reports 0 vulnerabilities, lint runs clean over two files, and `pbiviz package --certification-audit` finds no external requests.
+
+---
+
 ## [1.1.1.0] - 2026-09-15
 
 ### Fixed

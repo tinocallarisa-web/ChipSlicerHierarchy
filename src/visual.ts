@@ -334,6 +334,13 @@ export class Visual implements IVisual {
     private lastBlockedNotice = "";
     /** El icono persistente es de un solo disparo: queda hasta que se limpia. */
     private licenseIconShown = false;
+    /** Temporizador que levanta la barra de Upgrade cuando el banner termina. */
+    private temporizadorIcono: number | null = null;
+    /** Editando sin licencia y con la licencia resuelta: lo Pro se dibuja con marca. */
+    private previaPro = false;
+    private editando = false;
+    /** Funciones Pro que el usuario ha activado, para la marca de agua. */
+    private etiquetasPro: string[] = [];
     private searchQuery: string = "";
     private hasInitializedTree: boolean = false;
     /** True mientras esperamos el update que confirma un filtro aplicado por nosotros. */
@@ -359,6 +366,9 @@ export class Visual implements IVisual {
 
     async update(options: VisualUpdateOptions): Promise<void> {
         this.host.eventService.renderingStarted(options);
+        // viewMode 0 es vista de lectura. La previa es cosa de quien edita: un informe
+        // publicado nunca debe usar una funcion que no se ha pagado.
+        this.editando = (options as unknown as { viewMode?: number }).viewMode !== 0;
         try {
             await this._update(options);
             this.host.eventService.renderingFinished(options);
@@ -394,9 +404,76 @@ export class Visual implements IVisual {
         return { labels, signature: parts.join("|") };
     }
 
+    /**
+     * Vista previa Pro.
+     *
+     * Solo con la licencia ya resuelta y en un entorno donde se puede leer: al arrancar,
+     * isPro es false tambien para quien ya pago, y donde la licencia no se resuelve
+     * -Publicar en la web, incrustado, exportacion- un cliente Pro se lee como gratuito.
+     * Marcarlo ahi seria ponerle la marca a quien ya compro.
+     */
+    private calcularPrevia(): boolean {
+        return !this.isPro && this.editando && this.licenseResolved
+            && this.licenseEnvSupported && this.licenseInfoAvailable;
+    }
+
+    /** Si una funcion Pro concreta se dibuja. Por funcion, nunca en bloque. */
+    private permitir(etiqueta: string): boolean {
+        if (this.isPro) { return true; }
+        if (!this.previaPro) { return false; }
+        return this.etiquetasPro.indexOf(etiqueta) >= 0;
+    }
+
+    /**
+     * "Pro preview" sobre los chips, y debajo lo que la ha encendido.
+     *
+     * Con DOM, como todo el visual, y con textContent: nunca innerHTML. Se retira siempre
+     * al principio, asi que apagar la funcion la quita sin dejar rastro.
+     */
+    private renderMarcaDeAgua(): void {
+        const previa = this.target.querySelector(".tcviz-marca");
+        if (previa) { previa.remove(); }
+        if (!this.previaPro || this.etiquetasPro.length === 0) { return; }
+
+        const capa = document.createElement("div");
+        capa.className = "tcviz-marca";
+        capa.setAttribute("aria-hidden", "true");
+        capa.style.cssText = [
+            "position:absolute", "inset:0", "display:flex", "flex-direction:column",
+            "align-items:center", "justify-content:center", "gap:4px",
+            "pointer-events:none", "z-index:50", "opacity:0.72",
+            "transform:rotate(-20deg)", "font-family:'Segoe UI',sans-serif",
+        ].join(";");
+
+        const linea = (texto: string, px: number, peso: string) => {
+            const el = document.createElement("div");
+            el.textContent = texto;
+            el.style.cssText = [
+                `font-size:${px}px`, `font-weight:${peso}`, "letter-spacing:0.06em",
+                "color:#FFFFFF", "text-align:center",
+                // SVG no tiene text-shadow y aqui si: el contorno oscuro hace que se lea
+                // igual sobre chips claros y oscuros.
+                "text-shadow:0 0 3px #1B2A41,0 0 3px #1B2A41,0 0 3px #1B2A41",
+            ].join(";");
+            capa.appendChild(el);
+        };
+
+        const ancho = this.target.clientWidth || 300;
+        const alto = this.target.clientHeight || 200;
+        const fs = Math.round(Math.max(20, Math.min(72, ancho / 8, alto / 3.5)));
+
+        linea("Pro preview", fs, "700");
+        linea(this.etiquetasPro.join(" \u00b7 "), Math.round(fs * 0.34), "600");
+
+        // El contenedor necesita posicionamiento para que inset:0 signifique algo.
+        if (!this.target.style.position) { this.target.style.position = "relative"; }
+        this.target.appendChild(capa);
+    }
+
     /** Retira el aviso: la licencia resolvio, o el usuario quito los ajustes Pro. */
     private clearLicenseNotice(): void {
         this.lastBlockedNotice = "";
+        this.cancelarIconoLicencia();
         if (!this.licenseIconShown) return;
         this.licenseIconShown = false;
         try {
@@ -420,22 +497,16 @@ export class Visual implements IVisual {
         // Entorno sin licencias, o licencia ilegible: un cliente Pro cae aqui.
         if (!this.licenseEnvSupported || !this.licenseInfoAvailable) return;
 
-        // El icono cubre el estado -una prueba caducada, donde el usuario no
-        // toca nada y la busqueda desaparece sola-. Power BI solo lo aplica en
-        // modo edicion, asi que quien lee el informe no ve nada.
-        if (!this.licenseIconShown) {
-            this.licenseIconShown = true;
-            try {
-                // const enum: TypeScript lo inlinea a 0. Referenciar el objeto
-                // del enum en runtime daria undefined.
-                this.licenseManager?.notifyLicenseRequired?.(LicenseNotificationType.General);
-            } catch { /* best-effort */ }
-        }
-
         // El banner cubre la accion, y solo cuando hay una nueva: update() corre
         // tambien al redimensionar y al refrescar datos.
         if (signature === this.lastBlockedNotice) return;
         this.lastBlockedNotice = signature;
+
+        // Limpiar ANTES. Power BI muestra un aviso cada vez y el ultimo pisa al anterior:
+        // hasta 1.1.1.0 se levantaba primero la barra de Upgrade y despues el banner, asi
+        // que el banner la borraba y, al desvanecerse, no quedaba ninguna ruta de compra.
+        try { this.licenseManager?.clearLicenseNotification?.(); } catch { /* best-effort */ }
+        this.licenseIconShown = false;
 
         try {
             const lista = labels.length === 1
@@ -446,6 +517,37 @@ export class Visual implements IVisual {
                 `the Pro plan. Get a licence to enable ${labels.length === 1 ? "it" : "them"}.`
             );
         } catch { /* la notificacion nunca debe romper el render */ }
+
+        // Y la barra de Upgrade DESPUES, cuando el banner ya se ha ido. Cubre el estado
+        // -una prueba caducada, donde el usuario no toca nada y la busqueda desaparece
+        // sola-, que el banner por si solo no cubre porque solo salta al cambiar un ajuste.
+        this.cancelarIconoLicencia();
+        this.temporizadorIcono = window.setTimeout(() => {
+            this.temporizadorIcono = null;
+            if (this.isPro) { return; }
+            try {
+                // const enum: TypeScript lo inlinea a 0. Referenciar el objeto
+                // del enum en runtime daria undefined.
+                this.licenseManager?.notifyLicenseRequired?.(LicenseNotificationType.General);
+                this.licenseIconShown = true;
+            } catch { /* best-effort */ }
+        }, 10500);
+    }
+
+    /** Cancela la barra de Upgrade que estuviera programada. */
+    private cancelarIconoLicencia(): void {
+        if (this.temporizadorIcono !== null) {
+            window.clearTimeout(this.temporizadorIcono);
+            this.temporizadorIcono = null;
+        }
+    }
+
+    /**
+     * Power BI recrea el visual al cambiar de pagina: un temporizador vivo levantaria la
+     * barra de Upgrade sobre un visual que ya no existe.
+     */
+    public destroy(): void {
+        this.cancelarIconoLicencia();
     }
 
     private async _update(options: VisualUpdateOptions): Promise<void> {
@@ -567,9 +669,16 @@ export class Visual implements IVisual {
 
         // La licencia ya esta resuelta y los ajustes poblados: es el momento de
         // decir algo si el usuario ha pedido una feature de pago.
+        // Estado de la previa ANTES de pintar: el render pregunta por el en cada punto
+        // de bloqueo. Y las etiquetas se recalculan aqui en cada pasada, nunca se
+        // acumulan: lo que se apaga tiene que dejar de aparecer en la marca.
+        this.previaPro = this.calcularPrevia();
+        this.etiquetasPro = this.isPro ? [] : this.attemptedProFeatures().labels;
+
         this.notifyProFeatureBlocked();
 
         this.render();
+        this.renderMarcaDeAgua();
     }
 
     private showLanding(): void {
@@ -599,7 +708,7 @@ export class Visual implements IVisual {
 
     private renderChipMode(): void {
         const hm = this.settings?.heatmapSettingsCard;
-        this.rangoHeatmap = (this.isPro && hm && Boolean(hm.showHeatmap.value))
+        this.rangoHeatmap = (this.permitir("colouring chips by value") && hm && Boolean(hm.showHeatmap.value))
             ? this.rangoPorNivel()
             : null;
         // Capture focus before any DOM mutation
@@ -624,13 +733,13 @@ export class Visual implements IVisual {
         `;
 
         if (Boolean(ss.showSearch.value)) {
-            if (this.isPro) {
+            if (this.permitir("the search box")) {
                 wrapper.appendChild(this.buildSearchBox(isHC));
             }
-            // Sin licencia no se dibuja nada aqui. Antes habia un "Search requires
-            // Pro" en gris: UI de licencia propia, que la guia de Microsoft
-            // desaconseja, y ademas un callejon sin salida sin nada que pulsar.
-            // Ahora lo cubre notifyProFeatureBlocked, que si lleva a la compra.
+            // Sin licencia y fuera de la vista previa no se dibuja nada aqui. Antes habia
+            // un "Search requires Pro" en gris: UI de licencia propia, que la guia de
+            // Microsoft desaconseja, y ademas un callejon sin salida sin nada que pulsar.
+            // La ruta de compra la pone notifyProFeatureBlocked.
         }
 
         if (Boolean(hs.showReset.value)) {
@@ -639,7 +748,7 @@ export class Visual implements IVisual {
 
         const chipContainer = document.createElement("div");
         chipContainer.style.cssText = `display:flex;flex-direction:column;gap:${s.chipGap.value}px;`;
-        if (this.searchQuery && this.isPro) {
+        if (this.searchQuery && this.permitir("the search box")) {
             this.renderSearchResults(chipContainer, isHC, layout);
         } else {
             this.renderNodes(this.hierarchyManager.roots, chipContainer, isHC, layout, 0);
