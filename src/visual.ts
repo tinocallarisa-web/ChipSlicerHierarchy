@@ -351,7 +351,11 @@ export class Visual implements IVisual {
         this.target = options.element;
         this.host = options.host;
         this.selectionManager = this.host.createSelectionManager();
-        this.formattingSettingsService = new FormattingSettingsService();
+        // CON el gestor de localizacion. Sin el, los displayNameKey no se resuelven y el
+        // panel sale en ingles aunque las traducciones esten escritas y guardadas: era
+        // exactamente lo que pasaba, con 40 claves en espanol que no llegaban a la pantalla.
+        this.formattingSettingsService = new FormattingSettingsService(
+            this.host.createLocalizationManager());
         this.settings = new VisualSettingsModel();
         this.licenseManager = (options.host as any).licenseManager;
         this.target.style.overflow = "auto";

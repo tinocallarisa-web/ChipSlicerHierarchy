@@ -3,40 +3,40 @@ Chip Slicer Hierarchy 1.2.0.0. Full notes: docs/CERTIFICATION-NOTES.md in the re
 WHAT CHANGED IN 1.2.0.0
 1. THE PURCHASE PATH WAS BROKEN. notifyLicenseRequired went before notifyFeatureBlocked,
 and Power BI shows one notification at a time: the banner wiped out the Upgrade bar and,
-once it faded, a free user had no way to buy. Now: clear, banner, Upgrade bar 10.5 s later,
-cancelled in destroy().
+once it faded, nobody could buy. Now: clear, banner, Upgrade bar 10.5 s later, cancelled
+in destroy().
 2. PRO PREVIEW. Turning on the search box or heat-map colouring without a licence did
 nothing: a broken visual, not something to buy. Editing without a licence, once resolved,
-the feature draws WORKING under a "Pro preview" watermark naming it, per feature. Reading
-view or unreadable licence: free result. The watermark is a div built with createElement,
-textContent and no innerHTML.
-3. Toolchain current (tools 7.2.1, API 5.11.1), npm audit 0, lint clean (it had no config
-and was skipped), --certification-audit finds nothing.
+it draws WORKING under a "Pro preview" watermark naming it, per feature. Reading view or
+unreadable licence: free result. The watermark is a div: createElement, textContent, no
+innerHTML.
+3. FORMAT PANE IN SPANISH. 40 keys were already translated, but settings.ts did not use
+displayNameKey and FormattingSettingsService had no localization manager. 74 keys now in
+en-US and es-ES.
+4. Toolchain current (tools 7.2.1, API 5.11.1), npm audit 0, lint clean (it had no config),
+--certification-audit finds nothing.
 
-1.1.1.0 fixed the licence check to match the full Service ID by suffix against
-"chipslicer-hierarchy-pro"; before that Pro never unlocked for a buyer.
+1.1.1.0 fixed the licence check to match the full Service ID by suffix; before that Pro
+never unlocked for a buyer.
 
 LICENCE
 IVisualLicenseManager only. Active and Warning (grace period) accepted.
-isLicenseUnsupportedEnv and isLicenseInfoAvailable honoured; nothing notified before the
-licence resolves. No licence server, no external auth, no payment, no licensing UI of its
-own.
+isLicenseUnsupportedEnv and isLicenseInfoAvailable honoured; nothing notified before it
+resolves. No licence server, no external auth, no payment, no licensing UI of its own.
 
-DATA: only the categorical dataView. No fetch, no XHR, no file access. The Images role
-accepts only data:image/*;base64 URIs; anything else is rejected before img.src.
+DATA: only the categorical dataView. No fetch, no XHR, no file access. Images accepts only
+data:image/*;base64; anything else is rejected before img.src.
 
 TIERS
-Free: the whole slicer - 3 levels, single/multi/leaf selection, drill-down, auto-collapse,
-per-level colours, image chips, value badges, reset and All chips, cross-filtering,
-bookmarks, keyboard.
-Pro: Search (Pro) and Value Heatmap (Pro).
+Free: the whole slicer - 3 levels, selection modes, drill-down, auto-collapse, per-level
+colours, image chips, value badges, reset and All chips, cross-filtering, Spanish pane.
+Pro: Search and Value Heatmap.
 
 TEST - FREE (no plan)
 1. Add fields to "Categories": the field order is the hierarchy.
-2. EDITING, turn on Search (Pro): the box draws under a "Pro preview" watermark, a banner
-   names it, and ten seconds later the Upgrade bar appears and stays. Turn it off:
-   watermark and notice clear.
-3. Values + Value Heatmap (Pro): the same. 4. Reading view: none of it, no prompt.
+2. EDITING, Search (Pro): the box draws under a "Pro preview" watermark, a banner names
+   it, the Upgrade bar follows ten seconds later. Turn it off: both clear.
+3. Values + Value Heatmap (Pro): the same. 4. Reading view: none of it.
 5. Page away and back: no stray notification from the disposed visual.
 TEST - PRO: both render, no watermark, no notice.
 

@@ -1,25 +1,25 @@
 {
   "dataRoles": [
     {
-      "displayName": "Categories",
+      "displayName": "Categories", "displayNameKey": "roleCategories",
       "name": "categories",
       "kind": "Grouping",
       "description": "Add hierarchy fields in order — 1st field = Level 1, 2nd = Level 2, 3rd = Level 3"
     },
     {
-      "displayName": "Images",
+      "displayName": "Images", "displayNameKey": "roleImages",
       "name": "images",
       "kind": "Grouping",
       "description": "Optional image URL columns — one per level, in the same order as Categories"
     },
     {
-      "displayName": "Values",
+      "displayName": "Values", "displayNameKey": "roleValues",
       "name": "values",
       "kind": "Measure",
       "description": "Optional measure to display as a badge on each chip (aggregated per hierarchy level)"
     },
     {
-      "displayName": "Tooltips",
+      "displayName": "Tooltips", "displayNameKey": "roleTooltips",
       "name": "tooltips",
       "kind": "GroupingOrMeasure",
       "description": "Optional extra fields shown in the tooltip when hovering a chip"

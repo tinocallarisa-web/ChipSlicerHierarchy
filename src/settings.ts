@@ -11,24 +11,28 @@ class ChipSettingsCard extends FormattingSettingsCard {
     public multiSelect = new formattingSettings.ToggleSwitch({
         name: "multiSelect",
         displayName: "Multi-select",
+        displayNameKey: "multiSelect",
         value: true
     });
 
     public leafOnly = new formattingSettings.ToggleSwitch({
         name: "leafOnly",
         displayName: "Leaf-only selection",
+        displayNameKey: "leafOnly",
         value: false
     });
 
     public hideBlank = new formattingSettings.ToggleSwitch({
         name: "hideBlank",
         displayName: "Hide blank values",
+        displayNameKey: "hideBlanks",
         value: true
     });
 
     public defaultSelection = new formattingSettings.ItemDropdown({
         name: "defaultSelection",
         displayName: "Default selection",
+        displayNameKey: "defaultSelection",
         items: [
             { value: "none",  displayName: "None" },
             { value: "first", displayName: "First value" }
@@ -39,6 +43,7 @@ class ChipSettingsCard extends FormattingSettingsCard {
     public layout = new formattingSettings.ItemDropdown({
         name: "layout",
         displayName: "Layout",
+        displayNameKey: "layout",
         items: [
             { value: "horizontal", displayName: "Horizontal" },
             { value: "vertical",   displayName: "Vertical" }
@@ -49,42 +54,49 @@ class ChipSettingsCard extends FormattingSettingsCard {
     public chipHeight = new formattingSettings.NumUpDown({
         name: "chipHeight",
         displayName: "Chip height (px)",
+        displayNameKey: "chipHeight",
         value: 34
     });
 
     public chipRadius = new formattingSettings.NumUpDown({
         name: "chipRadius",
         displayName: "Border radius (px)",
+        displayNameKey: "chipRadius",
         value: 17
     });
 
     public fontSize = new formattingSettings.NumUpDown({
         name: "fontSize",
         displayName: "Font size",
+        displayNameKey: "fontSize",
         value: 12
     });
 
     public chipGap = new formattingSettings.NumUpDown({
         name: "chipGap",
         displayName: "Gap (px)",
+        displayNameKey: "chipGap",
         value: 6
     });
 
     public chipPaddingH = new formattingSettings.NumUpDown({
         name: "chipPaddingH",
         displayName: "Horizontal padding (px)",
+        displayNameKey: "chipPaddingH",
         value: 16
     });
 
     public showSelectAll = new formattingSettings.ToggleSwitch({
         name: "showSelectAll",
         displayName: "Show 'All' button",
+        displayNameKey: "showSelectAll",
         value: true
     });
 
     public selectAllLabel = new formattingSettings.TextInput({
         name: "selectAllLabel",
         displayName: "'All' button text",
+        displayNameKey: "selectAllLabel",
         placeholder: "All",
         value: "All"
     });
@@ -114,24 +126,28 @@ class SearchSettingsCard extends FormattingSettingsCard {
     public showSearch = new formattingSettings.ToggleSwitch({
         name: "showSearch",
         displayName: "Show search box (Pro)",
+        displayNameKey: "showSearch",
         value: false
     });
 
     public highlightMatches = new formattingSettings.ToggleSwitch({
         name: "highlightMatches",
         displayName: "Highlight matches (Pro)",
+        displayNameKey: "highlightMatches",
         value: true
     });
 
     public showResultCount = new formattingSettings.ToggleSwitch({
         name: "showResultCount",
         displayName: "Show result count (Pro)",
+        displayNameKey: "showResultCount",
         value: true
     });
 
     public searchPlaceholder = new formattingSettings.TextInput({
         name: "searchPlaceholder",
         displayName: "Placeholder text",
+        displayNameKey: "searchPlaceholder",
         placeholder: "Search…",
         value: "Search…"
     });
@@ -139,18 +155,21 @@ class SearchSettingsCard extends FormattingSettingsCard {
     public searchBg = new formattingSettings.ColorPicker({
         name: "searchBg",
         displayName: "Background",
+        displayNameKey: "badgeBg",
         value: { value: "#FFFFFF" }
     });
 
     public searchBorder = new formattingSettings.ColorPicker({
         name: "searchBorder",
         displayName: "Border color",
+        displayNameKey: "badgeBorder",
         value: { value: "#D1D5DB" }
     });
 
     public searchText = new formattingSettings.ColorPicker({
         name: "searchText",
         displayName: "Text color",
+        displayNameKey: "badgeText",
         value: { value: "#374151" }
     });
 
@@ -172,12 +191,14 @@ class ImageSettingsCard extends FormattingSettingsCard {
     public imageHeight = new formattingSettings.NumUpDown({
         name: "imageHeight",
         displayName: "Image height (px)",
+        displayNameKey: "imgHeight",
         value: 24
     });
 
     public imagePosition = new formattingSettings.ItemDropdown({
         name: "imagePosition",
         displayName: "Image position",
+        displayNameKey: "imgPosition",
         items: [
             { value: "left",  displayName: "Left of label" },
             { value: "above", displayName: "Above label" }
@@ -188,6 +209,7 @@ class ImageSettingsCard extends FormattingSettingsCard {
     public imageRadius = new formattingSettings.NumUpDown({
         name: "imageRadius",
         displayName: "Image border radius (px)",
+        displayNameKey: "imgRadius",
         value: 4
     });
 
@@ -207,12 +229,14 @@ class ValueSettingsCard extends FormattingSettingsCard {
     public showValue = new formattingSettings.ToggleSwitch({
         name: "showValue",
         displayName: "Show value badge",
+        displayNameKey: "showBadge",
         value: false
     });
 
     public valueFormat = new formattingSettings.ItemDropdown({
         name: "valueFormat",
         displayName: "Format",
+        displayNameKey: "badgeFormat",
         items: [
             { value: "compact",  displayName: "Compact (K / M / B)" },
             { value: "number",   displayName: "Number" },
@@ -225,36 +249,42 @@ class ValueSettingsCard extends FormattingSettingsCard {
     public valueBg = new formattingSettings.ColorPicker({
         name: "valueBg",
         displayName: "Background",
+        displayNameKey: "badgeBg",
         value: { value: "#E5E7EB" }
     });
 
     public valueText = new formattingSettings.ColorPicker({
         name: "valueText",
         displayName: "Text color",
+        displayNameKey: "badgeText",
         value: { value: "#374151" }
     });
 
     public valueFontSize = new formattingSettings.NumUpDown({
         name: "valueFontSize",
         displayName: "Font size (px)",
+        displayNameKey: "badgeFontSize",
         value: 11
     });
 
     public valueRadius = new formattingSettings.NumUpDown({
         name: "valueRadius",
         displayName: "Border radius (px)",
+        displayNameKey: "chipRadius",
         value: 10
     });
 
     public valuePaddingH = new formattingSettings.NumUpDown({
         name: "valuePaddingH",
         displayName: "Horizontal padding (px)",
+        displayNameKey: "chipPaddingH",
         value: 6
     });
 
     public showInTooltip = new formattingSettings.ToggleSwitch({
         name: "showInTooltip",
         displayName: "Show in tooltip",
+        displayNameKey: "showInTooltip",
         value: true
     });
 
@@ -276,15 +306,24 @@ class ValueSettingsCard extends FormattingSettingsCard {
 // Level 1 colours
 // ─────────────────────────────────────────────────────────────────────────────
 class Level1ColorsCard extends FormattingSettingsCard {
-    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",           value: { value: "#F3F4F6" } });
-    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",               value: { value: "#E5E7EB" } });
-    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",                 value: { value: "#374151" } });
-    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",             value: { value: "#378ADD" } });
-    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",                 value: { value: "#378ADD" } });
-    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",                   value: { value: "#FFFFFF" } });
-    public parentBg      = new formattingSettings.ColorPicker({ name: "parentBg",      displayName: "Parent-of-selection background",value: { value: "#D6EBFA" } });
-    public parentBorder  = new formattingSettings.ColorPicker({ name: "parentBorder",  displayName: "Parent-of-selection border",    value: { value: "#378ADD" } });
-    public parentText    = new formattingSettings.ColorPicker({ name: "parentText",    displayName: "Parent-of-selection text",      value: { value: "#1A5FA8" } });
+    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",
+        displayNameKey: "defaultBg",           value: { value: "#F3F4F6" } });
+    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",
+        displayNameKey: "defaultBorder",               value: { value: "#E5E7EB" } });
+    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",
+        displayNameKey: "defaultText",                 value: { value: "#374151" } });
+    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",
+        displayNameKey: "activeBg",             value: { value: "#378ADD" } });
+    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",
+        displayNameKey: "activeBorder",                 value: { value: "#378ADD" } });
+    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",
+        displayNameKey: "activeText",                   value: { value: "#FFFFFF" } });
+    public parentBg      = new formattingSettings.ColorPicker({ name: "parentBg",      displayName: "Parent-of-selection background",
+        displayNameKey: "parentBg",value: { value: "#D6EBFA" } });
+    public parentBorder  = new formattingSettings.ColorPicker({ name: "parentBorder",  displayName: "Parent-of-selection border",
+        displayNameKey: "parentBorder",    value: { value: "#378ADD" } });
+    public parentText    = new formattingSettings.ColorPicker({ name: "parentText",    displayName: "Parent-of-selection text",
+        displayNameKey: "parentText",      value: { value: "#1A5FA8" } });
 
     name: string = "level1Colors";
     displayName: string = "Level 1 Colors";
@@ -299,15 +338,24 @@ class Level1ColorsCard extends FormattingSettingsCard {
 // Level 2 colours
 // ─────────────────────────────────────────────────────────────────────────────
 class Level2ColorsCard extends FormattingSettingsCard {
-    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",           value: { value: "#E8F5F4" } });
-    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",               value: { value: "#B2DDD9" } });
-    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",                 value: { value: "#1B5E59" } });
-    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",             value: { value: "#0F9B8E" } });
-    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",                 value: { value: "#0F9B8E" } });
-    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",                   value: { value: "#FFFFFF" } });
-    public parentBg      = new formattingSettings.ColorPicker({ name: "parentBg",      displayName: "Parent-of-selection background",value: { value: "#C5EAE7" } });
-    public parentBorder  = new formattingSettings.ColorPicker({ name: "parentBorder",  displayName: "Parent-of-selection border",    value: { value: "#0F9B8E" } });
-    public parentText    = new formattingSettings.ColorPicker({ name: "parentText",    displayName: "Parent-of-selection text",      value: { value: "#0A6B62" } });
+    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",
+        displayNameKey: "defaultBg",           value: { value: "#E8F5F4" } });
+    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",
+        displayNameKey: "defaultBorder",               value: { value: "#B2DDD9" } });
+    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",
+        displayNameKey: "defaultText",                 value: { value: "#1B5E59" } });
+    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",
+        displayNameKey: "activeBg",             value: { value: "#0F9B8E" } });
+    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",
+        displayNameKey: "activeBorder",                 value: { value: "#0F9B8E" } });
+    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",
+        displayNameKey: "activeText",                   value: { value: "#FFFFFF" } });
+    public parentBg      = new formattingSettings.ColorPicker({ name: "parentBg",      displayName: "Parent-of-selection background",
+        displayNameKey: "parentBg",value: { value: "#C5EAE7" } });
+    public parentBorder  = new formattingSettings.ColorPicker({ name: "parentBorder",  displayName: "Parent-of-selection border",
+        displayNameKey: "parentBorder",    value: { value: "#0F9B8E" } });
+    public parentText    = new formattingSettings.ColorPicker({ name: "parentText",    displayName: "Parent-of-selection text",
+        displayNameKey: "parentText",      value: { value: "#0A6B62" } });
 
     name: string = "level2Colors";
     displayName: string = "Level 2 Colors";
@@ -322,12 +370,18 @@ class Level2ColorsCard extends FormattingSettingsCard {
 // Level 3 colours
 // ─────────────────────────────────────────────────────────────────────────────
 class Level3ColorsCard extends FormattingSettingsCard {
-    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",value: { value: "#F0EBF8" } });
-    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",    value: { value: "#D4BEF0" } });
-    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",      value: { value: "#3D1F7A" } });
-    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",  value: { value: "#7B5EA7" } });
-    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",      value: { value: "#7B5EA7" } });
-    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",        value: { value: "#FFFFFF" } });
+    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",
+        displayNameKey: "defaultBg",value: { value: "#F0EBF8" } });
+    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",
+        displayNameKey: "defaultBorder",    value: { value: "#D4BEF0" } });
+    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",
+        displayNameKey: "defaultText",      value: { value: "#3D1F7A" } });
+    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",
+        displayNameKey: "activeBg",  value: { value: "#7B5EA7" } });
+    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",
+        displayNameKey: "activeBorder",      value: { value: "#7B5EA7" } });
+    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",
+        displayNameKey: "activeText",        value: { value: "#FFFFFF" } });
 
     name: string = "level3Colors";
     displayName: string = "Level 3 Colors";
@@ -346,18 +400,21 @@ class HeatmapSettingsCard extends FormattingSettingsCard {
     public showHeatmap = new formattingSettings.ToggleSwitch({
         name: "showHeatmap",
         displayName: "Color chips by value (Pro)",
+        displayNameKey: "showHeatmap",
         value: false
     });
 
     public colorLow = new formattingSettings.ColorPicker({
         name: "colorLow",
         displayName: "Low value",
+        displayNameKey: "heatLow",
         value: { value: "#EDE9DE" }
     });
 
     public colorHigh = new formattingSettings.ColorPicker({
         name: "colorHigh",
         displayName: "High value",
+        displayNameKey: "heatHigh",
         value: { value: "#C96442" }
     });
 
@@ -374,30 +431,35 @@ class HierarchySettingsCard extends FormattingSettingsCard {
     public indentSize = new formattingSettings.NumUpDown({
         name: "indentSize",
         displayName: "Indent per level (px)",
+        displayNameKey: "indentSize",
         value: 20
     });
 
     public expandIcon = new formattingSettings.ToggleSwitch({
         name: "expandIcon",
         displayName: "Show expand icon",
+        displayNameKey: "expandIcon",
         value: true
     });
 
     public autoCollapse = new formattingSettings.ToggleSwitch({
         name: "autoCollapse",
         displayName: "Auto-collapse siblings",
+        displayNameKey: "autoCollapse",
         value: false
     });
 
     public showReset = new formattingSettings.ToggleSwitch({
         name: "showReset",
         displayName: "Show reset button",
+        displayNameKey: "showReset",
         value: false
     });
 
     public resetLabel = new formattingSettings.TextInput({
         name: "resetLabel",
         displayName: "Reset button label",
+        displayNameKey: "resetLabel",
         placeholder: "↺ Reset",
         value: "↺ Reset"
     });
@@ -405,18 +467,21 @@ class HierarchySettingsCard extends FormattingSettingsCard {
     public resetBg = new formattingSettings.ColorPicker({
         name: "resetBg",
         displayName: "Reset button background",
+        displayNameKey: "resetBg",
         value: { value: "#F3F4F6" }
     });
 
     public resetBorder = new formattingSettings.ColorPicker({
         name: "resetBorder",
         displayName: "Reset button border",
+        displayNameKey: "resetBorder",
         value: { value: "#D1D5DB" }
     });
 
     public resetText = new formattingSettings.ColorPicker({
         name: "resetText",
         displayName: "Reset button text",
+        displayNameKey: "resetText",
         value: { value: "#6B7280" }
     });
 

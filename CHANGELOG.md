@@ -14,6 +14,7 @@ All notable changes to Chip Slicer Hierarchy are documented here.
 
 ### Changed
 
+- **The format pane is available in Spanish.** Forty keys were already written *and translated into Spanish* in `stringResources` — and none of them reached the screen: `settings.ts` never referenced them with `displayNameKey`, and `FormattingSettingsService` was built without a localization manager. Somebody did the translation work and it sat there unused. The twenty-six that matched by text keep their original key names, thirty more were added for the settings that had none, and the four field wells were localized too: 74 keys in `en-US` and `es-ES`. Three entries are identical in both languages — the product name, "Horizontal" and "Vertical".
 - **Toolchain on current versions.** Tools 7.2.1, API 5.11.1 (the manifest still declared 5.10.0), TypeScript 5.5.4, `@types/node` pinned to 22 and the `qs`/`uuid` overrides. Lint had no configuration in the format `pbiviz` expects, so every build printed *"Can't run lint validation"* and packaged anyway — and that is where the certification rules are checked. `npm audit` now reports 0 vulnerabilities, lint runs clean over two files, and `pbiviz package --certification-audit` finds no external requests.
 
 ---
