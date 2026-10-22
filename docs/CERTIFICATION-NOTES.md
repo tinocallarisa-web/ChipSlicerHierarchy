@@ -78,7 +78,7 @@ clean. `npm audit --omit=dev`: 0.
 
 # History (1.2.0.0 notes)
 
-# Certification Notes — Chip Slicer Hierarchy v1.2.0.0
+# History (notes of the previous version)
 
 The short version to paste into Partner Center lives in
 [`CERTIFICATION-NOTES-SHORT.txt`](./CERTIFICATION-NOTES-SHORT.txt), written to fit the
