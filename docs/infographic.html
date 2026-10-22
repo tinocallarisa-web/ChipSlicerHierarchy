@@ -126,7 +126,7 @@
 
     <div>
       <h1>Chip Slicer <span>Hierarchy</span></h1>
-      <p>A hierarchical chip/pill slicer for Power BI. The order of your fields is the hierarchy — one click drills down.</p>
+      <p>Up to three levels in one Power BI slicer. The order of your fields is the hierarchy — one click filters, one click drills down. v1.3</p>
     </div>
 
     <svg width="190" height="100" viewBox="0 0 190 100">
@@ -149,10 +149,10 @@
       <div class="uc-item"><i class="ti ti-building-store"></i> Sales by region / store</div>
       <div class="uc-item"><i class="ti ti-sitemap"></i> Org structures</div>
       <div class="uc-item"><i class="ti ti-map-2"></i> Geography drill-down</div>
-      <div class="uc-item"><i class="ti ti-report-analytics"></i> Executive dashboards</div>
-      <div class="uc-item"><i class="ti ti-filter"></i> Multi-level filtering</div>
+      <div class="uc-item"><i class="ti ti-report-analytics"></i> Cost centres</div>
+      <div class="uc-item"><i class="ti ti-language"></i> 12 languages</div>
     </div>
-    <div class="callout">Replaces 3 stacked slicers with 1 visual</div>
+    <div class="callout">One slicer instead of three</div>
   </div>
 
   <!-- 3. BODY -->
@@ -161,11 +161,11 @@
       <h3>Free</h3>
       <ul>
         <li><i class="ti ti-circle-check"></i> Three hierarchy levels, one well</li>
-        <li><i class="ti ti-circle-check"></i> Multi-select &amp; leaf-only selection</li>
-        <li><i class="ti ti-circle-check"></i> Custom per-level colors</li>
-        <li><i class="ti ti-circle-check"></i> Image chips &amp; value badges</li>
-        <li><i class="ti ti-circle-check"></i> Auto-collapse &amp; reset button</li>
-        <li><i class="ti ti-circle-check"></i> Format pane in English and Spanish</li>
+        <li><i class="ti ti-circle-check"></i> 6 style templates &amp; per-level colours</li>
+        <li><i class="ti ti-circle-check"></i> Default selection by values &amp; round ✕</li>
+        <li><i class="ti ti-circle-check"></i> Image chips &amp; value badges (model format)</li>
+        <li><i class="ti ti-circle-check"></i> Multi-select, leaf-only, keyboard</li>
+        <li><i class="ti ti-circle-check"></i> On-object formatting, 12 languages</li>
       </ul>
     </div>
 
@@ -175,7 +175,7 @@
         <div class="pill"><b>3</b> levels</div>
         <div class="pill"><b>2,000</b> values</div>
         <div class="pill">1-click <b>drill-down</b></div>
-        <div class="pill"><b>Multi-select</b> included</div>
+        <div class="pill"><b>6</b> templates</div>
       </div>
     </div>
 
@@ -183,9 +183,10 @@
       <h3>Pro</h3>
       <ul>
         <li><i class="ti ti-circle-check"></i> <b>Everything in Free</b></li>
-        <li><i class="ti ti-circle-check"></i> <b>Search box</b> &mdash; across every<br>level, matches marked and counted</li>
-        <li><i class="ti ti-circle-check"></i> <b>Value heatmap</b> &mdash; each chip<br>coloured by its measure, per level</li>
-        <li><i class="ti ti-eye"></i> <b>Pro preview</b> &mdash; try both on<br>your own data before buying</li>
+        <li><i class="ti ti-circle-check"></i> <b>Search box</b> &mdash; every level, matches marked and counted</li>
+        <li><i class="ti ti-circle-check"></i> <b>Colour by value</b> &mdash; chips tinted by their measure, per level</li>
+        <li><i class="ti ti-circle-check"></i> <b>Drop-down mode</b> &mdash; a bar with the selection opens the tree</li>
+        <li><i class="ti ti-eye"></i> <b>Pro preview</b> &mdash; try them on your data while editing</li>
       </ul>
     </div>
   </div>
@@ -199,39 +200,39 @@
       <div class="arrow">→</div>
       <div class="step"><i class="ti ti-pointer"></i> Click a chip to filter</div>
       <div class="arrow">→</div>
-      <div class="step"><i class="ti ti-chevron-right"></i> Children expand automatically</div>
+      <div class="step"><i class="ti ti-chevron-right"></i> Children open below it</div>
       <div class="arrow">→</div>
-      <div class="step"><i class="ti ti-palette"></i> Style per level in Format pane</div>
+      <div class="step"><i class="ti ti-palette"></i> Pick a style template</div>
       <div class="arrow">→</div>
       <div class="step"><i class="ti ti-check"></i> Report filtered</div>
     </div>
   </div>
-  <div class="tagline">"One visual, every level of your hierarchy — no extra slicers, no bookmarks."</div>
+  <div class="tagline">"One visual, every level of your hierarchy — the filter follows the deepest level you pick."</div>
 
   <!-- 5. GRID -->
   <div class="grid3">
     <div class="box">
       <h4>Key Benefits</h4>
       <ul>
-        <li>Replaces multiple linked slicers with one compact visual</li>
-        <li>Native drill-down keeps report canvases uncluttered</li>
-        <li>No external data calls — fully local, privacy-friendly</li>
+        <li>One compact visual instead of linked slicers</li>
+        <li>Opens on the values you choose; ✕ clears in one click</li>
+        <li>No network calls, no telemetry, no cookies</li>
       </ul>
     </div>
     <div class="box">
       <h4>Tips</h4>
       <ul>
-        <li>Use vertical layout for narrow sidebars</li>
-        <li>Enable "Hide blank values" for messy source data</li>
-        <li>Use compact value format for large numbers</li>
+        <li>Leaf-only selection: upper levels just navigate</li>
+        <li>Images: Base64 data URIs built in Power Query</li>
+        <li>Drop-down: size the visual for the open list</li>
       </ul>
     </div>
     <div class="box">
       <h4>Format Pane Reference</h4>
       <ul>
-        <li>Chip Style, Search, Images, Value Badge, Heatmap</li>
-        <li>Hierarchy behavior (indent, auto-collapse, reset)</li>
-        <li>Level 1 / 2 / 3 Colors (independent per level)</li>
+        <li>Style template, Chip Style, Images, Value Badge</li>
+        <li>Pro: Drop-down, Search, Value Heatmap</li>
+        <li>Hierarchy, and Level 1 / 2 / 3 Colors</li>
       </ul>
     </div>
   </div>

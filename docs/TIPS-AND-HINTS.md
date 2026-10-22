@@ -1,68 +1,134 @@
-# Chip Slicer Hierarchy — Tips & Hints (v1.2.0.0)
+# Chip Slicer Hierarchy — Tips & Hints (v1.3.0.0)
 
 Paste into the "Tips & Hints" page of the sample `.pbix`.
 See `TIPS-AND-HINTS-PLAIN.txt` for a version safe to paste into a Power BI text box.
 
 ## Getting Started
 
-1. Drag a **Category** field into the *Categories* well (Level 1).
-2. Optionally add a second and third field to the same well for SubCategory and Product —
-   field order determines hierarchy depth (1st = Level 1, 2nd = Level 2, 3rd = Level 3).
-3. Click a chip to filter the report. Child chips for the next level appear automatically.
-4. Click the expand icon (▸) to browse a level without filtering.
+1. Drag a field into the *Categories* well — it becomes Level 1.
+2. Add a second and third field to the same well. The field order is the hierarchy:
+   1st = Level 1, 2nd = Level 2, 3rd = Level 3. Three levels is the maximum.
+3. Click a chip to filter the report. A chip with children opens when you select it.
+4. Click the arrow on a chip (▼) to open a level without filtering.
+5. Format → **Style template** changes the look of the three levels in one click.
+
+While you edit, a tips bar at the bottom offers the templates and "Try Pro" buttons. Close
+it with ✕; it comes back from Format → Style template → Show setup tips.
 
 ## Field Wells
 
 | Well | Required | Purpose |
 |---|---|---|
-| Categories | Yes | Hierarchy fields, in order. The field order *is* the hierarchy. No level limit. |
-| Images | No | Image URL per level, same order as Categories |
-| Values | No | Measure shown as a badge on each chip |
+| Categories | Yes | Up to 3 fields, in order. The field order *is* the hierarchy. |
+| Images | No | One Base64 data URI column per level, same order as Categories |
+| Values | No | One measure, shown as a badge and added up per chip |
 | Tooltips | No | Extra fields shown on hover (up to 5) |
+
+Up to 2,000 rows of the hierarchy are loaded.
+
+## Selecting and Clearing
+
+All of these are free.
+
+- **Multi-select** (on by default) — each click adds or removes a chip. Off: a click
+  replaces the selection; Ctrl+click still adds.
+- **Leaf-only selection** — only the last level can be selected; upper levels are for
+  navigating.
+- **Auto-collapse siblings** — opening a chip closes the others at the same level.
+- **Clear button ✕** — next to the search box or the drop-down bar, otherwise top-right.
+  Shown only when something is selected.
+- **All chip** — clears the selection; its text can be changed.
+- **Default selection** — None, First value (the first Level 1 chip) or These values, e.g.
+  `Spain, France`, matched at any level. Applied when the slicer opens with nothing
+  selected; if the reader clears it, it stays clear until the page is opened again.
+
+**The filter uses the deepest level with a selection.** Select Europe and then Spain, and
+the page is filtered by Spain.
+
+The selection is a Power BI filter: sync slicers, bookmarks and edit interactions work as
+with any slicer.
+
+## Style Templates
+
+Classic (default, the look of earlier versions) · Outline · Soft · Square · One colour ·
+Dark. A template fills in only what you have not changed yourself; picking one replaces
+the colours it defines.
 
 ## Format Pane
 
-- **Chip Style** — layout (horizontal/vertical), multi-select, leaf-only selection, hide blanks, default selection, chip size/radius/font/gap/padding, "All" button
-- **Search (Pro)** — show/hide search box, placeholder, colors
+- **Style template** — template, show setup tips
+- **Chip Style** — layout, multi-select, leaf-only, hide blanks, default selection and
+  values, chip height / radius / font / font size / gap / padding, "All" button
+- **Drop-down (Pro)** — drop-down mode, label
+- **Search (Pro)** — search box, highlight matches, result count, placeholder, colours
+- **Images** — image height, position (left / above), border radius
+- **Value Badge** — show, format (Model format / Compact / Number / Currency / Percentage;
+  Compact is the default), colours, size, show in tooltip
 - **Value Heatmap (Pro)** — colour chips by value, low and high colours
-- **Images** — image height, position (left/above), border radius
-- **Value Badge** — show/hide, format (compact/number/currency/percent), colors, size
 - **Hierarchy** — indent per level, expand icon, auto-collapse siblings, reset button
-- **Level 1/2/3 Colors** — independent inactive / active / parent-of-selection color sets per level
+- **Level 1 / 2 / 3 Colors** — inactive, active and (levels 1 and 2) parent-of-selection colours
 
-## Free vs Pro
+With *Format* on, click a chip, a badge, the ✕, the search box or the drop-down bar to
+format it in place.
 
-The slicer is complete without a licence. Pro adds two things: finding what you need in a
-large hierarchy, and seeing where the weight is.
+## Free and Pro
+
+The slicer is complete without a licence. Pro adds three features.
 
 | Feature | Free | Pro |
 |---|---|---|
-| Hierarchy levels | Up to 3 | Up to 3 |
-| Values in the hierarchy | Up to 2,000 | Up to 2,000 |
-| Multi-select and leaf-only selection | Yes | Yes |
-| Custom per-level colors | Yes | Yes |
-| Auto-collapse siblings | Yes | Yes |
-| Configurable reset button and 'All' chip | Yes | Yes |
-| Image chips, value badges, tooltips | Yes | Yes |
-| **Search box**, with matches marked and counted | No | **Yes** |
-| **Value heatmap** — chips coloured by their measure | No | **Yes** |
+| Up to 3 levels, 2,000 rows | Yes | Yes |
+| Images, value badges, tooltips | Yes | Yes |
+| Multi-select, leaf-only, default selection, ✕ and All | Yes | Yes |
+| Six templates, per-level colours, on-object formatting | Yes | Yes |
+| Keyboard, 12 languages, sync slicers, bookmarks | Yes | Yes |
+| **Search box**, matches marked and counted | No | **Yes** |
+| **Colour by value**, scaled per level | No | **Yes** |
+| **Drop-down mode** | No | **Yes** |
 
-Turn either on without a licence and Power BI shows its own notification with the link to
-obtain one. The setting is kept and applies as soon as the licence is active.
+**Pro preview:** without a licence, while you edit, a Pro feature you turn on is drawn
+working under a "Pro preview" watermark, and Power BI shows its licence banner and an
+Upgrade bar. Readers see the free chips. Where licences cannot be read (Publish to Web,
+embedding, export) the free result is drawn, with no watermark.
+
+## The Pro Features
+
+- **Search box** — type to find chips at every level, not just the one that is open. The
+  matching text is marked and the number of results is shown.
+- **Colour by value** — with a measure in Values, each chip is tinted between a low and a
+  high colour. The scale is worked out **per level**, so a child is compared with its
+  siblings, not with the top of the hierarchy. The text switches between dark and light to
+  stay readable. It combines with the badge: the badge gives the figure, the colour the ranking.
+- **Drop-down mode** — a bar shows the selection ("All", "Spain, France" or "3 selected");
+  one click opens the tree below it. Escape closes it, and with multi-select off a click on
+  a last-level chip closes it too. **The list opens inside the visual's own area**, so make
+  the visual as tall as the open list should be.
+
+## Keyboard
+
+One Tab stop for the whole slicer. Arrow keys, Home and End move between chips. Right opens
+a chip with children, Left closes it. Enter or Space selects (Ctrl adds). Escape clears or
+closes the drop-down. Shift+F10 opens the context menu.
+
+## Languages and Number Formats
+
+English, Spanish, Portuguese (Brazil, Portugal), French, German, Italian, Dutch, Polish,
+Japanese, Chinese (Simplified) and Korean, following Power BI. Dates and numbers on chips
+use the column's format; the badge with *Model format* uses the measure's format string,
+dynamic format strings included.
 
 ## Images — Format Required & How to Generate Them
 
-> **Important:** For security and AppSource certification compliance, the visual only
-> accepts images embedded as **Base64 data URIs**. External URLs (`http://`, `https://`,
-> `blob:`, etc.) are blocked and will not render.
+> **Important:** the visual only accepts images embedded as **Base64 data URIs**.
+> Web addresses (`http://`, `https://`, `blob:`) are not loaded — the visual makes no
+> network requests.
 >
-> The accepted format is: `data:image/<type>;base64,<encoded data>`  
+> The accepted format is: `data:image/<type>;base64,<encoded data>`
 > Examples: `data:image/png;base64,iVBOR…` · `data:image/svg+xml;base64,PHN2…`
 
-### Option 1 — Power Query (recommended for most users)
+### Option 1 — Power Query (recommended)
 
-Add a custom column in Power Query that reads an image file from a URL and converts
-it to Base64. Paste this M code as a new custom column:
+Add a custom column in Power Query:
 
 ```
 "data:image/png;base64," &
@@ -72,13 +138,12 @@ Binary.ToText(
 )
 ```
 
-> This fetches the image once at refresh time and embeds it permanently in the model.
-> No outbound requests are made when the report is open.
+> The image is fetched once at refresh time and stored in the model.
+> Nothing is requested when the report is open.
 
 ### Option 2 — Python script (batch conversion)
 
-Use this script to convert a folder of PNG/JPG files into a CSV ready to merge with
-your data:
+Convert a folder of PNG/JPG/SVG files into a CSV ready to merge with your data:
 
 ```python
 import base64, csv, os
@@ -88,7 +153,7 @@ rows = []
 for fname in os.listdir(folder):
     if fname.lower().endswith((".png", ".jpg", ".jpeg", ".svg")):
         ext = fname.rsplit(".", 1)[1].lower()
-        mime = "svg+xml" if ext == "svg" else ext
+        mime = "svg+xml" if ext == "svg" else ("jpeg" if ext == "jpg" else ext)
         with open(os.path.join(folder, fname), "rb") as f:
             b64 = base64.b64encode(f.read()).decode()
         rows.append({"name": fname, "imageUrl": f"data:image/{mime};base64,{b64}"})
@@ -98,95 +163,53 @@ with open("images.csv", "w", newline="") as f:
     w.writeheader(); w.writerows(rows)
 ```
 
-Then import `images.csv` into Power BI and join it to your data by file name.
+Import `images.csv` into Power BI and join it to your data by file name.
 
-### Option 3 — DAX calculated column
+### Option 3 — SVG built in Power Query
 
-If images are already in a column as URLs, fetch and encode them with Power Query
-first (Option 1), then store the result as a text column. DAX alone cannot perform
-HTTP requests or Base64 encoding.
-
-### Option 4 — SVG generated in DAX
-
-For simple shapes or icons generated on the fly, build an SVG string in DAX:
-
-```
-ImageUrl =
-"data:image/svg+xml;base64," &
-Base64.Encode(
-    "<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'>"
-    & "<circle cx='24' cy='24' r='24' fill='" & [Color] & "'/>"
-    & "<text x='50%' y='54%' dominant-baseline='middle' text-anchor='middle' "
-    & "font-size='20' fill='#fff'>" & LEFT([Name],1) & "</text></svg>"
-)
-```
-
-> Note: `Base64.Encode` is available in Power Query M, not in DAX. Use a calculated
-> column in Power Query or a Python/R script step to do the encoding.
+For simple icons, build an SVG string in Power Query and encode it with
+`Binary.ToText(Text.ToBinary(svg), BinaryEncoding.Base64)`. DAX alone cannot do HTTP
+requests or Base64 encoding.
 
 ### Quick rules
 
 - ✅ `data:image/png;base64,…`
 - ✅ `data:image/jpeg;base64,…`
 - ✅ `data:image/svg+xml;base64,…`
-- ❌ `https://example.com/image.png` — blocked
-- ❌ `blob:…` — blocked
-- ❌ Empty or null — ignored (no image shown, no error)
+- ❌ `https://example.com/image.png` — not loaded
+- ❌ `blob:…` — not loaded
+- ❌ Empty or null — ignored (no image, no error)
 
 ---
 
 ## Tips & Best Practices
 
-- Keep Level 1 categories short — long labels wrap chip layout on narrow visuals.
-- Use vertical layout for tall/narrow report canvases with many values.
-- Enable "Hide blank values" if your source data has nulls in hierarchy fields.
-- Use the Value Badge with a compact format for large numbers (K/M/B) to keep chips narrow.
-- Image chips work best with square, small (under ~64px) images for fast rendering.
-
-## Selection Modes in Detail
-
-All of these are available without a licence.
-
-- **Multi-select** — clicking additional chips adds to the selection.
-- **Leaf-only selection** — restricts clicking to the deepest available level; useful when
-  parent levels should only ever be used for navigation, not filtering.
-- **Auto-collapse siblings** — collapses other expanded branches automatically when a new
-  one is expanded, keeping the chip list compact.
-
-## The Pro Features
-
-- **Search box** — type to filter chips across the whole hierarchy, not just the level
-  currently visible. The matching text is marked inside each chip and the number of results
-  is shown, so an empty hierarchy reads as "no matches" rather than as a broken visual.
-  Enable it under *Search (Pro)*.
-- **Value heatmap** — with a measure in the Values well, each chip is tinted between a low
-  and a high colour by its value. The scale is worked out **per level**, so a child is
-  compared against its siblings and not against the top of the hierarchy — otherwise
-  everything below level one comes out the same colour. The label switches between dark and
-  light text so it stays readable at both ends of the scale. Enable it under
-  *Value Heatmap (Pro)*.
-
-  It combines with the value badge rather than replacing it: the badge gives the figure,
-  the colour gives the ranking at a glance.
+- Keep Level 1 labels short — long labels make the chips wrap on narrow visuals.
+- Use the vertical layout for tall, narrow sidebars.
+- Turn on "Hide blank values" if your hierarchy has blanks.
+- Use the Compact badge format (K / M / B) for large numbers, or Model format to match the measure.
+- Use small, square images for the chips.
+- In drop-down mode, size the visual for the open list and keep the space below the bar free.
 
 ## Example Configurations
 
-- **Simple category filter**: 1 field in Categories, no other wells — behaves like a
-  standard single-level slicer with chip styling.
-- **Product catalog browser**: Category, SubCategory, Product in Categories; Images well
-  populated with Base64 thumbnails; Values well with a Sales measure.
-- **Compact sidebar slicer**: Vertical layout, small chip height, search enabled (Pro).
+- **Simple category filter**: 1 field in Categories — a flat chip slicer.
+- **Product catalogue**: Category, Subcategory, Product in Categories; Base64 thumbnails
+  in Images; a Sales measure in Values with the badge on.
+- **Geography with a default**: Country → Region → City, Default selection = These values,
+  `Spain`.
+- **Compact header slicer (Pro)**: drop-down mode plus the search box.
 
 ## Troubleshooting
 
-- **Chips not filtering other visuals** — confirm the field used is also present (directly
-  or via relationship) in the visuals you expect to be filtered.
-- **Images not showing** — the Images field must contain a Base64 data URI
-  (`data:image/...;base64,...`). External URLs (`http://`, `https://`) are blocked for
-  security. See the *Images — Format Required & How to Generate Them* section above.
-- **A level is not appearing** — check the number of fields in the Categories well: the
-  field order is the hierarchy, and the well takes at most three fields. A fourth is
-  refused by Power BI rather than shown as a fourth level. Also check "Hide blank values"
-  if the level has nulls.
-- **Colors not applying** — confirm you're editing the correct Level (1/2/3) color card;
-  each level has an independent color set.
+- **Chips do not filter other visuals** — check Format → Edit interactions, and that the
+  fields are related to the tables of the other visuals.
+- **Only the child filters** — by design: the deepest level with a selection is the filter.
+- **A level does not appear** — at most three fields; open the parent chip; with "Hide
+  blank values" on, a path stops at a blank.
+- **Images do not show** — the column must hold a `data:image/…;base64,…` value.
+- **The drop-down list is cut off** — it opens inside the visual; make the visual taller.
+- **"Pro preview" watermark** — a Pro feature is on without a licence. Only you see it while
+  editing; readers see the free chips.
+- **Colours do not change with a template** — use *Reset to default* on a colour to let the
+  template decide it.

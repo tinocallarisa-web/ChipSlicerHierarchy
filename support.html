@@ -3,146 +3,473 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Support - ChipSlicer Hierarchy</title>
+  <title>Support — Chip Slicer Hierarchy | TCViz</title>
+  <meta name="description" content="Chip Slicer Hierarchy for Power BI: up to three levels in one slicer. Field wells, selection, default selection, style templates, drop-down mode, search, colour by value, Free and Pro, keyboard, languages, troubleshooting and FAQ." />
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 24px 60px; color: #1a1a1a; line-height: 1.7; }
-    h1 { font-size: 26px; font-weight: 600; margin-bottom: 4px; }
-    h2 { font-size: 18px; font-weight: 600; margin-top: 40px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid #eee; }
-    h3 { font-size: 15px; font-weight: 600; margin: 20px 0 6px; }
-    p, li { font-size: 15px; color: #333; margin-bottom: 10px; }
-    ul, ol { padding-left: 22px; }
-    a { color: #0066cc; }
-    code { background: #f1f3f5; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
-    .meta { font-size: 13px; color: #666; margin-bottom: 24px; }
-    .card { background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 8px; padding: 20px 24px; margin-bottom: 16px; }
-    .card h3 { font-size: 15px; font-weight: 600; margin: 0 0 6px; }
-    .card p { margin: 0; font-size: 14px; color: #555; }
-    table { border-collapse: collapse; width: 100%; margin: 12px 0 20px; display: block; overflow-x: auto; }
-    th, td { border: 1px solid #e9ecef; padding: 8px 10px; text-align: left; font-size: 14px; vertical-align: top; }
-    th { background: #f8f9fa; font-weight: 600; }
-    .pro { display: inline-block; background: #9C87F5; color: #fff; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 10px; vertical-align: middle; }
-    #q { width: 100%; box-sizing: border-box; padding: 10px 12px; font-size: 15px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 6px; }
-    #qc { font-size: 13px; color: #666; min-height: 20px; }
-    .video { position: relative; padding-bottom: 56.25%; height: 0; margin: 12px 0 20px; }
-    .video iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; border-radius: 8px; }
-    footer { margin-top: 48px; font-size: 13px; color: #999; border-top: 1px solid #eee; padding-top: 16px; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 0 24px; color: #333; line-height: 1.7; }
+    h1   { color: #0078D4; margin-bottom: 4px; }
+    h2   { margin-top: 2.2em; color: #1a1a2e; border-bottom: 2px solid #e0e0e0; padding-bottom: 6px; }
+    h3   { margin-top: 1.4em; color: #333; }
+    .card { background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 6px; padding: 16px 20px; margin: 16px 0; }
+    code { background: #f0f0f0; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    .badge { display: inline-block; background: #0078D4; color: #fff; font-size: .72rem; padding: 1px 7px; border-radius: 10px; margin-left: 4px; vertical-align: middle; }
+    .badge.pro { background: #3E9C5B; }
+    nav { margin-bottom: 32px; font-size: .95rem; }
+    nav a { color: #0078D4; text-decoration: none; margin-right: 18px; white-space: nowrap; }
+    nav a:hover { text-decoration: underline; }
+    .video-wrap { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12); margin: 20px 0 32px; }
+    .video-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
+    details { border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px 16px; margin-bottom: 10px; background: #fff; }
+    details summary { font-weight: 600; cursor: pointer; color: #1a1a2e; }
+    details p, details ul, details ol { margin-top: 10px; }
+    .tbl-wrap { overflow-x: auto; margin: 12px 0 20px; }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { border-bottom: 1px solid #e0e0e0; padding: 6px 10px; text-align: left; vertical-align: top; }
+    th { background: #f4f4f4; color: #1a1a2e; }
+    .muted { color: #777; font-size: .9rem; }
+    #faq-search { width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid #c8c6c4; border-radius: 6px; font: inherit; margin: 6px 0 16px; }
+    footer { margin-top: 60px; padding-top: 20px; border-top: 1px solid #e0e0e0; font-size: .9rem; color: #888; }
   </style>
 </head>
 <body>
-  <h1>ChipSlicer Hierarchy &mdash; Support</h1>
-  <p class="meta">Version 1.1.1.0 &middot; Last updated: September 15, 2026 &middot; by TCViz</p>
 
-  <label for="q" style="font-size:13px;color:#666">Search this page</label>
-  <input id="q" type="search" placeholder="e.g. images, multi-select, tooltips&hellip;" autocomplete="off" />
-  <p id="qc" aria-live="polite"></p>
-  <h2 id="s-start">Quick start</h2>
+  <h1>Support — Chip Slicer Hierarchy</h1>
+  <p><strong>Publisher:</strong> TCViz &nbsp;|&nbsp;
+     <strong>Email:</strong> <a href="mailto:support@tcviz.com">support@tcviz.com</a> &nbsp;|&nbsp;
+     <strong>Version:</strong> 1.3.0.0 &nbsp;|&nbsp;
+     <strong>Price:</strong> free, with an optional Pro plan &nbsp;|&nbsp;
+     <span class="muted">docs updated 22 Oct 2026</span></p>
+
+  <nav>
+    <a href="#quick-start">Quick start</a>
+    <a href="#fields">Fields</a>
+    <a href="#selection">Selection</a>
+    <a href="#free-pro">Free and Pro</a>
+    <a href="#format">Format pane</a>
+    <a href="#use-cases">Use cases</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#faq">FAQ</a>
+    <a href="changelog.html">Changelog</a>
+    <a href="#contact">Contact</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="terms.html">Terms</a>
+  </nav>
+
+  <p>Chip Slicer Hierarchy is a slicer made of buttons — chips — that drills down through up to three levels,
+     such as Category → Subcategory → Product or Country → Region → City. You put the fields in one well, in order,
+     and the order is the hierarchy. Click a chip to filter the page; open it to see its children. The selection
+     is a standard Power BI filter, so it works with sync slicers, bookmarks and edit interactions.</p>
+  <p>The slicer is complete without a licence. A Pro plan adds three things: a <strong>search box</strong>,
+     <strong>colour by value</strong> and <strong>drop-down mode</strong>. See <a href="#free-pro">Free and Pro</a>.</p>
+
+  <!-- VIDEO -->
+  <h2>Overview video</h2>
+  <div class="video-wrap">
+    <iframe src="https://www.youtube.com/embed/rdZLCxpP6Pk" title="Chip Slicer Hierarchy for Power BI" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="muted">Also on YouTube: <a href="https://www.youtube.com/watch?v=rdZLCxpP6Pk">https://www.youtube.com/watch?v=rdZLCxpP6Pk</a>.
+     The video shows an earlier version; this page describes 1.3.0.0.</p>
+
+  <h2 id="whats-new">What's new in 1.3.0.0</h2>
+  <ul>
+    <li><strong>Drop-down mode</strong> <span class="badge pro">Pro</span>: a bar shows the current selection (“All”,
+        “Spain, France” or “3 selected”); one click opens the hierarchy below it.</li>
+    <li><strong>Six style templates</strong>: Classic (the 1.2 look, and the default), Outline, Soft, Square, One colour
+        and Dark. A template colours the three levels at once.</li>
+    <li><strong>Setup tips</strong> while you edit: the templates in one click, and buttons to try the Pro features on your data.</li>
+    <li><strong>Default selection by values</strong>: “These values” plus a list such as <code>Spain, France</code>, matched at any level.</li>
+    <li><strong>Model format</strong> for the value badge and tooltip: the measure's own format string, dynamic format strings included.</li>
+    <li><strong>On-object formatting</strong>: click a chip, a value badge, the clear button, the search box or the drop-down bar to format it.</li>
+    <li><strong>Keyboard</strong>: one Tab stop, arrow keys between chips, Right and Left to open and close a level.</li>
+    <li><strong>12 languages</strong>, a start screen with the steps, a font setting and a new icon.</li>
+    <li>The reset button is now a <strong>round ✕</strong>, shown only when something is selected.</li>
+    <li>Fixed: tables with a dot in their name, codes such as <code>08001</code> keep their leading zero, and dates and
+        numbers on the chips use the column's format.</li>
+  </ul>
+  <p>Reports made with earlier versions keep their look: the default template, Classic, is the 1.2 look, and the
+     value badge keeps the Compact format by default. Full details in the <a href="changelog.html">changelog</a>.</p>
+
+  <!-- QUICK START -->
+  <h2 id="quick-start">Quick start</h2>
   <ol>
-    <li>Add the visual to your report canvas.</li>
-    <li>Drag one or more fields into <strong>Categories</strong>, in the order you want them nested: the first field is the top level, the next one sits under it, and so on.</li>
-    <li>Click a chip to filter the rest of the report. Click it again to clear it.</li>
-    <li>Click the arrow on a parent chip to expand or collapse its children.</li>
+    <li>Add <strong>Chip Slicer Hierarchy</strong> from AppSource (Visualizations pane → <em>Get more visuals</em>).</li>
+    <li>Drag up to three columns into <strong>Categories</strong>, in order: the first field is level 1, the second
+        sits under it, the third under that.</li>
+    <li>Click a chip to filter the page. Click the arrow on a chip (▼) to open its children without filtering.</li>
+    <li>Optional: drag a measure into <strong>Values</strong> and turn on Format → Value Badge → Show value badge.</li>
+    <li>In the Format pane, <strong>Style template</strong> changes the look of all three levels in one click.</li>
   </ol>
-  <p>That is the whole setup. Everything else &mdash; images, value badges, colours, tooltips &mdash; is optional.</p>
+  <p>While you edit, a tips bar at the bottom of the visual offers the templates and “Try Pro” buttons; hide it with ✕
+     (it comes back from Format → Style template → Show setup tips). It never shows in reading view.</p>
 
-  <h2 id="s-video">Video walkthrough</h2>
-  <div class="video">
-    <iframe src="https://www.youtube.com/embed/rdZLCxpP6Pk" title="ChipSlicer Hierarchy walkthrough" allowfullscreen loading="lazy"></iframe>
+  <!-- FIELDS -->
+  <h2 id="fields">Field wells</h2>
+  <div class="tbl-wrap"><table>
+    <tr><th>Well</th><th>Accepts</th><th>What it does</th></tr>
+    <tr><td><strong>Categories</strong></td><td>Up to 3 columns</td><td>The hierarchy. Field order is level order: 1st field = level 1,
+        2nd = level 2, 3rd = level 3. One field gives a flat chip slicer. Required.</td></tr>
+    <tr><td><strong>Images</strong> (optional)</td><td>Up to 3 columns, one per level</td><td>An image inside each chip, in the same order as
+        Categories. The column must hold a Base64 data URI (<code>data:image/png;base64,…</code>); web addresses are not loaded. See the FAQ.</td></tr>
+    <tr><td><strong>Values</strong> (optional)</td><td>1 measure</td><td>Shown as a badge on each chip, added up per node: a parent shows the
+        total of its children. Also used by colour by value <span class="badge pro">Pro</span> and by cross-highlighting.</td></tr>
+    <tr><td><strong>Tooltips</strong> (optional)</td><td>Up to 5 columns or measures</td><td>Extra fields shown when you hover a chip.</td></tr>
+  </table></div>
+  <p>The visual loads up to 2,000 rows of the hierarchy (the combinations of level 1, 2 and 3).</p>
+
+  <!-- SELECTION -->
+  <h2 id="selection">Selecting, opening and clearing</h2>
+  <ul>
+    <li><strong>Select</strong>: click a chip. Selecting a chip with children also opens it, so you see the next level.</li>
+    <li><strong>Open without filtering</strong>: click the arrow on the chip (▼ / ▲). Turn the arrow off with Hierarchy → Show expand icon.</li>
+    <li><strong>Multi-select</strong> (on by default): every click adds or removes a chip. With it off, a click replaces the
+        selection; Ctrl+click still adds.</li>
+    <li><strong>Leaf-only selection</strong>: only the chips of the last level can be selected; upper levels are for
+        navigating only.</li>
+    <li><strong>Auto-collapse siblings</strong>: opening a chip closes the others at the same level.</li>
+    <li><strong>All</strong> chip: clears the selection. Its text can be changed.</li>
+    <li><strong>Clear button ✕</strong>: next to the search box or the drop-down bar, otherwise in the top-right corner.
+        It only shows when something is selected. On by default (Hierarchy → Show reset button).</li>
+    <li><strong>Default selection</strong>: <em>None</em>, <em>First value</em> (the first level-1 chip) or <em>These values</em>,
+        with a list separated by commas, e.g. <code>Spain, France</code>. Values are matched at any level, without case or
+        accents. It applies when the slicer opens with nothing selected; if the user clears it, the slicer stays clear
+        until the page is opened again. With multi-select off, only the first match is used.</li>
+  </ul>
+  <p><strong>Which level filters?</strong> The filter applies to the <strong>deepest level that has a selection</strong>. If you
+     select Europe (level 1) and then Spain (level 2), the page is filtered by Spain. To filter by several countries,
+     select several countries.</p>
+  <p>The selection is a standard Power BI filter: it follows <strong>sync slicers</strong>, is saved in
+     <strong>bookmarks</strong>, respects <strong>edit interactions</strong> and appears in the filter pane. When another
+     visual highlights data and there is a measure in Values, the chips outside the highlight are dimmed.</p>
+
+  <!-- FREE AND PRO -->
+  <h2 id="free-pro">Free and Pro</h2>
+  <div class="tbl-wrap"><table>
+    <tr><th>Feature</th><th>Free</th><th>Pro</th></tr>
+    <tr><td>Up to 3 levels and 2,000 rows</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Images, value badge, tooltips</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Multi-select, leaf-only, default selection, clear button, All chip</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Six style templates, per-level colours, font, on-object formatting</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td>Keyboard, 12 languages, sync slicers, bookmarks</td><td>Yes</td><td>Yes</td></tr>
+    <tr><td><strong>Search box</strong> — finds chips at every level, marks the matching text and shows the number of results</td><td>—</td><td>Yes</td></tr>
+    <tr><td><strong>Colour by value</strong> — tints each chip by its measure, scaled within each level</td><td>—</td><td>Yes</td></tr>
+    <tr><td><strong>Drop-down mode</strong> — the hierarchy folds into a bar that shows the selection</td><td>—</td><td>Yes</td></tr>
+  </table></div>
+  <p>Pro is the plan <code>chipslicer-hierarchy-pro</code> of this offer on Microsoft AppSource. The licence is read through
+     the official Power BI licensing API; TCViz runs no licence server and receives no data from your report.</p>
+  <h3 id="pro-preview">Pro preview</h3>
+  <p>Without a licence you can still try the Pro features on your own data:</p>
+  <ul>
+    <li><strong>While you edit</strong>, a Pro feature you turn on is drawn working, under a “Pro preview” watermark that names
+        it, and Power BI shows its licence banner and then an <em>Upgrade</em> bar.</li>
+    <li><strong>In reading view</strong>, readers see the free chips: no watermark, no search box, no colour by value, no drop-down.</li>
+    <li><strong>Where licences cannot be read</strong> (Publish to Web, embedding, export), the free result is drawn, with no watermark.</li>
+  </ul>
+  <p>The setting you turned on is kept. Once the licence is active, the feature works everywhere and the watermark goes.</p>
+
+  <!-- TEMPLATES -->
+  <h2 id="templates">Style templates</h2>
+  <div class="tbl-wrap"><table>
+    <tr><th>Template</th><th>Look</th></tr>
+    <tr><td>Classic</td><td>The look of earlier versions: grey, teal and violet levels. The default.</td></tr>
+    <tr><td>Outline</td><td>White chips; the selected chip takes the colour of its level in the border and text.</td></tr>
+    <tr><td>Soft</td><td>Pale chips per level (blue, green, violet), solid when selected.</td></tr>
+    <tr><td>Square</td><td>Small corners, greys, dark when selected.</td></tr>
+    <tr><td>One colour</td><td>The same blue on all three levels.</td></tr>
+    <tr><td>Dark</td><td>For dark report backgrounds.</td></tr>
+  </table></div>
+  <p>A template fills in only what you have not changed yourself. When you pick a template, the colours (and, for Square,
+     the corners) it defines replace yours, so it looks as designed; anything else you changed stays.</p>
+
+  <!-- ON-OBJECT -->
+  <h2 id="on-object">On-object formatting</h2>
+  <p>With <em>Format</em> on, click a chip, a value badge, the clear button, the search box or the drop-down bar to see its
+     options next to it, with quick toggles (multi-select, leaf-only, drop-down mode…) and a link to its card in the
+     Format pane. In format mode a click chooses what to format and does not filter. As with native visuals, the first
+     click selects the visual and the second the part.</p>
+
+  <!-- FORMAT -->
+  <h2 id="format">Format pane reference</h2>
+  <h3>Style template</h3>
+  <p>Template · Show setup tips.</p>
+  <h3>Chip Style</h3>
+  <p>Layout (Horizontal, Vertical) · Multi-select · Leaf-only selection · Hide blank values · Default selection (None, First
+     value, These values) · Default values · Chip height · Border radius · Font · Font size · Gap · Horizontal padding ·
+     Show 'All' button · 'All' button text.</p>
+  <h3>Drop-down <span class="badge pro">Pro</span></h3>
+  <p>Drop-down mode · Label (empty = the names of the levels, e.g. “Country › Region › City”).</p>
+  <h3>Search <span class="badge pro">Pro</span></h3>
+  <p>Show search box · Highlight matches · Show result count · Placeholder text · Background · Border color · Text color.</p>
+  <h3>Images</h3>
+  <p>Image height · Image position (Left of label, Above label) · Image border radius.</p>
+  <h3>Value Badge</h3>
+  <p>Show value badge · Format (Model format, Compact K/M/B, Number, Currency, Percentage; Compact is the default) ·
+     Background · Text color · Font size · Border radius · Horizontal padding · Show in tooltip.</p>
+  <h3>Value Heatmap <span class="badge pro">Pro</span></h3>
+  <p>Color chips by value · Low value · High value.</p>
+  <h3>Hierarchy</h3>
+  <p>Indent per level · Show expand icon · Auto-collapse siblings · Show reset button · Reset button label (its tooltip and
+     accessible name) · Reset button background, border and text.</p>
+  <h3>Level 1, Level 2 and Level 3 Colors</h3>
+  <p>Inactive background, border and text · Active background, border and text · for levels 1 and 2,
+     Parent-of-selection background, border and text, which mark the ancestors of what is selected.</p>
+
+  <h2 id="languages">Languages, number formats and accessibility</h2>
+  <ul>
+    <li>Format pane and texts in English, Spanish, Portuguese (Brazil and Portugal), French, German, Italian, Dutch,
+        Polish, Japanese, Chinese (Simplified) and Korean, following the language of Power BI — including the licence
+        notice and the watermark.</li>
+    <li>Dates and numbers on the chips use the column's format in the model. The value badge with <em>Model format</em> uses
+        the measure's format string, dynamic format strings included, in the report's language.</li>
+    <li><strong>Keyboard</strong>: one Tab stop for the whole slicer; arrow keys, Home and End move between chips; Right opens a
+        chip with children and Left closes it; Enter or Space selects (Ctrl adds); Escape clears the selection or closes the
+        drop-down; Shift+F10 opens the context menu.</li>
+    <li><strong>Screen readers</strong>: each chip is a button with its state (selected, open or closed) and its value.</li>
+    <li><strong>High contrast</strong>: the chips take the colours of the Windows high-contrast theme; colour by value is not
+        applied there, so meaning never depends on the fill alone.</li>
+  </ul>
+
+  <!-- USE CASES -->
+  <h2 id="use-cases">Use cases</h2>
+  <h3>1. Product catalogue</h3>
+  <p>Category, Subcategory and Product in Categories, a Sales measure in Values with the badge on. Readers open a category,
+     see what each subcategory sells and pick products — one visual instead of three linked slicers.</p>
+  <h3>2. Geography with a default</h3>
+  <p>Country → Region → City, Default selection <em>These values</em> = <code>Spain</code>. The page opens on Spain; the ✕
+     goes back to everything.</p>
+  <h3>3. Organisation chart filter</h3>
+  <p>Division → Department → Team with Leaf-only selection on: managers browse the structure, but the filter is always a team.</p>
+  <h3>4. A long hierarchy in a small tile <span class="badge pro">Pro</span></h3>
+  <p>Drop-down mode plus the search box: the slicer takes one line on the page and opens into the full tree when needed.</p>
+  <h3>5. Where the weight is <span class="badge pro">Pro</span></h3>
+  <p>A measure in Values and Color chips by value: within each level, the darker chips are the larger ones.</p>
+
+  <!-- TROUBLESHOOTING -->
+  <h2 id="troubleshooting">Troubleshooting</h2>
+  <details>
+    <summary>Clicking a chip does not filter the other visuals</summary>
+    <p>Check <em>Format → Edit interactions</em>: the other visuals must be set to filter from this slicer. Check also that
+       the fields in Categories are related to the tables of the other visuals in the model.</p>
+  </details>
+  <details>
+    <summary>I selected a parent and its child, and the page only shows the child</summary>
+    <p>That is by design: the filter applies to the deepest level with a selection. Select only parents to filter by
+       parents, or select all the children you need.</p>
+  </details>
+  <details>
+    <summary>A level does not appear</summary>
+    <ul>
+      <li>Check the order and number of fields in Categories: at most three, and the order is the hierarchy.</li>
+      <li>Click the arrow on the parent chip, or select it: children appear when the parent is open.</li>
+      <li>With Hide blank values on, a path stops at the first blank value, so blank children are not shown.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>Images do not show</summary>
+    <p>The Images column must contain a Base64 data URI that starts with <code>data:image/</code>. Web addresses
+       (<code>https://…</code>) are not loaded, by design. Each image column matches a level by position: the first image
+       column goes with the first category field.</p>
+  </details>
+  <details>
+    <summary>Some values are missing</summary>
+    <ul>
+      <li>Other filters on the page or report reduce the values, as with any slicer.</li>
+      <li>Beyond 2,000 rows the rest are not loaded. Split the hierarchy with another slicer or a page filter.</li>
+      <li>With Hide blank values on, blanks are left out.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>The default selection does not apply</summary>
+    <ul>
+      <li>It only applies when the slicer opens with nothing selected. A bookmark or a saved selection wins.</li>
+      <li>The text must match the chip text. Separate values with commas.</li>
+      <li>With Leaf-only selection on, only values of the last level can match.</li>
+      <li>If the value is filtered out by another filter, there is nothing to select.</li>
+    </ul>
+  </details>
+  <details>
+    <summary>The drop-down list is cut off</summary>
+    <p>A custom visual can only draw inside its own area, so the open list appears inside the visual, not over the page.
+       Make the visual as tall as the open list should be; when closed, only the bar is drawn at the top.</p>
+  </details>
+  <details>
+    <summary>I see “Pro preview” on the slicer</summary>
+    <p>You turned on a Pro feature without a licence. It is shown only to you while editing; readers see the free chips.
+       Turn the feature off, or get the Pro plan to remove the watermark.</p>
+  </details>
+  <details>
+    <summary>I chose a template and some colours did not change</summary>
+    <p>A template changes only what it defines. Use <em>Reset to default</em> on a colour to let the template decide it.</p>
+  </details>
+  <details>
+    <summary>The tips bar covers my chips</summary>
+    <p>It only appears while you edit. Close it with ✕ or turn off Format → Style template → Show setup tips.</p>
+  </details>
+
+  <!-- FAQ -->
+  <h2 id="faq">Frequently asked questions</h2>
+  <input id="faq-search" type="search" placeholder="Search the FAQ…" aria-label="Search the FAQ" />
+  <div id="faq-list">
+  <details>
+    <summary>Is it free? What does Pro add?</summary>
+    <p>The slicer is complete without a licence: three levels, images, value badges, tooltips, templates, default selection,
+       keyboard and languages. Pro adds three things: the search box, colour by value and drop-down mode. Limits (3 levels,
+       2,000 rows) are the same in both.</p>
+  </details>
+  <details>
+    <summary>How do I buy Pro?</summary>
+    <p>From the offer on Microsoft AppSource, plan <code>chipslicer-hierarchy-pro</code>, or from the <em>Upgrade</em> bar Power BI
+       shows when you turn on a Pro feature. Prices and any trial are shown on the AppSource listing.</p>
+  </details>
+  <details>
+    <summary>I bought Pro and still see the watermark</summary>
+    <p>The licence is assigned in the Microsoft 365 admin center to the user who opens the report. Once assigned, close and
+       reopen Power BI Desktop or reload the report in the service so Power BI reads the licence again. If it persists,
+       write to <a href="mailto:support@tcviz.com">support@tcviz.com</a>.</p>
+  </details>
+  <details>
+    <summary>Do readers of my report need a Pro licence?</summary>
+    <p>The licence is checked for the person viewing the report. Viewers without a licence see the free chips, with no
+       watermark and no prompt — the report still works for them, without the Pro features.</p>
+  </details>
+  <details>
+    <summary>What is “Pro preview”?</summary>
+    <p>Without a licence, while you edit, a Pro feature you turn on is drawn working under a watermark so you can try it on
+       your data. In reading view, and where licences cannot be read (Publish to Web, embedding, export), the free result is
+       drawn with no watermark. See <a href="#pro-preview">Pro preview</a>.</p>
+  </details>
+  <details>
+    <summary>How many levels can I use?</summary>
+    <p>Up to three: the Categories well takes three fields. One field gives a flat chip slicer; two or three give a hierarchy.</p>
+  </details>
+  <details>
+    <summary>Can I use a date hierarchy or a model hierarchy?</summary>
+    <p>Yes: drop its levels into Categories (for example Year, Quarter, Month). Each field you keep becomes one level, up to three.</p>
+  </details>
+  <details>
+    <summary>Which level does the filter use when I select at several levels?</summary>
+    <p>The deepest level with a selection. See <a href="#selection">Selecting, opening and clearing</a>.</p>
+  </details>
+  <details>
+    <summary>How do I open a level without filtering?</summary>
+    <p>Click the arrow on the chip, or focus the chip with the keyboard and press Right. Selecting a chip also opens it.</p>
+  </details>
+  <details>
+    <summary>Can only the last level be selectable?</summary>
+    <p>Yes: Chip Style → Leaf-only selection. Upper chips are then for navigating only.</p>
+  </details>
+  <details>
+    <summary>How do I clear the selection?</summary>
+    <p>Click ✕, the All chip, or the selected chip again; with the keyboard, press Escape.</p>
+  </details>
+  <details>
+    <summary>Can the report open with values already selected?</summary>
+    <p>Yes: Chip Style → Default selection → <em>These values</em>, and type them in Default values, e.g. <code>Spain, France</code>.
+       Or <em>First value</em> to select the first level-1 chip.</p>
+  </details>
+  <details>
+    <summary>Do bookmarks and sync slicers work?</summary>
+    <p>Yes. The selection is a Power BI filter: bookmarks save and restore it, and View → Sync slicers keeps it across pages.</p>
+  </details>
+  <details>
+    <summary>How do I add images to the chips?</summary>
+    <p>Add a column with a Base64 data URI (<code>data:image/png;base64,…</code>) to the Images well, one column per level in the
+       same order as Categories. You can build it in Power Query with
+       <code>"data:image/png;base64," &amp; Binary.ToText(Web.Contents("…"), BinaryEncoding.Base64)</code> — the image is
+       fetched once at refresh and stored in the model.</p>
+  </details>
+  <details>
+    <summary>Why are image web addresses not loaded?</summary>
+    <p>Because the visual makes no network calls. An address such as <code>https://…/logo.png</code> would be a request from
+       your report to another server; a data URI is already inside your model.</p>
+  </details>
+  <details>
+    <summary>What do the value badges show on parent chips?</summary>
+    <p>The measure added up over the rows under that chip: a country shows the total of its regions. For a measure that
+       does not add up (an average, a distinct count), a parent shows the sum of its rows, so use the badge on the last level
+       or a measure that adds up.</p>
+  </details>
+  <details>
+    <summary>Which number formats can the value badge use?</summary>
+    <p>Model format (the measure's own format string, dynamic format strings included), Compact (K / M / B, the default),
+       Number, Currency and Percentage. Value Badge → Format.</p>
+  </details>
+  <details>
+    <summary>How does colour by value work? <span class="badge pro">Pro</span></summary>
+    <p>With a measure in Values, each chip is tinted between the Low and High colours by its value, scaled within its
+       own level, so a child is compared with its siblings, not with the top of the hierarchy. The selected chip keeps its
+       selected colour, and the text switches between dark and light to stay readable.</p>
+  </details>
+  <details>
+    <summary>How does the search box work? <span class="badge pro">Pro</span></summary>
+    <p>Type and the slicer shows the chips that match at every level, with the matching text marked and the number of
+       results. Clicking a result selects it like any chip. ✕ clears the search and the selection.</p>
+  </details>
+  <details>
+    <summary>How big should the visual be in drop-down mode? <span class="badge pro">Pro</span></summary>
+    <p>The list opens <strong>inside the visual's own area</strong> — Power BI does not let a custom visual draw over the rest of the
+       page. Size the visual for the open list (for example the height of eight to ten chips), and place it where the space
+       below the bar is free. Closed, only the bar at the top is drawn.</p>
+  </details>
+  <details>
+    <summary>How do I close the drop-down?</summary>
+    <p>Click the bar again or press Escape. With multi-select off, selecting a chip of the last level closes it, like a native drop-down.</p>
+  </details>
+  <details>
+    <summary>Does it work with dates, numbers, codes such as 08001 and tables with a dot in the name?</summary>
+    <p>Yes, since 1.3. The filter uses the original value and type, so a text code keeps its leading zeros, and dates and numbers
+       use the column's format on the chips.</p>
+  </details>
+  <details>
+    <summary>Does it react to other visuals?</summary>
+    <p>Yes. When another visual highlights data and there is a measure in Values, the chips outside the highlight are dimmed.</p>
+  </details>
+  <details>
+    <summary>Does it work in the Power BI service, apps and mobile?</summary>
+    <p>It works wherever custom visuals from AppSource work. Where Power BI disallows interactions (some exports and embedded
+       views), the chips are shown but do not change the filter.</p>
+  </details>
+  <details>
+    <summary>Can I use it with the keyboard?</summary>
+    <p>Yes. See <a href="#languages">Languages, number formats and accessibility</a>.</p>
+  </details>
+  <details>
+    <summary>What is the difference with Chip Slicer?</summary>
+    <p><a href="https://tcviz.com/product/chip-slicer/">Chip Slicer</a> is our free single-level slicer, with a grid layout and sorting.
+       Chip Slicer Hierarchy is for two or three nested levels.</p>
+  </details>
+  <details>
+    <summary>Does the visual send my data anywhere?</summary>
+    <p>No. It makes no network calls, has no telemetry, sets no cookies and stores nothing outside the report. The links on
+       the start screen open only when you click them, through Power BI. See the <a href="privacy.html">privacy policy</a>.</p>
+  </details>
   </div>
 
-  <h2 id="s-wells">Field wells</h2>
-  <table>
-    <tr><th>Well</th><th>Type</th><th>What it does</th></tr>
-    <tr><td><strong>Categories</strong></td><td>Grouping</td><td>The hierarchy itself. Field order defines the nesting: field 1 is the top level, field 2 its children, and so on. One field gives you a flat chip slicer. Required.</td></tr>
-    <tr><td><strong>Images</strong></td><td>Grouping</td><td>An image shown inside each chip. Must be a Base64 data URI (<code>data:image/*;base64,&hellip;</code>). External <code>http(s)://</code> URLs are rejected on purpose &mdash; see the FAQ. Optional.</td></tr>
-    <tr><td><strong>Values</strong></td><td>Measure</td><td>A measure shown as a badge on each chip &mdash; a count, a total, a share. Optional.</td></tr>
-    <tr><td><strong>Tooltips</strong></td><td>Grouping or measure</td><td>Extra fields shown when hovering a chip. Optional.</td></tr>
-  </table>
+  <!-- CONTACT -->
+  <h2 id="contact">Contact &amp; issues</h2>
+  <div class="card">
+    <p>Questions, licences, bugs or ideas: write to <a href="mailto:support@tcviz.com">support@tcviz.com</a>. A person answers —
+       the developer of the visual, not a bot.</p>
+    <p>Bug reports are also welcome on <a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues">GitHub Issues</a>.
+       Please include the visual version (1.3.0.0), Power BI Desktop or service, the number of levels and a screenshot.</p>
+    <p>Product page: <a href="https://tcviz.com/product/chip-slicer-hierarchy/">tcviz.com/product/chip-slicer-hierarchy</a> ·
+       Version history: <a href="changelog.html">Changelog</a>.</p>
+  </div>
 
-  <h2 id="s-tiers">Free vs. Pro</h2>
-  <p>The slicer is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the weight is.</p>
-  <table>
-    <tr><th>Feature</th><th>Free</th><th>Pro</th></tr>
-    <tr><td>Hierarchy levels</td><td>Up to 3</td><td>Up to 3</td></tr>
-    <tr><td>Values in the hierarchy</td><td>Up to 2,000</td><td>Up to 2,000</td></tr>
-    <tr><td>Single and multi-select, drill-down, auto-collapse</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td>Per-level colours, images, value badges, reset button</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td>Keyboard activation and high-contrast support</td><td>Yes</td><td>Yes</td></tr>
-    <tr><td><strong>Search box</strong> &mdash; filter chips across the whole hierarchy, with matches highlighted and a result count</td><td>&mdash;</td><td><span class="pro">PRO</span></td></tr>
-    <tr><td><strong>Value heatmap</strong> &mdash; colour each chip by its measure, so the weight of the hierarchy is visible at a glance</td><td>&mdash;</td><td><span class="pro">PRO</span></td></tr>
-  </table>
-  <p>Without a licence these are simply not applied, and Power BI shows its own notification with a link to obtain one &mdash; the setting you changed is kept and takes effect as soon as the licence is active. Licence status is resolved through the official Power BI licensing API; TCViz runs no licence server and receives no data from your report.</p>
-
-  <h2 id="s-format">Format pane reference</h2>
-  <h3>Chip settings</h3>
-  <p>Multi-select &middot; Leaf-only selection &middot; Hide blank values &middot; Default selection (None / First value) &middot; Layout (Horizontal / Vertical) &middot; Chip height &middot; Border radius &middot; Font size &middot; Gap &middot; Horizontal padding &middot; Show &lsquo;All&rsquo; button &middot; &lsquo;All&rsquo; button text</p>
-  <h3>Search <span class="pro">PRO</span></h3>
-  <p>Show search box &middot; Highlight matches &middot; Show result count &middot; Placeholder text &middot; Background &middot; Border color &middot; Text color</p>
-  <h3>Images</h3>
-  <p>Image height &middot; Image position (Left of label / Above label) &middot; Image border radius</p>
-  <h3>Values</h3>
-  <p>Show value badge &middot; Format (Compact K/M/B, Number, Currency, Percentage) &middot; Background &middot; Text color &middot; Font size &middot; Border radius &middot; Horizontal padding &middot; Show in tooltip</p>
-  <h3>Hierarchy</h3>
-  <p>Indent size &middot; Expand icon &middot; Auto-collapse &middot; Show reset &middot; Reset label &middot; Reset background &middot; Reset border &middot; Reset text</p>
-  <h3>Level 1, Level 2 and Level 3 colours</h3>
-  <p>Each level has its own card: Inactive background / border / text, Active background / border / text, and &mdash; for levels 1 and 2 &mdash; Parent-of-selection background / border / text, which highlights the ancestors of whatever is selected.</p>
-
-  <h2 id="s-a11y">Accessibility</h2>
-  <ul>
-    <li>Chips are reachable with <strong>Tab</strong> and activated with <strong>Enter</strong> or <strong>Space</strong>.</li>
-    <li>The right-click context menu is available on chips.</li>
-    <li>High-contrast themes are honoured: the visual follows the Power BI palette instead of its own colours.</li>
-    <li>Chips carry ARIA labels so screen readers announce the category and its state.</li>
-  </ul>
-  <p>Arrow-key navigation between chips is not implemented yet. If that blocks you, please <a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues">open an issue</a> &mdash; it helps us prioritise.</p>
-
-  <h2 id="s-faq">Frequently asked questions</h2>
-
-  <div class="card"><h3>How do I build a hierarchy?</h3><p>Put several fields in the <strong>Categories</strong> well, in order. There is no separate well per level: the order of the fields is the hierarchy. The well takes up to three fields, and the hierarchy up to 2,000 values. Both limits are the same in the Free and Pro tiers &mdash; nothing is reduced for a Free user.</p></div>
-
-  <div class="card"><h3>My images do not show. Why?</h3><p>The <strong>Images</strong> well only accepts Base64 data URIs (<code>data:image/png;base64,&hellip;</code>). External URLs are rejected at parse time and never requested. This is deliberate: it stops the visual from making outbound network calls, which is an AppSource security requirement. Convert your images to Base64 in Power Query or with a small script &mdash; see the Tips &amp; Hints page of the sample report.</p></div>
-
-  <div class="card"><h3>How do I clear all selections?</h3><p>Click the <strong>&lsquo;All&rsquo;</strong> chip, or the <strong>Reset</strong> button if you enabled it under Hierarchy. Both are available in the Free tier.</p></div>
-
-  <div class="card"><h3>What exactly does Pro unlock?</h3><p>Two things, as of 1.1.0.0: the <strong>search box</strong>, with matches highlighted and a result count; and the <strong>value heatmap</strong>, which colours each chip by its measure. Everything else &mdash; all three hierarchy levels, multi-select, per-level colours, auto-collapse, images, value badges, the reset button &mdash; works without a licence. The visual supports up to three levels and 2,000 values, and those limits are identical in both tiers: nothing is reduced for a Free user. If you read older Terms that described <em>smaller</em> limits in Free, those were never implemented and the text was corrected in 1.0.0.4.</p></div>
-
-  <div class="card"><h3>Does it work in Power BI Service?</h3><p>Yes. Desktop and Service are both supported, as are Power BI mobile apps.</p></div>
-
-  <div class="card"><h3>Does the visual send my data anywhere?</h3><p>No. All processing happens inside Power BI on your machine or tenant. The visual makes no network requests and stores nothing outside the report. See the <a href="privacy.html">Privacy Policy</a>.</p></div>
-
-  <h2 id="s-help">Still stuck?</h2>
-  <div class="card"><h3>Report a bug</h3><p><a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues">GitHub Issues</a> &mdash; please include your Power BI Desktop version, the visual version, and the shape of your data (number of rows, number of levels).</p></div>
-  <div class="card"><h3>Ask a question</h3><p><a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/discussions">GitHub Discussions</a> for usage questions and ideas.</p></div>
-  <div class="card"><h3>Email</h3><p><a href="mailto:support@tcviz.com">support@tcviz.com</a> &mdash; for licensing and anything you would rather not post publicly.</p></div>
-  <div class="card"><h3>What changed recently</h3><p><a href="https://github.com/tinocallarisa-web/ChipSlicerHierarchy/blob/main/CHANGELOG.md">Changelog</a></p></div>
-
-  <footer>&copy; 2026 TCViz &mdash; <a href="https://tcviz.com">tcviz.com</a> &middot; <a href="privacy.html">Privacy Policy</a> &middot; <a href="terms.html">Terms of Use</a></footer>
+  <footer>
+    Chip Slicer Hierarchy 1.3.0.0 by TCViz &nbsp;|&nbsp;
+    <a href="https://tcviz.com/product/chip-slicer-hierarchy/">tcviz.com</a> &nbsp;|&nbsp;
+    <a href="privacy.html">Privacy Policy</a> &nbsp;|&nbsp;
+    <a href="terms.html">Terms of Use</a>
+  </footer>
 
   <script>
-  // Progressive enhancement: only hides non-matching blocks, never builds content,
-  // so the full page stays readable if this script fails to load.
-  (function () {
-    var q = document.getElementById("q"), c = document.getElementById("qc");
-    if (!q || !c) return;
-    var blocks = [], cur = null;
-    Array.prototype.forEach.call(document.body.children, function (el) {
-      if (el.tagName === "H2") { cur = { head: el, nodes: [] }; blocks.push(cur); }
-      else if (cur && el.tagName !== "SCRIPT" && el.tagName !== "FOOTER") { cur.nodes.push(el); }
-    });
-    function apply() {
-      var t = q.value.trim().toLowerCase(), shown = 0;
-      blocks.forEach(function (b) {
-        var txt = b.head.textContent;
-        b.nodes.forEach(function (n) { txt += " " + n.textContent; });
-        var hit = !t || txt.toLowerCase().indexOf(t) !== -1;
-        b.head.hidden = !hit;
-        b.nodes.forEach(function (n) { n.hidden = !hit; });
-        if (hit) shown++;
+    // Buscador del FAQ: filtra las preguntas por texto, sin red.
+    document.getElementById('faq-search').addEventListener('input', function (e) {
+      var q = e.target.value.toLowerCase();
+      document.querySelectorAll('#faq-list details').forEach(function (d) {
+        d.style.display = d.textContent.toLowerCase().indexOf(q) >= 0 ? '' : 'none';
       });
-      c.textContent = t ? shown + " section" + (shown === 1 ? "" : "s") + " matching" : "";
-    }
-    q.addEventListener("input", apply);
-    q.addEventListener("keydown", function (e) { if (e.key === "Escape") { q.value = ""; apply(); } });
-  })();
+    });
   </script>
 </body>
 </html>

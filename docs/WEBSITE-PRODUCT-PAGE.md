@@ -1,41 +1,41 @@
-# Chip Slicer Hierarchy — Website Product Page Content (v1.2.0.0)
+# Chip Slicer Hierarchy — Website Product Page Content (v1.3.0.0)
 
-Content for the four tabs of the TCViz product page.
+Content for the four tabs of the TCViz product page
+(https://tcviz.com/product/chip-slicer-hierarchy/).
 
 ---
 
 ## Tab 1: Overview
 
 **The problem it solves**
-Standard Power BI slicers flatten everything into one list. When your data is naturally
-hierarchical — category, then subcategory, then product — users lose context and reports
-get cluttered with multiple linked slicers just to drill down manually.
+When data is nested — category, subcategory, product; country, region, city — the usual
+answer is a stack of linked slicers, one per level. They take space, and readers lose the
+context of where a value sits.
 
 **How it works**
-Chip Slicer Hierarchy renders your hierarchy as clickable chips. Drop several fields into
-a single well and the field order becomes the hierarchy. Click a top-level chip and its
-children appear inline — no separate visual, no bookmarks, no extra clicks. Filtering
-happens the moment you click; browsing without filtering is one tap away via the expand
-icon.
+Chip Slicer Hierarchy draws the hierarchy as clickable chips in one visual. Put up to three
+fields in one well and the field order becomes the hierarchy. Click a chip to filter; it
+opens to show the level below. The arrow on a chip opens it without filtering. The filter
+applies to the deepest level you selected.
 
 **Who it's for**
-Report builders and BI teams working with categorized data — product catalogs, org
-structures, geography, any nested dimension — who want a compact, modern filtering UI
-instead of a stack of dropdown slicers.
+Report builders working with nested dimensions — product catalogues, org structures,
+geography, cost centres — who want one compact slicer instead of three.
 
 **What makes it different**
-- Native drill-down inside a single visual, not multiple linked slicers
-- Chip/pill visual language instead of list or dropdown UI
-- Independent colour theming per hierarchy level, including the ancestors of whatever
-  is selected
-- Optional images and value badges directly on each chip
+- Up to three levels inside a single slicer, not linked slicers
+- Six style templates that colour the three levels at once, plus colours per level
+- Images and value badges on the chips, with the measure's own format
+- A default selection by values, so the page opens where you want it
+- Pro: search, colour by value and a drop-down mode for small spaces
 
 **At a glance**
-- Up to three hierarchy levels — the field order is the hierarchy
-- Single-select, multi-select and leaf-only selection
-- Search box (Pro) — filter across the whole hierarchy, matches marked and counted
-- Value heatmap (Pro) — each chip coloured by its measure, scaled per level
-- Full colour and style customisation per level
+- Up to three levels and 2,000 rows — the field order is the hierarchy
+- Multi-select, leaf-only selection, default selection, round ✕ to clear
+- Search box (Pro) — finds chips at every level, matches marked and counted
+- Colour by value (Pro) — each chip tinted by its measure, scaled per level
+- Drop-down mode (Pro) — a bar with the selection that opens the tree
+- 12 languages, keyboard, on-object formatting
 - Demo video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
 
 ---
@@ -43,107 +43,103 @@ instead of a stack of dropdown slicers.
 ## Tab 2: Features
 
 ### Filtering
-- Hierarchical drill-down across as many levels as you put in the Categories well
-- Single-select, multi-select and leaf-only selection — restrict clicks to the deepest level
-- Auto-collapse siblings — keep the chip list compact while browsing
-- Configurable reset button and an 'All' chip to clear selections
+- Up to three nested levels from one well
+- Multi-select (on by default), leaf-only selection, auto-collapse siblings
+- The filter applies to the deepest level with a selection
+- Default selection: None, First value, or These values (e.g. `Spain, France`), matched at
+  any level; applied when the slicer opens with nothing selected
+- Round ✕ clear button (only when something is selected) and an 'All' chip
+- A standard Power BI filter: sync slicers, bookmarks, edit interactions
+- Chips outside a highlight from another visual are dimmed (with a measure in Values)
 
 ### Display
-- Optional image per chip, positioned left of or above the label
-- Optional value badge per chip (compact / number / currency / percent)
-- Optional tooltip fields on hover
-- Horizontal or vertical layout
-- Configurable chip height, radius, font size, gap and padding
+- Six style templates: Classic, Outline, Soft, Square, One colour, Dark
+- Colours per level: inactive, active and parent-of-selection
+- Optional image per chip (Base64 data URI), left of or above the label
+- Optional value badge: Model format, Compact (default), Number, Currency, Percentage
+- Up to five tooltip fields
+- Horizontal or vertical layout; chip height, radius, font, gap and padding
+- On-object formatting: chips, badges, the ✕, the search box and the drop-down bar
+- Setup tips while editing: templates in one click and "Try Pro" buttons
 
-### Search & navigation
-- **Search box (Pro)** — filters chips across the whole hierarchy as you type, marking the
-  matching text inside each chip and showing the number of results
-- **Value heatmap (Pro)** — each chip tinted between two colours by its measure, normalised
-  per level so a child is compared with its siblings; the label switches between dark and
-  light so it stays readable at both ends of the scale
-- Expand icon to browse a level without applying a filter
-- Tab to focus a chip, Enter or Space to select
-- Right-click context menu on chips and on empty space
+### Pro
+- **Search box** — finds chips at every level as you type, marking the matching text and
+  showing the number of results
+- **Colour by value** — each chip tinted between two colours by its measure, scaled per
+  level so a child is compared with its siblings; the text switches between dark and light
+- **Drop-down mode** — a bar shows the selection ("All", "Spain, France" or "3 selected");
+  one click opens the tree below it, with the search box when it is on. Escape closes it.
+  The list opens inside the visual's own area, so the visual is sized for the open list.
 
-### Styling
-- Independent colour sets per hierarchy level: inactive, active and parent-of-selection
-  states, each with background, border and text colours
-- High-contrast themes are honoured — the visual follows the Power BI palette
+### Accessibility and languages
+- One Tab stop; arrow keys, Home and End; Right opens a level, Left closes it; Enter or
+  Space selects (Ctrl adds); Escape clears or closes; Shift+F10 opens the context menu
+- High-contrast themes are honoured
+- English, Spanish, Portuguese (Brazil, Portugal), French, German, Italian, Dutch, Polish,
+  Japanese, Chinese (Simplified), Korean
 
-### Free vs Pro
+### Free and Pro
 
-The visual is complete without a licence. Pro adds two things: finding what you need in a large hierarchy, and seeing where the
-weight is. The search box filters chips across every level as you type, marking the
-matches and counting them. The value heatmap tints each chip by its measure, scaled
-level by level so a child is compared with its siblings.
+The slicer is complete without a licence. Pro adds three features.
 
 | Feature | Free | Pro |
 |---|---|---|
-| Hierarchy levels | Up to 3 | Up to 3 |
-| Values in the hierarchy | Up to 2,000 | Up to 2,000 |
-| Single-select, multi-select, leaf-only | ✓ | ✓ |
-| Auto-collapse, reset button, 'All' chip | ✓ | ✓ |
-| Custom per-level colours | ✓ | ✓ |
-| Image chips, value badges, tooltips | ✓ | ✓ |
-| Keyboard activation, context menu, high contrast | ✓ | ✓ |
-| **Search box**, with matches marked and counted | ✗ | **✓** |
-| **Value heatmap** — chips coloured by their measure | ✗ | **✓** |
+| Up to 3 levels, 2,000 rows | ✓ | ✓ |
+| Images, value badges, tooltips | ✓ | ✓ |
+| Multi-select, leaf-only, default selection, ✕ and All | ✓ | ✓ |
+| Six templates, per-level colours, on-object formatting | ✓ | ✓ |
+| Keyboard, 12 languages, sync slicers, bookmarks | ✓ | ✓ |
+| **Search box**, matches marked and counted | ✗ | **✓** |
+| **Colour by value**, scaled per level | ✗ | **✓** |
+| **Drop-down mode** | ✗ | **✓** |
 
-Turn either on without a licence and Power BI shows its own notification with the link to
-obtain one. The setting is kept and applies as soon as the licence is active.
+**Pro preview:** without a licence, while you edit, a Pro feature you turn on is drawn
+working under a "Pro preview" watermark, and Power BI shows its licence banner and an
+Upgrade bar. Readers see the free chips; where licences cannot be read (Publish to Web,
+embedding, export), the free result is drawn with no watermark.
 
 ---
 
 ## Tab 3: Technical
 
 **Specs**
-- API version: 5.10.0
-- Current version: 1.2.0.0
-- Platform: Power BI Desktop & Power BI Service
+- Current version: 1.3.0.0
+- API version: 5.11.1
+- Platform: Power BI Desktop and Power BI service
 
 **Field wells**
-- **Categories** (required) — grouping fields, in order. The field order defines the
-  hierarchy: the first field is the top level, the next sits under it, and so on.
-- **Images** (optional) — Base64 data URIs (`data:image/*;base64,...`), matching the
-  Categories order. External URLs are rejected; see below.
-- **Values** (optional) — one measure, shown as a badge per chip
-- **Tooltips** (optional) — additional fields shown on hover
+- **Categories** (required) — up to 3 fields, in order; the order is the hierarchy
+- **Images** (optional) — up to 3 columns of Base64 data URIs (`data:image/*;base64,...`),
+  one per level, in the order of Categories. Web addresses are not loaded.
+- **Values** (optional) — one measure, shown as a badge and added up per chip
+- **Tooltips** (optional) — up to 5 fields
 
 **External file requirements**
-None. Images must already be embedded in the data model as Base64 data URIs. The visual
-does not fetch anything: external `http(s)://` and `blob:` values are rejected at parse
-time and never reach `img.src`. This is deliberate — it guarantees the visual makes no
-outbound network requests.
+None. Images must already be in the data model as Base64 data URIs.
 
-**Performance**
-Categorical data view with a 2,000-row reduction algorithm on Categories; rendering events
-(`renderingStarted` / `renderingFinished` / `renderingFailed`) reported on every update.
+**Data**
+Categorical data view, up to 2,000 rows. The filter is a basic `In` filter on the deepest
+level with a selection, with values in their original type (a code such as `08001` keeps
+its leading zero).
 
 **Power BI integration**
-- Filter state synchronisation across slicers (`supportsSynchronizingFilterState`)
-- Multi-visual selection and keyboard focus supported
-- Landing page shown when no data is bound
-- Standard tooltips via the Power BI tooltip service
-
-**Compatibility**
-Power BI Desktop and Power BI Service, current and prior major releases supporting custom
-visuals API 5.x.
+- Filter state synchronisation across slicers
+- Bookmarks, edit interactions, cross-highlighting
+- Keyboard focus, context menu, on-object formatting
+- Start screen when no data is bound
+- Interactions are blocked where Power BI disallows them
 
 **Licensing**
-Managed exclusively through Microsoft's official `IVisualLicenseManager` API — no external
-authentication, account or payment system. Licence resolution is asynchronous and never
-blocks rendering.
+Microsoft's official Power BI licensing API, plan `chipslicer-hierarchy-pro`. No external
+account, licence server or payment system.
 
 **Privacy**
-No data leaves the Power BI environment. The visual makes no network calls and persists
-only its own formatting settings inside the `.pbix`.
-See the [Privacy Policy](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html).
-
-**Dependencies**
-None beyond the Power BI Visuals API and `powerbi-visuals-utils-formattingmodel`.
+No network calls, no telemetry, no cookies or browser storage. The start-screen links open
+only on click, through Power BI.
+[Privacy Policy](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html).
 
 **Support**
-- Docs: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html
+- Docs and FAQ: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html
 - Issues: https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues
 - Email: support@tcviz.com
 
@@ -153,48 +149,40 @@ None beyond the Power BI Visuals API and `powerbi-visuals-utils-formattingmodel`
 
 (Mirror of `CHANGELOG.md` — keep both in sync on every release.)
 
-### 1.2.0.0
+### 1.3.0.0 — 22 Oct 2026
 
 **Added**
-- Pro preview: turn on the search box or the value heatmap without a licence and it is
-  drawn working, under a watermark that names it, so you can try it on your own hierarchy
-  before deciding. Reading view shows the free result, with no watermark
-- Format pane in Spanish
+- Drop-down mode (Pro): a bar with the current selection that opens the hierarchy below it
+- Six style templates: Classic (the earlier look, and the default), Outline, Soft, Square,
+  One colour, Dark
+- Setup tips while editing: templates in one click and the three Pro features to try
+- Default selection by values ("These values" plus a list, matched at any level)
+- Model format for the value badge and tooltip, dynamic format strings included
+- On-object formatting for chips, badges, the clear button, the search box and the drop-down bar
+- Keyboard: one Tab stop, arrow keys, Right/Left to open and close a level, Escape, Shift+F10
+- 12 languages, a start screen, a font setting and a new icon
+
+**Changed**
+- The reset button is now a round ✕, shown only when something is selected, on by default
+  for new slicers
 
 **Fixed**
-- The Upgrade option could disappear before you could use it: the notice naming the blocked
-  feature was replacing it instead of following it, so once it faded there was nothing left
-  to click
+- Filtering tables with a dot in their name
+- Codes and dates filter with their original type; chips use the column's format
+- Interactions blocked where Power BI disallows them
+
+### 1.2.0.0
+- Pro preview: Pro features drawn working under a watermark while you edit without a licence
+- Format pane in Spanish
+- Fixed: the Upgrade option could disappear before you could use it
 
 ### 1.1.0.0
-- **Added:** value heatmap (Pro) — chips coloured by their measure, scaled per level
-- **Added:** search match highlighting and result count (Pro)
-- **Changed:** a Pro setting without a licence now raises Power BI's own notification, with
-  the link to obtain one; the in-visual "Search requires Pro" notice is gone
-- **Added:** bookmarks restore the selection, cross-highlighting dims chips out of scope,
-  and `allowInteractions` is honoured
-- **Fixed:** a licence in its payment grace period read as absent, and Publish to Web,
-  embedding and PDF export asked a paying customer to buy what they already own
+- Value heatmap (Pro), search match highlighting and result count (Pro)
+- Bookmarks restore the selection, cross-highlighting dims chips, `allowInteractions` honoured
 
-### 1.0.0.4
-- Fixed the support URL, which pointed to a page that returns 404
-- Rewrote the Terms of Use page, which was truncated mid-sentence and described licence
-  tiers that were never implemented. The only Pro feature is, and has always been, the
-  search box. No functionality changed for any user.
-- Rewrote the support page to document field wells, the format pane and the real tiers
-
-### 1.0.0.3
-- Images are now restricted to Base64 data URIs; external URLs are rejected at parse time
-
-### 1.0.0.2
-- Context menu on empty space, in addition to the existing per-chip context menu
-
-### 1.0.0.1
-- Added image chips (optional image per hierarchy level)
-- Added value badges (optional measure shown as a badge per chip, with
-  compact/number/currency/percent formatting)
+### 1.0.0.x
+- Images restricted to Base64 data URIs; context menu on empty space; image chips and value
+  badges; support and terms pages rewritten
 
 ### 1.0.0.0
-- Initial release: hierarchical chip slicer with drill-down filtering, multi-select and
-  leaf-only selection, independent per-level colour theming, search box, auto-collapse and
-  configurable reset button
+- Initial release

@@ -1,3 +1,83 @@
+# Certification notes — Chip Slicer Hierarchy 1.3.0.0
+
+```
+Chip Slicer Hierarchy 1.3.0.0 - GUID chipSlicerHierarchy
+Repo, branch certification: https://github.com/tinocallarisa-web/ChipSlicerHierarchy/tree/certification
+Docs: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html (+privacy, terms, changelog)
+Video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
+
+WHY THIS SUBMISSION
+Replaces 1.2.0.0. Same objects/properties (saved reports unchanged); new ones added.
+New Pro feature: drop-down mode. Style templates, setup tips, default selection by
+values, model format, on-object formatting, keyboard, 12 languages, filter target from
+the column expression (tables with a dot, hierarchy levels). API 5.11.1.
+
+PRO PREVIEW
+Without a licence, IN EDIT MODE ONLY, Pro features (search, colour by value, drop-down)
+render under a "Pro preview" watermark. Intentional. Reading view, before the licence
+resolves and where licences cannot be read (Publish to Web, embed, export): free result,
+no watermark.
+
+TESTING - FREE (no plan)
+1. Sample .pbix: Categories with 3 fields. Click a chip: the page filters. Right arrow
+or the expand icon opens a level. The X button clears.
+2. Edit mode: tips bar at the bottom. "Try Pro > Drop-down": watermark + Power BI banner,
+Upgrade bar ~10 s later. Reading view: free chips. Turn it off: notices clear.
+3. Format > Style template > Outline: colours change. Format mode: click a chip.
+4. Bookmarks and sync slicers restore the selection. Keyboard: Tab in, arrows, Enter,
+Esc, Shift+F10. allowInteractions false: no filter change.
+
+TESTING - PRO (plan "chipslicer-hierarchy-pro")
+Drop-down, search and colour by value: no watermark, no notice.
+
+PERSISTPROPERTIES
+Only on a click in the tips bar (template, Try Pro, close) and once when the template
+is changed in the format pane (clears the settings it defines). Never in the selection
+callback.
+
+PRIVACY
+No network, telemetry, cookies or storage. privileges: []. No innerHTML in src/. Images
+only data:image/*;base64. Start-screen links open only on click via host.launchUrl.
+
+LICENSING
+IVisualLicenseManager only. Pro if Service ID ends in ".chipslicer-hierarchy-pro",
+state Active or Warning. Never blocks render; failure = Free. No own licensing UI.
+
+RENDERING EVENTS 1:1
+One renderingStarted and one Finished/Failed per update(). Repaints from clicks and
+the bookmark callback raise none.
+```
+
+## Capabilities changes in 1.3
+
+- objects: `general.formatString` (dynamic measure formats); `chipSettings` gains `defaultValues`, `fontFamily` and
+  the `values` option of `defaultSelection`; `valueSettings.valueFormat` gains `model`; new `popup` (show, label)
+  and `style` (template, guide). Every 1.2 object and property is kept with its name.
+- `supportsOnObjectFormatting`, `enablePointerEventsFormatMode`, `supportsEmptyDataView`, `tooltips` (default,
+  canvas). Unchanged: `supportsKeyboardFocus`, `supportsHighlight`, `supportsSynchronizingFilterState`,
+  `supportsMultiVisualSelection`, `supportsLandingPage`, `privileges: []`.
+
+## Default selection by values
+
+Applied with `applyJsonFilter` inside `update()` only when the option is "These values", the text is set, the slicer
+has no filter, a chip matches, interactions are allowed and not in format mode. Once per text while the visual
+instance lives; reopening the page applies it again. Nothing is persisted for it. "First value" keeps its 1.2
+behaviour.
+
+## Filter
+
+BasicFilter "In" on the deepest selected level. Target from the column expression
+(`{table, column}` or `{table, hierarchy, hierarchyLevel}`), values with their original types (dates as ISO).
+
+## Build
+
+powerbi-visuals-tools 7.2.1, API 5.11.1, TypeScript 5.9, ESLint 10 + eslint-plugin-powerbi-visuals (recommended),
+clean. `npm audit --omit=dev`: 0.
+
+---
+
+# History (1.2.0.0 notes)
+
 # Certification Notes — Chip Slicer Hierarchy v1.2.0.0
 
 The short version to paste into Partner Center lives in

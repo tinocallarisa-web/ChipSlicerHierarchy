@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog — Chip Slicer Hierarchy | TCViz</title>
+  <style>
+    body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 820px; margin: 40px auto; padding: 0 24px; color: #3D3929; line-height: 1.7; background: #FAF9F5; }
+    h1 { font-size: 28px; color: #B05730; margin-bottom: 4px; }
+    h2 { font-size: 21px; margin-top: 44px; color: #C96442; border-bottom: 1px solid #DAD9D4; padding-bottom: 6px; }
+    h2 .date { font-size: 13px; font-weight: 400; color: #83827D; margin-left: 8px; }
+    h3.kind { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 8px; color: #535146; }
+    h3.kind-fixed { color: #B05730; }
+    h3.kind-added { color: #4B7A4E; }
+    h3.kind-removed { color: #83827D; }
+    a { color: #B05730; }
+    code { background: #EDE9DE; padding: 2px 6px; border-radius: 3px; font-size: 13px; }
+    ul { padding-left: 22px; }
+    li { margin-bottom: 10px; }
+    footer { margin-top: 60px; font-size: 12px; color: #83827D; border-top: 1px solid #DAD9D4; padding-top: 16px; }
+    .meta { font-size: 14px; color: #535146; }
+  </style>
+</head>
+<body>
+  <h1>Changelog — Chip Slicer Hierarchy</h1>
+  <p class="meta">Current version <strong>1.3.0.0</strong> &nbsp;|&nbsp;
+    <a href="support.html">Support</a> &nbsp;|&nbsp;
+    <a href="mailto:support@tcviz.com">support@tcviz.com</a></p>
+
+  <p>All notable changes to Chip Slicer Hierarchy are documented here.</p>
+  <h2 id="v1.3.0.0">1.3.0.0 <span class="date">2026-10-22</span></h2>
+  <h3 class="kind kind-added">Added</h3>
+  <ul>
+  <li><strong>Drop-down mode (Pro).</strong> A bar shows the current selection ("All", "Spain, France" or "3 selected"); one click opens the hierarchy below it, with the search box when it is on. Escape closes it, and a single-select click on a leaf closes it too, like a native drop-down. Without a licence it is drawn under the "Pro preview" watermark while you edit; in reading view the free chips are shown.</li>
+  <li><strong>Style templates</strong>: Classic (the look of earlier versions, and the default), Outline, Soft, Square, One colour and Dark. A template colours the three levels at once and fills in only what you have not changed yourself.</li>
+  <li><strong>Setup tips</strong> while editing: the templates in one click, and the three Pro features (search, drop-down, colour by value) to try on your own data.</li>
+  <li><strong>Default selection by values</strong>: "These values" plus a list such as <code>Spain, France</code>, matched at any level. Applied when the slicer opens with no selection; clearing it stays clear until the page is opened again.</li>
+  <li><strong>Model format</strong> for the value badge and tooltip: the measure's own format string, including dynamic format strings, in the report's language. "Compact" stays the default, so saved reports look the same.</li>
+  <li><strong>On-object formatting</strong>: chips, value badges, the clear button, the search box and the drop-down bar.</li>
+  <li><strong>Keyboard</strong>: one Tab stop; arrow keys move between chips; Right opens a chip with children and Left closes it; Enter or Space selects (Ctrl adds); Escape clears or closes the drop-down; Shift+F10 opens the context menu. Until now a level could only be opened with the mouse.</li>
+  <li><strong>12 languages</strong>: English, Spanish, Portuguese (Brazil, Portugal), French, German, Italian, Dutch, Polish, Japanese, Chinese (Simplified), Korean — including the licence notice and the watermark.</li>
+  <li><strong>Start screen</strong> with the steps and links, a font setting and a new icon.</li>
+  </ul>
+  <h3 class="kind kind-changed">Changed</h3>
+  <ul>
+  <li><strong>The reset button is now a round ✕</strong>, the same as in Chip Slicer: next to the search box or the drop-down bar, otherwise in the top-right corner, and only when something is selected. It is on by default for new slicers; reports where it was turned off keep it off.</li>
+  </ul>
+  <h3 class="kind kind-fixed">Fixed</h3>
+  <ul>
+  <li><strong>Filtering tables with a dot in their name and hierarchy levels.</strong> The filter target is read from the column expression instead of splitting the query name at the first dot.</li>
+  <li><strong>Codes and dates</strong> filter with their original type (a code such as <code>08001</code> keeps its leading zero), and dates and numbers on the chips use the column's format.</li>
+  <li>Interactions are blocked where Power BI disallows them, using the current host capability.</li>
+  </ul>
+  <h2 id="v1.2.0.0">1.2.0.0 <span class="date">2026-09-23</span></h2>
+  <h3 class="kind kind-fixed">Fixed</h3>
+  <ul>
+  <li><strong>The purchase path was broken.</strong> <code>notifyLicenseRequired</code> was raised before <code>notifyFeatureBlocked</code>. Power BI shows one notification at a time and the last call replaces the previous one, so the banner wiped out the persistent Upgrade bar; once the banner faded some ten seconds later, a free user who had just reached for a Pro feature had no way to buy at all. The sequence is now: clear any standing notice, raise the banner naming the feature, and raise the Upgrade bar 10.5 seconds later, once the banner has gone. The timer is cancelled in <code>destroy()</code>, because Power BI recreates the visual on every page change and a live timer would notify on behalf of a slicer that no longer exists.</li>
+  </ul>
+  <h3 class="kind kind-added">Added</h3>
+  <ul>
+  <li><strong>Pro preview.</strong> Turning on the search box or heat-map colouring without a licence did <strong>nothing at all</strong> — the setting was accepted and then ignored, which reads as a visual that is broken rather than as something to buy. Both are now drawn *working*, under a "Pro preview" watermark that names them, while you edit a report without a licence. In reading view — and anywhere the licence cannot be read, such as Publish to Web, embedding or export — the free result renders with no watermark and no prompt, so a published report never uses a feature nobody paid for. The preview is granted <strong>per feature</strong>, never in bulk. The watermark is a <code>div</code> built with <code>createElement</code> and <code>textContent</code>: there is no <code>innerHTML</code> anywhere in this visual, which matters more here than elsewhere because it was rejected for XSS once.</li>
+  </ul>
+  <h3 class="kind kind-changed">Changed</h3>
+  <ul>
+  <li><strong>The format pane is available in Spanish.</strong> Forty keys were already written *and translated into Spanish* in <code>stringResources</code> — and none of them reached the screen: <code>settings.ts</code> never referenced them with <code>displayNameKey</code>, and <code>FormattingSettingsService</code> was built without a localization manager. Somebody did the translation work and it sat there unused. The twenty-six that matched by text keep their original key names, thirty more were added for the settings that had none, and the four field wells were localized too: 74 keys in <code>en-US</code> and <code>es-ES</code>. Three entries are identical in both languages — the product name, "Horizontal" and "Vertical".</li>
+  <li><strong>Toolchain on current versions.</strong> Tools 7.2.1, API 5.11.1 (the manifest still declared 5.10.0), TypeScript 5.5.4, <code>@types/node</code> pinned to 22 and the <code>qs</code>/<code>uuid</code> overrides. Lint had no configuration in the format <code>pbiviz</code> expects, so every build printed *"Can't run lint validation"* and packaged anyway — and that is where the certification rules are checked. <code>npm audit</code> now reports 0 vulnerabilities, lint runs clean over two files, and <code>pbiviz package --certification-audit</code> finds no external requests.</li>
+  </ul>
+  <h2 id="v1.1.1.0">1.1.1.0 <span class="date">2026-09-15</span></h2>
+  <h3 class="kind kind-fixed">Fixed</h3>
+  <ul>
+  <li><strong>Pro never unlocked for a paying customer.</strong> The licence check compared <code>spIdentifier</code> with <code>chip-slicer-hierarchy-tcviz</code>, a plan identifier that does not exist in the offer. The Pro plan is <code>chipslicer-hierarchy-pro</code>. The comparison also used strict equality, while the Licensing API returns the full Service ID (<code>publisher.offer.plan</code>). The visual now uses the correct Plan ID and accepts either the full Service ID or the Plan ID on its own.</li>
+  </ul>
+  <h2 id="v1.1.0.0">1.1.0.0 <span class="date">2026-09-10</span></h2>
+  <h3 class="kind kind-added">Added</h3>
+  <ul>
+  <li><strong>Value heatmap (Pro).</strong> With a measure in the Values well, each chip is tinted between two colours according to its value. The scale is normalised <strong>per level</strong>, so a child is compared against its siblings and not against the top of the hierarchy — otherwise every chip below the first level collapses to the same colour. Chip text switches between dark and light by WCAG relative luminance, so the label stays readable at both ends of the scale.</li>
+  <li><strong>Search highlighting and result count (Pro).</strong> Matches are marked inside the chip label and the number of results is shown, so an empty hierarchy reads as "no matches" rather than as a broken visual.</li>
+  <li><code>--free</code> mode in <code>build-test.js</code>, which builds with the real Free tier under a separate guid. Without it the licensing path cannot be tested at all: with the real guid Power BI serves the version installed from AppSource.</li>
+  </ul>
+  <h3 class="kind kind-changed">Changed</h3>
+  <ul>
+  <li><strong>A Pro setting now leads somewhere.</strong> Turning on a Pro feature without a licence raises Power BI's own notification, which carries the link to obtain one. The setting is kept and applies as soon as the licence is active.</li>
+  <li>Removed the in-visual "Search requires Pro" notice. It was licensing UI of our own, which Microsoft's guidance advises against, and it was a dead end: grey text with nothing to click.</li>
+  <li>The setting and its card are now named <strong>Search (Pro)</strong>. The default stays <code>false</code> on purpose — defaulting to <code>true</code> would leave a free user with no search box and no explanation.</li>
+  <li><code>notifyLicenseRequired</code> is raised while any Pro setting is on without a licence. This covers the expired trial, where the user changes nothing and the feature disappears on its own.</li>
+  </ul>
+  <h3 class="kind kind-fixed">Fixed</h3>
+  <ul>
+  <li><strong>Licence check accepted any plan.</strong> <code>spIdentifier</code> was never compared, so any active plan the user held counted as this visual's. Harmless while the offer has a single plan, and wrong the moment it has two.</li>
+  <li><strong>A licence in its payment grace period was treated as absent.</strong> <code>Warning</code> is now accepted alongside <code>Active</code>: a paying customer must not lose features while a billing problem is resolved.</li>
+  <li><strong>Publish to Web, embedding and PDF export asked a paying customer to buy.</strong> In those environments a licence cannot be resolved, so a Pro user read as Free. <code>isLicenseUnsupportedEnv</code> and <code>isLicenseInfoAvailable</code> are now read and no notification is raised.</li>
+  <li><strong>Bookmarks did not restore the selection.</strong> The restore ran only on first load, so a bookmark applied later left the chips showing the previous selection while the report was filtered by another — and clearing filters from outside left chips marked with nothing behind them.</li>
+  <li><strong><code>supportsHighlight</code> was declared and not implemented.</strong> Chips outside a cross-highlight are now dimmed; a parent stays lit while any of its children is.</li>
+  <li><strong><code>allowInteractions</code> was not checked</strong> before selecting. Power BI sets it to false during export and in some read modes, where selecting would change the report behind the user's back.</li>
+  </ul>
+  <h3 class="kind kind-security">Security</h3>
+  <ul>
+  <li>No <code>innerHTML</code> anywhere in the visual, and no lint suppression of <code>no-inner-outer-html</code>. Labels, including search highlighting, are built with <code>createElement</code> and text nodes.</li>
+  </ul>
+  <h2 id="v1.0.0.4">1.0.0.4 <span class="date">2026-09-09</span></h2>
+  <h3 class="kind kind-fixed">Fixed</h3>
+  <ul>
+  <li>Support URL: <code>supportUrl</code> pointed to <code>https://tcviz.com/support</code>, which returns 404. It now points to the GitHub Pages support page, which is the one actually served.</li>
+  <li>Terms of Use: the published page was truncated mid-sentence and had no closing tags. Rewritten in full.</li>
+  </ul>
+  <h3 class="kind kind-changed">Changed</h3>
+  <ul>
+  <li>Terms of Use now describe the tiers as they are actually implemented. The previous text claimed the Free tier was limited to 2 hierarchy levels and 20 values per level, with multi-select and custom colours disabled, and listed those as Pro features. None of that was enforced in the code. The only Pro-gated feature is, and has always been, the in-visual <strong>search box</strong> — which the previous text did not mention at all. <strong>No functionality changes for any user:</strong> this corrects the description, not the product.</li>
+  </ul>
+  <h2 id="v1.0.0.3">1.0.0.3 <span class="date">2026-08-26</span></h2>
+  <h3 class="kind kind-security">Security</h3>
+  <ul>
+  <li>Image URL sanitization: the Images data role now only accepts Base64 data URIs (<code>data:image/*;base64,...</code>). External URLs (<code>http://</code>, <code>https://</code>, <code>blob:</code>, etc.) are silently rejected at parse time and never reach <code>img.src</code>. This eliminates unauthorized outbound HTTP requests and satisfies the AppSource CSP/sanitization requirement raised in certification review.</li>
+  </ul>
+  <h3 class="kind kind-documentation">Documentation</h3>
+  <ul>
+  <li>Tips &amp; Hints: new section "Images — Format Required &amp; How to Generate Them" with four methods (Power Query, Python script, DAX/Power Query SVG, quick rules table).</li>
+  <li>Troubleshooting: corrected the "Images not showing" entry, which previously stated that externally reachable URLs were required (the opposite of the current behavior).</li>
+  </ul>
+  <h2 id="v1.0.0.2">1.0.0.2 <span class="date">2026-08-22</span></h2>
+  <h3 class="kind kind-fixed">Fixed</h3>
+  <ul>
+  <li>Context menu added on empty space (root-container <code>contextmenu</code> handler) in addition to the existing per-chip menu, as required by certification feedback.</li>
+  </ul>
+  <h2 id="v1.0.0.1">1.0.0.1 <span class="date">2026-08-17</span></h2>
+  <h3 class="kind kind-added">Added</h3>
+  <ul>
+  <li>Image chips: optional image per hierarchy level (Images data role)</li>
+  <li>Value badges: optional measure shown as a badge on each chip, with compact/number/currency/percent formatting</li>
+  </ul>
+  <h3 class="kind kind-documentation">Documentation</h3>
+  <ul>
+  <li>Full certification, tips &amp; hints, website product page, and YouTube material published, including the demo video</li>
+  <li>Demo video: https://www.youtube.com/watch?v=Wt5CktHwN44</li>
+  </ul>
+  <h2 id="v1.0.0.0">1.0.0.0 <span class="date">2026-08-17</span></h2>
+  <h3 class="kind kind-added">Added</h3>
+  <ul>
+  <li>Initial release: hierarchical chip/pill slicer with drill-down filtering across Category → SubCategory → Product (up to 3 levels)</li>
+  <li>Multi-select and leaf-only selection modes (Pro)</li>
+  <li>Independent per-level color theming (inactive / active / parent-of-selection)</li>
+  <li>Search box (Pro), auto-collapse siblings (Pro), configurable reset button (Pro)</li>
+  <li>Free tier: 2 hierarchy levels, up to 20 values per level, single-select</li>
+  </ul>
+  <h3 class="kind kind-documentation">Documentation</h3>
+  <ul>
+  <li>Privacy policy, terms of use, and README published</li>
+  </ul>
+
+  <footer>
+    Generated from CHANGELOG.md by scripts/gen-changelog.js — do not edit this file by hand.<br />
+    &copy; 2026 TCViz. &nbsp;|&nbsp;
+    <a href="privacy.html">Privacy Policy</a> &nbsp;|&nbsp;
+    <a href="terms.html">Terms of Use</a>
+  </footer>
+</body>
+</html>

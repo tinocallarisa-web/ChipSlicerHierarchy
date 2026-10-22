@@ -2,6 +2,46 @@
 
 All notable changes to Chip Slicer Hierarchy are documented here.
 
+## [1.3.0.0] - 2026-10-22
+
+### Added
+
+- **Drop-down mode (Pro).** A bar shows the current selection ("All", "Spain, France" or "3 selected"); one click
+  opens the hierarchy below it, with the search box when it is on. Escape closes it, and a single-select click on a
+  leaf closes it too, like a native drop-down. Without a licence it is drawn under the "Pro preview" watermark while
+  you edit; in reading view the free chips are shown.
+- **Style templates**: Classic (the look of earlier versions, and the default), Outline, Soft, Square, One colour and
+  Dark. A template colours the three levels at once and fills in only what you have not changed yourself.
+- **Setup tips** while editing: the templates in one click, and the three Pro features (search, drop-down, colour by
+  value) to try on your own data.
+- **Default selection by values**: "These values" plus a list such as `Spain, France`, matched at any level. Applied
+  when the slicer opens with no selection; clearing it stays clear until the page is opened again.
+- **Model format** for the value badge and tooltip: the measure's own format string, including dynamic format
+  strings, in the report's language. "Compact" stays the default, so saved reports look the same.
+- **On-object formatting**: chips, value badges, the clear button, the search box and the drop-down bar.
+- **Keyboard**: one Tab stop; arrow keys move between chips; Right opens a chip with children and Left closes it;
+  Enter or Space selects (Ctrl adds); Escape clears or closes the drop-down; Shift+F10 opens the context menu. Until
+  now a level could only be opened with the mouse.
+- **12 languages**: English, Spanish, Portuguese (Brazil, Portugal), French, German, Italian, Dutch, Polish, Japanese,
+  Chinese (Simplified), Korean — including the licence notice and the watermark.
+- **Start screen** with the steps and links, a font setting and a new icon.
+
+### Changed
+
+- **The reset button is now a round ✕**, the same as in Chip Slicer: next to the search box or the drop-down bar,
+  otherwise in the top-right corner, and only when something is selected. It is on by default for new slicers;
+  reports where it was turned off keep it off.
+
+### Fixed
+
+- **Filtering tables with a dot in their name and hierarchy levels.** The filter target is read from the column
+  expression instead of splitting the query name at the first dot.
+- **Codes and dates** filter with their original type (a code such as `08001` keeps its leading zero), and dates and
+  numbers on the chips use the column's format.
+- Interactions are blocked where Power BI disallows them, using the current host capability.
+
+---
+
 ## [1.2.0.0] - 2026-09-23
 
 ### Fixed

@@ -1,126 +1,54 @@
-# ChipSlicer Hierarchy — Power BI Custom Visual
+# Chip Slicer Hierarchy — custom visual de Power BI
 
-**by [TCViz](https://tcviz.com)**
+**de [TCViz](https://tcviz.com)** · versión **1.3.0.0** · Free + Pro (plan `chipslicer-hierarchy-pro`)
 
-A hierarchical chip/pill slicer for Power BI. Drop several fields into one well and the
-field order becomes the hierarchy — click a chip to filter, expand it to drill down.
+Segmentador de chips con hasta tres niveles. Los campos van en un solo pozo (*Categories*)
+y su orden es la jerarquía: clic en un chip para filtrar, flecha para abrir sus hijos.
+El filtro se aplica al nivel más profundo con selección.
 
-[![AppSource](https://img.shields.io/badge/AppSource-Available-0078D4?logo=microsoft)](https://appsource.microsoft.com)
-[![Version](https://img.shields.io/badge/version-1.2.0.0-brightgreen)](./pbiviz.json)
-[![License](https://img.shields.io/badge/license-Commercial-orange)](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html)
+- Documentación y FAQ: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html
+- Ficha: https://tcviz.com/product/chip-slicer-hierarchy/
+- Vídeo: https://www.youtube.com/watch?v=rdZLCxpP6Pk
+- Cambios: [CHANGELOG.md](./CHANGELOG.md) · [changelog.html](./changelog.html)
 
-📖 **[Documentation & Support](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html)** ·
-🎬 **[Video walkthrough](https://www.youtube.com/watch?v=rdZLCxpP6Pk)** ·
-📝 **[Changelog](./CHANGELOG.md)**
+## Free y Pro
 
----
+- **Free**: 3 niveles y 2.000 filas, imágenes (solo `data:image/…;base64`), insignia de valor
+  (Model format / Compact / Number / Currency / Percentage), tooltips, selección múltiple,
+  solo hojas, selección por defecto (None / First value / These values), botón ✕, chip
+  "All", 6 plantillas de estilo, colores por nivel, on-object, teclado, 12 idiomas.
+- **Pro**: buscador, color por valor (normalizado por nivel) y modo desplegable.
+- **Vista previa Pro**: sin licencia y solo editando, lo Pro se dibuja con la marca
+  "Pro preview" y Power BI muestra su aviso y la barra Upgrade. En lectura, y donde no se
+  puede leer la licencia (Publish to Web, embed, export), se ve la versión gratuita sin marca.
 
-## Features
-
-The slicer is complete without a licence. Pro adds two things: finding what you need in a
-large hierarchy, and seeing where the weight is.
-
-| Feature | Free | Pro |
-|---|---|---|
-| Hierarchy levels | Up to 3 | Up to 3 |
-| Values in the hierarchy | Up to 2,000 | Up to 2,000 |
-| Single-select, multi-select, leaf-only selection | ✓ | ✓ |
-| Expand / collapse, auto-collapse siblings | ✓ | ✓ |
-| Custom per-level colours | ✓ | ✓ |
-| Image chips, value badges, tooltips | ✓ | ✓ |
-| Configurable reset button and 'All' chip | ✓ | ✓ |
-| Keyboard activation, context menu, high contrast | ✓ | ✓ |
-| **Search box** — filter across the whole hierarchy, with matches highlighted and a result count | ✗ | **✓** |
-| **Value heatmap** — colour each chip by its measure | ✗ | **✓** |
-
-Without a licence these are simply not applied, and Power BI shows its own notification
-with a link to obtain one — the setting you changed is kept and takes effect as soon as
-the licence is active. Licence status is resolved through the official Power BI licensing
-API; TCViz runs no licence server and receives no data from your report.
-
-## How it works
-
-1. Drag one or more fields into the **Categories** well. **The field order is the
-   hierarchy**: the first field is the top level, the second sits under it, and so on.
-   There is no separate well per level.
-2. Click a chip to filter the report. Click it again to clear.
-3. Click the expand icon (▸) on a parent chip to browse its children without filtering.
-
-Optional wells: **Images** (Base64 data URIs only), **Values** (a measure shown as a
-badge) and **Tooltips**.
-
-## Installation
-
-Install directly from [Microsoft AppSource](https://appsource.microsoft.com).
-
-### Build from source
+## Compilar
 
 ```bash
-# Prerequisites: Node.js 18+, pbiviz tools
-npm install -g powerbi-visuals-tools
 npm install
-
-npm start          # dev server, live reload in Power BI Desktop
-npm run build      # .pbiviz package, output in dist/
-node build-test.js         # test build, isPro forced, guid ..._test
-node build-test.js --free  # test build, real Free tier, guid ..._testfree
+npm start                  # servidor de desarrollo
+npm run build              # paquete .pbiviz en dist/
+node build-test.js         # build de prueba con Pro forzado (guid ..._test)
+node build-test.js --free  # build de prueba gratuita (guid ..._testfree)
 ```
 
-## Project structure
+## Estructura
 
-```
-ChipSlicerHierarchy/
-├── src/
-│   ├── visual.ts          # Main visual logic + HierarchyManager
-│   └── settings.ts        # Formatting settings model
-├── style/visual.less
-├── assets/icon.svg
-├── stringResources/       # en-US, es-ES
-├── privacy.html           # served at /ChipSlicerHierarchy/privacy.html
-├── support.html           # served at /ChipSlicerHierarchy/support.html
-├── terms.html             # served at /ChipSlicerHierarchy/terms.html
-├── docs/                  # release deliverables (not served)
-├── capabilities.json      # Data roles & formatting objects
-├── pbiviz.json            # Visual metadata
-└── tsconfig.json
-```
+- `src/visual.ts`, `src/settings.ts`, `src/strings.ts` — lógica, panel de formato y textos
+- `capabilities.json`, `pbiviz.json`, `stringResources/` (12 idiomas)
+- `support.html`, `privacy.html`, `terms.html`, `changelog.html` — en la raíz, servidas por GitHub Pages
+- `docs/` — entregables (ficha de AppSource, web, YouTube, tips, infografía); no se sirve
 
-The three public pages live in the repository root and are served by GitHub Pages.
+## Privacidad
 
-## AppSource compliance
+Sin llamadas de red, sin telemetría, sin cookies ni almacenamiento. Los enlaces de la
+pantalla de inicio solo se abren al hacer clic, a través de Power BI.
+[Política de privacidad](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html).
 
-- [x] Context menu on empty space and on individual chips
-- [x] Tooltips on all chips via `host.tooltipService`
-- [x] Terms of Use separate from Privacy Policy, both at public URLs
-- [x] Sample .pbix with 13+ unique values and a Tips & Hints page
-- [x] Rendering events on every `update()` path
-- [x] Official `IVisualLicenseManager` API, resolved asynchronously
-- [x] No watermark and no artificial limits in the free tier
-- [x] Images restricted to Base64 data URIs — the visual makes no outbound requests
+## Licencia
 
-- [x] Bookmarks restore the selection from the applied filter
-- [x] `allowInteractions` checked before selecting
-- [x] `supportsHighlight` implemented: chips outside a cross-highlight are dimmed
-- [x] No `innerHTML` anywhere, and no suppression of `no-inner-outer-html`
+Software comercial. [Términos de uso](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html).
+El código se publica por transparencia; no se permite redistribuirlo.
 
-Known gaps: arrow-key navigation between chips and report-tooltip pages. See
-[docs/CERTIFICATION-NOTES.md](./docs/CERTIFICATION-NOTES.md).
-
-## Privacy
-
-All processing happens inside Power BI. The visual makes no network requests, collects
-nothing, and persists only its own formatting settings inside the `.pbix`.
-See the [Privacy Policy](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html).
-
-## License
-
-**Commercial software.** See the
-[Terms of Use](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html).
-Source code is published for AppSource review transparency. Redistribution is not permitted.
-
-## Support
-
-- 📖 [Documentation](https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html)
-- 🐛 [Report a bug](https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues)
-- 💬 [Discussions](https://github.com/tinocallarisa-web/ChipSlicerHierarchy/discussions)
-- 📧 [support@tcviz.com](mailto:support@tcviz.com)
+Soporte: [support@tcviz.com](mailto:support@tcviz.com) ·
+[Issues](https://github.com/tinocallarisa-web/ChipSlicerHierarchy/issues)
