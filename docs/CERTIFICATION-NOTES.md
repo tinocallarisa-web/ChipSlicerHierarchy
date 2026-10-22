@@ -4,7 +4,7 @@
 Chip Slicer Hierarchy 1.3.0.0 - GUID chipSlicerHierarchy
 Repo, branch certification: https://github.com/tinocallarisa-web/ChipSlicerHierarchy/tree/certification
 Docs: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html (+privacy, terms, changelog)
-Video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
+Video: https://www.youtube.com/watch?v=hgMz9ef160U
 
 WHY THIS SUBMISSION
 Replaces 1.2.0.0. Same objects/properties (saved reports unchanged); new ones added.
@@ -217,7 +217,7 @@ Labels, including the search highlighting, are built with `createElement` and te
 | Privacy Policy | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html |
 | Terms of Use | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/terms.html |
 | Support | https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html |
-| Demo video | https://www.youtube.com/watch?v=rdZLCxpP6Pk |
+| Demo video | https://www.youtube.com/watch?v=hgMz9ef160U |
 
 ## Licence validation
 

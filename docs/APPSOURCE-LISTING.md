@@ -79,8 +79,8 @@ same.
 
 ## Vídeo
 
-URL canónica `https://www.youtube.com/watch?v=<id>`. PENDIENTE del vídeo de la 1.3; hasta entonces
-`https://www.youtube.com/watch?v=rdZLCxpP6Pk`.
+URL canónica `https://www.youtube.com/watch?v=<id>`. Vídeo de la 1.3:
+`https://www.youtube.com/watch?v=hgMz9ef160U`.
 
 ## Imágenes
 

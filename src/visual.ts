@@ -36,7 +36,7 @@ const enum ServicePlanState { Inactive = 0, Active = 1, Warning = 2 }
 
 const URL_GUIDE = "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html";
 const URL_PRODUCT = "https://tcviz.com/product/chip-slicer-hierarchy/?ref=visual-chip-slicer-hierarchy";
-const URL_VIDEO = "https://www.youtube.com/watch?v=rdZLCxpP6Pk";
+const URL_VIDEO = "https://www.youtube.com/watch?v=hgMz9ef160U";
 
 // Las tres funciones Pro: propiedad que las enciende y etiqueta (clave de texto + inglés).
 const PRO_SEARCH = "Pro_Search";

@@ -36,7 +36,7 @@ geography, cost centres — who want one compact slicer instead of three.
 - Colour by value (Pro) — each chip tinted by its measure, scaled per level
 - Drop-down mode (Pro) — a bar with the selection that opens the tree
 - 12 languages, keyboard, on-object formatting
-- Demo video: https://www.youtube.com/watch?v=rdZLCxpP6Pk
+- Demo video: https://www.youtube.com/watch?v=hgMz9ef160U
 
 ---
 

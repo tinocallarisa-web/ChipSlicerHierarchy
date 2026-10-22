@@ -8,7 +8,7 @@ El filtro se aplica al nivel más profundo con selección.
 
 - Documentación y FAQ: https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html
 - Ficha: https://tcviz.com/product/chip-slicer-hierarchy/
-- Vídeo: https://www.youtube.com/watch?v=rdZLCxpP6Pk
+- Vídeo: https://www.youtube.com/watch?v=hgMz9ef160U
 - Cambios: [CHANGELOG.md](./CHANGELOG.md) · [changelog.html](./changelog.html)
 
 ## Free y Pro
