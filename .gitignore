@@ -3,3 +3,4 @@ dist/
 .tmp/
 webpack.statistics*.html
 .claude/
+__pycache__/
