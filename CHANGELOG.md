@@ -39,6 +39,12 @@ All notable changes to Chip Slicer Hierarchy are documented here.
 - **Codes and dates** filter with their original type (a code such as `08001` keeps its leading zero), and dates and
   numbers on the chips use the column's format.
 - Interactions are blocked where Power BI disallows them, using the current host capability.
+- **"First value" can be cleared.** It used to select the first chip again on every update, so the ✕, Escape or a
+  bookmark without a selection could not leave the slicer clear. It now applies when the slicer opens with no selection,
+  like "These values".
+- A bookmark applied right after a click that did not change the filter could be ignored. The slicer now stops waiting
+  for the echo of its own filter after two seconds.
+- The format pane follows the language of Power BI in every card (some settings stayed in English).
 
 ---
 

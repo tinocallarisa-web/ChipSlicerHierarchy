@@ -422,6 +422,10 @@ export class Visual implements IVisual {
     private hasInitializedTree: boolean = false;
     /** True mientras esperamos el update que confirma un filtro aplicado por nosotros. */
     private pendingSelfFilter: boolean = false;
+    /** Cuándo se aplicó: si el eco no llega (filtro igual al vigente), la marca caduca y no tapa un cambio externo. */
+    private pendingSince = 0;
+    /** "First value" se aplica una vez al abrir, como "These values": después, limpiar se respeta. */
+    private firstDone = false;
     private measureDisplayName: string = "";
     private measureColumnFormat: string | undefined;
     private formatMode = false;
@@ -778,8 +782,10 @@ export class Visual implements IVisual {
         // so we don't risk overwriting selections with a mis-parsed filter.
         const existingFilter = (options.jsonFilters?.[0] ?? dv.metadata?.objects?.["general"]?.["filter"]) as any;
 
+        // El eco de nuestro propio filtro no se restaura. Si no llega en 2 s (Power BI no lo manda cuando el filtro es
+        // igual al vigente), la marca caduca: si no, el siguiente cambio externo (un marcador) se tomaría por eco.
+        if (this.pendingSelfFilter && Date.now() - this.pendingSince > 2000) this.pendingSelfFilter = false;
         if (this.pendingSelfFilter) {
-            // Es el eco de nuestro propio filtro: no hay nada que restaurar.
             this.pendingSelfFilter = false;
             this.hasInitializedTree = true;
         } else if (!this.hasInitializedTree) {
@@ -815,8 +821,10 @@ export class Visual implements IVisual {
 
         const defaultSel = (s.defaultSelection?.value as any)?.value ?? "none";
         if (this.interactionsAllowed() && !this.formatMode) {
-            if (defaultSel === "first" && this.hierarchyManager.applyDefaultSelection("first")) {
-                await this.applyFilter();
+            if (defaultSel === "first" && !this.firstDone) {
+                // Solo al abrir sin filtro: tras limpiar con ✕, Escape o un marcador sin selección, se queda limpio.
+                this.firstDone = true;
+                if (!existingFilter && this.hierarchyManager.applyDefaultSelection("first")) await this.applyFilter();
             } else if (defaultSel === "values") {
                 await this.applyDefaultValues(!!existingFilter);
             }
@@ -1864,6 +1872,7 @@ export class Visual implements IVisual {
         // esta marca lo confundiriamos con un cambio externo y restauraríamos
         // la seleccion anterior, deshaciendo el clic del usuario.
         this.pendingSelfFilter = true;
+        this.pendingSince = Date.now();
         const selected = this.hierarchyManager.getSelectedNodes();
         if (!this.dataView) return;
 

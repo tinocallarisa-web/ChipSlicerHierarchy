@@ -36,8 +36,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Ruta",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — es parte del plan Pro. Consigue una licencia para activarlo.",
         "UI_ProPreview": "Vista previa Pro",
-        "UI_Search": "Buscar…",
-        "badgeFormat": "Formato"
+        "UI_Search": "Buscar…"
     },
     "pt-BR": {
         "All": "Todos",
@@ -72,8 +71,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Caminho",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — faz parte do plano Pro. Obtenha uma licença para ativá-lo.",
         "UI_ProPreview": "Prévia Pro",
-        "UI_Search": "Pesquisar…",
-        "badgeFormat": "Formato"
+        "UI_Search": "Pesquisar…"
     },
     "pt-PT": {
         "All": "Todos",
@@ -108,8 +106,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Caminho",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — faz parte do plano Pro. Obtenha uma licença para ativá-lo.",
         "UI_ProPreview": "Prévia Pro",
-        "UI_Search": "Pesquisar…",
-        "badgeFormat": "Formato"
+        "UI_Search": "Pesquisar…"
     },
     "fr-FR": {
         "All": "Tout",
@@ -212,8 +209,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Percorso",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — fa parte del piano Pro. Ottieni una licenza per attivarlo.",
         "UI_ProPreview": "Anteprima Pro",
-        "UI_Search": "Cerca…",
-        "badgeFormat": "Formato"
+        "UI_Search": "Cerca…"
     },
     "nl-NL": {
         "All": "Alles",
@@ -246,8 +242,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Pad",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — onderdeel van het Pro-abonnement. Neem een licentie om het in te schakelen.",
         "UI_ProPreview": "Pro-voorbeeld",
-        "UI_Search": "Zoeken…",
-        "badgeFormat": "Notatie"
+        "UI_Search": "Zoeken…"
     },
     "pl-PL": {
         "All": "Wszystkie",
@@ -317,8 +312,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "パス",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} は Pro プランの機能です。有効にするにはライセンスを取得してください。",
         "UI_ProPreview": "Pro プレビュー",
-        "UI_Search": "検索…",
-        "badgeFormat": "書式"
+        "UI_Search": "検索…"
     },
     "zh-CN": {
         "All": "全部",
@@ -354,8 +348,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "路径",
         "UI_ProBlocked": "Chip Slicer Hierarchy：{0} 属于 Pro 计划。获取许可证即可启用。",
         "UI_ProPreview": "Pro 预览",
-        "UI_Search": "搜索…",
-        "badgeFormat": "格式"
+        "UI_Search": "搜索…"
     },
     "ko-KR": {
         "All": "모두",
@@ -390,7 +383,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "경로",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0}은(는) Pro 플랜에 포함됩니다. 사용하려면 라이선스를 구입하세요.",
         "UI_ProPreview": "Pro 미리 보기",
-        "UI_Search": "검색…",
-        "badgeFormat": "서식"
+        "UI_Search": "검색…"
     }
 };

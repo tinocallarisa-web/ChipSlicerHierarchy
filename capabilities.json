@@ -61,13 +61,15 @@
           "displayName": "Leaf-only selection",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "leafOnly"
         },
         "hideBlank": {
           "displayName": "Hide blank values",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "hideBlanks"
         },
         "defaultSelection": {
           "displayName": "Default selection",
@@ -89,7 +91,8 @@
                 "displayNameKey": "Enum_values"
               }
             ]
-          }
+          },
+          "displayNameKey": "defaultSelection"
         },
         "layout": {
           "displayName": "Layout",
@@ -185,25 +188,29 @@
           "displayName": "Show search box (Pro)",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "showSearch"
         },
         "highlightMatches": {
           "displayName": "Highlight matches (Pro)",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "highlightMatches"
         },
         "showResultCount": {
           "displayName": "Show result count (Pro)",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "showResultCount"
         },
         "searchPlaceholder": {
           "displayName": "Placeholder text",
           "type": {
             "text": true
-          }
+          },
+          "displayNameKey": "searchPlaceholder"
         },
         "searchBg": {
           "displayName": "Background",
@@ -213,7 +220,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "badgeBg"
         },
         "searchBorder": {
           "displayName": "Border color",
@@ -223,7 +231,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "badgeBorder"
         },
         "searchText": {
           "displayName": "Text color",
@@ -233,7 +242,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "badgeText"
         }
       },
       "displayNameKey": "card_searchSettings"
@@ -245,7 +255,8 @@
           "displayName": "Image height (px)",
           "type": {
             "numeric": true
-          }
+          },
+          "displayNameKey": "imgHeight"
         },
         "imagePosition": {
           "displayName": "Image position",
@@ -262,13 +273,15 @@
                 "displayNameKey": "Enum_above"
               }
             ]
-          }
+          },
+          "displayNameKey": "imgPosition"
         },
         "imageRadius": {
           "displayName": "Image border radius (px)",
           "type": {
             "numeric": true
-          }
+          },
+          "displayNameKey": "imgRadius"
         }
       },
       "displayNameKey": "card_imageSettings"
@@ -280,7 +293,8 @@
           "displayName": "Show value badge",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "showBadge"
         },
         "valueFormat": {
           "displayName": "Format",
@@ -312,7 +326,8 @@
                 "displayNameKey": "Enum_percent"
               }
             ]
-          }
+          },
+          "displayNameKey": "badgeFormat"
         },
         "valueBg": {
           "displayName": "Background",
@@ -322,7 +337,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "badgeBg"
         },
         "valueText": {
           "displayName": "Text color",
@@ -332,31 +348,36 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "badgeText"
         },
         "valueFontSize": {
           "displayName": "Font size (px)",
           "type": {
             "numeric": true
-          }
+          },
+          "displayNameKey": "badgeFontSize"
         },
         "valueRadius": {
           "displayName": "Border radius (px)",
           "type": {
             "numeric": true
-          }
+          },
+          "displayNameKey": "chipRadius"
         },
         "valuePaddingH": {
           "displayName": "Horizontal padding (px)",
           "type": {
             "numeric": true
-          }
+          },
+          "displayNameKey": "chipPaddingH"
         },
         "showInTooltip": {
           "displayName": "Show in tooltip",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "showInTooltip"
         }
       },
       "displayNameKey": "card_valueSettings"
@@ -368,7 +389,8 @@
           "displayName": "Color chips by value (Pro)",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "showHeatmap"
         },
         "colorLow": {
           "displayName": "Low value",
@@ -378,7 +400,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "heatLow"
         },
         "colorHigh": {
           "displayName": "High value",
@@ -388,7 +411,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "heatHigh"
         }
       },
       "displayNameKey": "card_heatmapSettings"
@@ -422,13 +446,15 @@
           "displayName": "Show reset button",
           "type": {
             "bool": true
-          }
+          },
+          "displayNameKey": "showReset"
         },
         "resetLabel": {
           "displayName": "Reset button label",
           "type": {
             "text": true
-          }
+          },
+          "displayNameKey": "resetLabel"
         },
         "resetBg": {
           "displayName": "Reset button background",
@@ -438,7 +464,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "resetBg"
         },
         "resetBorder": {
           "displayName": "Reset button border",
@@ -448,7 +475,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "resetBorder"
         },
         "resetText": {
           "displayName": "Reset button text",
@@ -458,7 +486,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "resetText"
         }
       }
     },
@@ -473,7 +502,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultBg"
         },
         "defaultBorder": {
           "displayName": "Inactive border",
@@ -483,7 +513,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultBorder"
         },
         "defaultText": {
           "displayName": "Inactive text",
@@ -493,7 +524,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultText"
         },
         "activeBg": {
           "displayName": "Active background",
@@ -503,7 +535,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeBg"
         },
         "activeBorder": {
           "displayName": "Active border",
@@ -513,7 +546,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeBorder"
         },
         "activeText": {
           "displayName": "Active text",
@@ -523,7 +557,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeText"
         },
         "parentBg": {
           "displayName": "Parent-of-selection background",
@@ -533,7 +568,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "parentBg"
         },
         "parentBorder": {
           "displayName": "Parent-of-selection border",
@@ -543,7 +579,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "parentBorder"
         },
         "parentText": {
           "displayName": "Parent-of-selection text",
@@ -553,7 +590,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "parentText"
         }
       },
       "displayNameKey": "card_level1Colors"
@@ -569,7 +607,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultBg"
         },
         "defaultBorder": {
           "displayName": "Inactive border",
@@ -579,7 +618,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultBorder"
         },
         "defaultText": {
           "displayName": "Inactive text",
@@ -589,7 +629,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultText"
         },
         "activeBg": {
           "displayName": "Active background",
@@ -599,7 +640,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeBg"
         },
         "activeBorder": {
           "displayName": "Active border",
@@ -609,7 +651,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeBorder"
         },
         "activeText": {
           "displayName": "Active text",
@@ -619,7 +662,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeText"
         },
         "parentBg": {
           "displayName": "Parent-of-selection background",
@@ -629,7 +673,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "parentBg"
         },
         "parentBorder": {
           "displayName": "Parent-of-selection border",
@@ -639,7 +684,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "parentBorder"
         },
         "parentText": {
           "displayName": "Parent-of-selection text",
@@ -649,7 +695,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "parentText"
         }
       },
       "displayNameKey": "card_level2Colors"
@@ -665,7 +712,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultBg"
         },
         "defaultBorder": {
           "displayName": "Inactive border",
@@ -675,7 +723,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultBorder"
         },
         "defaultText": {
           "displayName": "Inactive text",
@@ -685,7 +734,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "defaultText"
         },
         "activeBg": {
           "displayName": "Active background",
@@ -695,7 +745,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeBg"
         },
         "activeBorder": {
           "displayName": "Active border",
@@ -705,7 +756,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeBorder"
         },
         "activeText": {
           "displayName": "Active text",
@@ -715,7 +767,8 @@
                 "color": true
               }
             }
-          }
+          },
+          "displayNameKey": "activeText"
         }
       },
       "displayNameKey": "card_level3Colors"
