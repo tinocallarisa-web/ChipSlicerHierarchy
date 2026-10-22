@@ -69,6 +69,19 @@ try {
     // dos builds como el mismo visual y al importar la segunda seguirias viendo
     // la primera.
     pbivizObj.visual.guid = realGuid + (freeMode ? "_testfree" : "_test");
+    // Desktop guarda cada visual por guid + versión: con la misma versión sigue sirviendo el paquete anterior.
+    // Cada build de prueba lleva su propio último dígito (contador local en .tmp/).
+    const CONTADOR = path.join(ROOT, ".tmp", "test-build-counter");
+    fs.mkdirSync(path.dirname(CONTADOR), { recursive: true });
+    const n = (parseInt(fs.existsSync(CONTADOR) ? fs.readFileSync(CONTADOR, "utf8") : "0", 10) || 0) + 1;
+    fs.writeFileSync(CONTADOR, String(n), "utf8");
+    const partes = pbivizObj.visual.version.split(".");
+    partes[3] = String(Number(partes[3]) + n);
+    pbivizObj.visual.version = partes.join(".");
+    if (!process.argv.includes("--clean-name")) {
+        pbivizObj.visual.displayName = "Chip Slicer Hierarchy (" + (freeMode ? "TEST FREE" : "TEST") + ")";
+    }
+    console.log(`🔧 versión ${pbivizObj.visual.version} · ${pbivizObj.visual.displayName}`);
     fs.writeFileSync(PBIVIZ_JSON, JSON.stringify(pbivizObj, null, 2), "utf8");
     console.log(`🔧 pbiviz.json parcheado (guid: ${pbivizObj.visual.guid})`);
 

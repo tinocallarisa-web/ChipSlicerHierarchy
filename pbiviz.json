@@ -1,28 +1,38 @@
 {
-  "visual": {
-    "name": "chipSlicerHierarchy",
-    "displayName": "Chip Slicer Hierarchy",
-    "guid": "chipSlicerHierarchy",
-    "visualClassName": "Visual",
-    "version": "1.2.0.0",
-    "description": "A hierarchical chip/pill slicer with drill-down filtering (Category → Subcategory → Product), multi-select, and professional customization.",
-    "supportUrl": "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html",
-    "gitHubUrl": "https://github.com/tinocallarisa-web/ChipSlicerHierarchy",
-    "privacyTermsLink": "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html"
-  },
-  "author": {
-    "name": "TCViz",
-    "email": "support@tcviz.com"
-  },
-  "assets": {
-    "icon": "assets/icon.png"
-  },
-  "apiVersion": "5.11.1",
-  "style": "style/visual.less",
-  "capabilities": "capabilities.json",
-  "dependencies": null,
-  "stringResources": [
-    "stringResources/en-US/resources.resjson",
-    "stringResources/es-ES/resources.resjson"
-  ]
+    "visual": {
+        "name": "chipSlicerHierarchy",
+        "displayName": "Chip Slicer Hierarchy",
+        "guid": "chipSlicerHierarchy",
+        "visualClassName": "Visual",
+        "version": "1.3.0.0",
+        "description": "A hierarchical chip/pill slicer with drill-down filtering (Category → Subcategory → Product), multi-select, and professional customization.",
+        "supportUrl": "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html",
+        "gitHubUrl": "https://github.com/tinocallarisa-web/ChipSlicerHierarchy",
+        "privacyTermsLink": "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/privacy.html"
+    },
+    "author": {
+        "name": "TCViz",
+        "email": "support@tcviz.com"
+    },
+    "assets": {
+        "icon": "assets/icon.png"
+    },
+    "apiVersion": "5.11.1",
+    "style": "style/visual.less",
+    "capabilities": "capabilities.json",
+    "dependencies": null,
+    "stringResources": [
+        "stringResources/en-US/resources.resjson",
+        "stringResources/es-ES/resources.resjson",
+        "stringResources/pt-BR/resources.resjson",
+        "stringResources/pt-PT/resources.resjson",
+        "stringResources/fr-FR/resources.resjson",
+        "stringResources/de-DE/resources.resjson",
+        "stringResources/it-IT/resources.resjson",
+        "stringResources/nl-NL/resources.resjson",
+        "stringResources/pl-PL/resources.resjson",
+        "stringResources/ja-JP/resources.resjson",
+        "stringResources/zh-CN/resources.resjson",
+        "stringResources/ko-KR/resources.resjson"
+    ]
 }

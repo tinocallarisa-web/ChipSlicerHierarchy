@@ -8,8 +8,15 @@ import IVisual = powerbi.extensibility.visual.IVisual;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import DataView = powerbi.DataView;
 import ISelectionManager = powerbi.extensibility.ISelectionManager;
-import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
-import { VisualSettingsModel } from "./settings";
+import { FormattingSettingsService, formattingSettings } from "powerbi-visuals-utils-formattingmodel";
+import { valueFormatter } from "powerbi-visuals-utils-formattingutils";
+import {
+    HtmlSubSelectableClass, HtmlSubSelectionHelper, SubSelectableDisplayNameAttribute,
+    SubSelectableObjectNameAttribute, SubSelectableTypeAttribute,
+} from "powerbi-visuals-utils-onobjectutils";
+import { VisualSettingsModel, TEMPLATES } from "./settings";
+import { STRINGS } from "./strings";
+import { LANDING_ICON } from "./landingIcon";
 
 import LicenseNotificationType = powerbi.LicenseNotificationType;
 
@@ -27,6 +34,15 @@ function matchesPlan(spIdentifier: unknown, planId: string): boolean {
 // Microsoft: "only the active and warning states represent a usable license".
 const enum ServicePlanState { Inactive = 0, Active = 1, Warning = 2 }
 
+const URL_GUIDE = "https://tinocallarisa-web.github.io/ChipSlicerHierarchy/support.html";
+const URL_PRODUCT = "https://tcviz.com/product/chip-slicer-hierarchy/?ref=visual-chip-slicer-hierarchy";
+const URL_VIDEO = "https://www.youtube.com/watch?v=rdZLCxpP6Pk";
+
+// Las tres funciones Pro: propiedad que las enciende y etiqueta (clave de texto + inglés).
+const PRO_SEARCH = "Pro_Search";
+const PRO_HEATMAP = "Pro_Heatmap";
+const PRO_POPUP = "Pro_Popup";
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Security — image URL sanitization (AppSource certification requirement)
 // Only data: URIs with an image/* MIME type are allowed.
@@ -35,6 +51,42 @@ const enum ServicePlanState { Inactive = 0, Active = 1, Warning = 2 }
 // ─────────────────────────────────────────────────────────────────────────────
 function isSafeImageUrl(url: string): boolean {
     return /^data:image\/[a-z+.-]+;base64,/i.test(url);
+}
+
+/** Clave estable por valor: igual para el valor del dataView y el que vuelve en el filtro guardado. */
+function valueKey(v: unknown): string {
+    if (v === null || v === undefined) return "\u0000blank";
+    if (v instanceof Date) return v.toJSON();
+    return String(v);
+}
+
+/** Para buscar y comparar sin mayúsculas ni acentos. */
+function norm(s: string): string {
+    return String(s ?? "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+/**
+ * Destino del filtro a partir de la expresión de la columna. Partir queryName por el primer punto falla con tablas
+ * cuyo nombre lleva punto y con niveles de jerarquía (mismo arreglo que Chip Slicer 1.4.1).
+ */
+function filterTarget(source: powerbi.DataViewMetadataColumn): any {
+    const expr: any = (source as any).expr;
+    if (expr?.ref && expr?.source?.entity) {
+        return { table: expr.source.entity, column: expr.ref };
+    }
+    if (expr?.level && expr?.arg?.hierarchy) {
+        const inner = expr.arg.arg;
+        const entity = inner?.source?.entity ?? inner?.arg?.source?.entity;
+        if (entity) return { table: entity, hierarchy: expr.arg.hierarchy, hierarchyLevel: expr.level };
+    }
+    const q = source.queryName ?? "";
+    const dot = q.indexOf(".");
+    return dot > -1 ? { table: q.substring(0, dot), column: q.substring(dot + 1) } : { table: source.displayName, column: source.displayName };
+}
+
+function sameTarget(a: any, b: any): boolean {
+    return !!a && !!b && a.table === b.table && (a.column ?? null) === (b.column ?? null)
+        && (a.hierarchy ?? null) === (b.hierarchy ?? null) && (a.hierarchyLevel ?? null) === (b.hierarchyLevel ?? null);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -56,6 +108,8 @@ interface HierarchyNode {
     imageUrl: string | null;
     source: powerbi.DataViewMetadataColumn;
     measureValue: number | null; // aggregated measure — sum of all rows that belong to this node
+    /** Cadena de formato de la medida (dinámica si el DAX la decide), de la primera fila del nodo. */
+    formatString: string | undefined;
     tooltipFields: { name: string; value: string }[];
 }
 
@@ -72,7 +126,9 @@ class HierarchyManager {
     buildTree(
         dataView: DataView,
         hideBlank: boolean,
+        labelOf: (v: powerbi.PrimitiveValue, src: powerbi.DataViewMetadataColumn) => string,
         measureValues?: powerbi.PrimitiveValue[],
+        measureFormats?: (string | undefined)[],
         tooltipMeasureCols?: { name: string; values: powerbi.PrimitiveValue[] }[],
         highlights?: powerbi.PrimitiveValue[]
     ): void {
@@ -127,11 +183,12 @@ class HierarchyManager {
             for (let lvl = 0; lvl < catCols.length; lvl++) {
                 const col = catCols[lvl];
                 const raw = col.values[i];
-                const val = raw == null ? "" : String(raw);
+                const val = raw == null || raw === "" ? "" : labelOf(raw, col.source);
                 if (hideBlank && val === "") break; // stop the path at a blank value
 
                 const level  = lvl + 1;
-                const key    = parentKey ? `L${level}::${parentKey}::${val}` : `L${level}::${val}`;
+                const vk     = valueKey(raw);
+                const key    = parentKey ? `L${level}::${parentKey}::${vk}` : `L${level}::${vk}`;
                 const isLast = lvl === catCols.length - 1;
 
                 // Image URL for this level (matched by position in imgCols)
@@ -139,8 +196,8 @@ class HierarchyManager {
                 if (imgCols[lvl]) {
                     const imgVal = imgCols[lvl].values[i];
                     if (imgVal != null && String(imgVal) !== "") {
-                        const raw = String(imgVal);
-                        imageUrl = isSafeImageUrl(raw) ? raw : null;
+                        const s = String(imgVal);
+                        imageUrl = isSafeImageUrl(s) ? s : null;
                     }
                 }
 
@@ -154,7 +211,7 @@ class HierarchyManager {
                         // Arranca fuera; se enciende abajo si alguna de sus filas
                         // esta resaltada.
                         inHighlight: false,
-                        measureValue: null, tooltipFields: []
+                        measureValue: null, formatString: measureFormats?.[i], tooltipFields: []
                     };
                     this.nodeMap.set(key, node);
                     if (parentNode) {
@@ -252,6 +309,10 @@ class HierarchyManager {
         return sel;
     }
 
+    allNodes(): HierarchyNode[] {
+        return Array.from(this.nodeMap.values());
+    }
+
     markParents(): void {
         this.nodeMap.forEach(n => { n.isParentOfSelection = false; });
         this.nodeMap.forEach(n => {
@@ -271,7 +332,7 @@ class HierarchyManager {
     restoreFromFilter(filterValues: Map<number, Set<string>>): void {
         this.nodeMap.forEach(n => {
             const levelVals = filterValues.get(n.level);
-            n.isSelected = levelVals ? levelVals.has(String(n.rawValue)) : false;
+            n.isSelected = levelVals ? levelVals.has(valueKey(n.rawValue)) : false;
         });
         this.markParents();
     }
@@ -292,6 +353,21 @@ class HierarchyManager {
             return true;
         }
         return false;
+    }
+
+    /** Selección por valores escritos: el primer nodo de cada texto, en cualquier nivel. */
+    selectValues(tokens: string[], multi: boolean, leafOnly: boolean): boolean {
+        const hits: HierarchyNode[] = [];
+        for (const tk of tokens) {
+            const n = this.allNodes().find(x => (!leafOnly || x.isLeaf) && (norm(x.value) === tk || norm(String(x.rawValue)) === tk));
+            if (n && hits.indexOf(n) < 0) hits.push(n);
+        }
+        if (!hits.length) return false;
+        this.clearAll();
+        (multi ? hits : hits.slice(0, 1)).forEach(n => { n.isSelected = true; });
+        this.markParents();
+        this.expandSelectedAncestors();
+        return true;
     }
 
     getNode(key: string): HierarchyNode | undefined {
@@ -319,6 +395,7 @@ export class Visual implements IVisual {
     private host: IVisualHost;
     private selectionManager: ISelectionManager;
     private formattingSettingsService: FormattingSettingsService;
+    private localization: powerbi.extensibility.ILocalizationManager;
     private settings: VisualSettingsModel;
     private hierarchyManager: HierarchyManager = new HierarchyManager();
     private dataView: DataView | null = null;
@@ -339,33 +416,66 @@ export class Visual implements IVisual {
     /** Editando sin licencia y con la licencia resuelta: lo Pro se dibuja con marca. */
     private previaPro = false;
     private editando = false;
-    /** Funciones Pro que el usuario ha activado, para la marca de agua. */
+    /** Funciones Pro que el usuario ha activado (claves PRO_*), para la marca de agua. */
     private etiquetasPro: string[] = [];
     private searchQuery: string = "";
     private hasInitializedTree: boolean = false;
     /** True mientras esperamos el update que confirma un filtro aplicado por nosotros. */
     private pendingSelfFilter: boolean = false;
     private measureDisplayName: string = "";
+    private measureColumnFormat: string | undefined;
+    private formatMode = false;
+    private lastViewport: powerbi.IViewport = { width: 0, height: 0 };
+    /** Desplegable abierto (modo Pro). Es de la sesión: no se guarda. */
+    private popupOpen = false;
+    /** Clave del chip con tabindex=0 (roving tabindex). */
+    private focusKey: string | null = null;
+    /** Última plantilla vista: al cambiarla editando se aplica de verdad (aplicarPlantilla). */
+    private tplVisto: string | null = null;
+    /** Selección por defecto por valores ya resuelta para este texto. */
+    private defaultSig: string | null = null;
+    private fmtCache = new Map<string, valueFormatter.IValueFormatter>();
+    private subSelectionHelper: HtmlSubSelectionHelper;
+    public visualOnObjectFormatting: powerbi.extensibility.visual.VisualOnObjectFormatting;
+
+    private static readonly ALL_KEY = "\u0000all";
 
     constructor(options: VisualConstructorOptions) {
         this.target = options.element;
         this.host = options.host;
         this.selectionManager = this.host.createSelectionManager();
         // CON el gestor de localizacion. Sin el, los displayNameKey no se resuelven y el
-        // panel sale en ingles aunque las traducciones esten escritas y guardadas: era
-        // exactamente lo que pasaba, con 40 claves en espanol que no llegaban a la pantalla.
-        this.formattingSettingsService = new FormattingSettingsService(
-            this.host.createLocalizationManager());
+        // panel sale en ingles aunque las traducciones esten escritas y guardadas.
+        this.localization = this.host.createLocalizationManager();
+        this.formattingSettingsService = new FormattingSettingsService(this.localization);
         this.settings = new VisualSettingsModel();
         this.licenseManager = (options.host as any).licenseManager;
-        this.target.style.overflow = "auto";
+        this.target.style.overflow = "hidden";
         this.target.style.boxSizing = "border-box";
+        this.target.style.position = "relative";
+        this.target.classList.add("csh");
 
         // Empty-space context menu (required by AppSource certification)
         this.target.addEventListener("contextmenu", (e: MouseEvent) => {
             e.preventDefault();
+            if (this.formatMode) return;
             this.selectionManager.showContextMenu(null as any, { x: e.clientX, y: e.clientY });
         });
+        this.target.addEventListener("keydown", (e: KeyboardEvent) => this.onKeyDown(e));
+
+        // Los marcadores devuelven el filtro en el update; esto solo repinta si la selección llega antes.
+        this.selectionManager.registerOnSelectCallback(() => { if (this.dataView) this.renderChipMode(); });
+
+        this.subSelectionHelper = HtmlSubSelectionHelper.createHtmlSubselectionHelper({
+            hostElement: options.element,
+            subSelectionService: options.host.subSelectionService,
+            selectionIdCallback: () => undefined,
+        });
+        this.visualOnObjectFormatting = {
+            getSubSelectionStyles: (subs) => this.getSubSelectionStyles(subs),
+            getSubSelectionShortcuts: (subs) => this.getSubSelectionShortcuts(subs),
+            getSubSelectables: (filter) => this.subSelectionHelper.getAllSubSelectables(filter),
+        };
     }
 
     async update(options: VisualUpdateOptions): Promise<void> {
@@ -373,12 +483,49 @@ export class Visual implements IVisual {
         // viewMode 0 es vista de lectura. La previa es cosa de quien edita: un informe
         // publicado nunca debe usar una funcion que no se ha pagado.
         this.editando = (options as unknown as { viewMode?: number }).viewMode !== 0;
+        this.formatMode = !!(options as any).formatMode;
+        this.subSelectionHelper.setFormatMode(this.formatMode);
+        this.target.classList.toggle("fmt", this.formatMode);
+        this.lastViewport = options.viewport ?? this.lastViewport;
+        const pal: any = this.host.colorPalette;
+        this.target.style.setProperty("--csh-focus", pal?.isHighContrast ? (pal.foregroundSelected?.value || pal.foreground?.value || "#FFFF00") : "#005A9E");
         try {
             await this._update(options);
+            this.markSubSelectables();
+            if (this.formatMode) this.subSelectionHelper.updateOutlinesFromSubSelections((options as any).subSelections ?? [], true);
             this.host.eventService.renderingFinished(options);
         } catch (e) {
             this.host.eventService.renderingFailed(options, String(e));
         }
+    }
+
+    // ─── Textos ──────────────────────────────────────────────────────────────
+
+    /** Texto por clave: primero la tabla del bundle (Desktop no traduce claves que no estén en capabilities). */
+    private t(key: string, fallback: string): string {
+        const loc = String(this.host?.locale || "");
+        const tabla = STRINGS[loc] || STRINGS[Object.keys(STRINGS).find(l => l.slice(0, 2) === loc.slice(0, 2)) || ""];
+        if (tabla && tabla[key]) return tabla[key];
+        try {
+            const s = this.localization?.getDisplayName(key);
+            return s && s !== key ? s : fallback;
+        } catch { return fallback; }
+    }
+
+    /** Plantillas con "{0}". */
+    private tf(key: string, fallback: string, ...args: string[]): string {
+        return this.t(key, fallback).replace(/\{(\d+)\}/g, (_m, i) => args[Number(i)] ?? "");
+    }
+
+    private proLabel(k: string): string {
+        if (k === PRO_SEARCH) return this.t("Pro_Search", "the search box");
+        if (k === PRO_HEATMAP) return this.t("Pro_Heatmap", "colouring chips by value");
+        return this.t("Pro_Popup", "the drop-down mode");
+    }
+
+    private interactionsAllowed(): boolean {
+        const h = this.host as any;
+        return (h?.hostCapabilities?.allowInteractions ?? h?.allowInteractions) !== false;
     }
 
     /**
@@ -395,8 +542,9 @@ export class Visual implements IVisual {
         const parts: string[] = [];
 
         const pares: [string, string, string][] = [
-            ["searchSettings",  "showSearch",  "the search box"],
-            ["heatmapSettings", "showHeatmap", "colouring chips by value"],
+            ["searchSettings",  "showSearch",  PRO_SEARCH],
+            ["heatmapSettings", "showHeatmap", PRO_HEATMAP],
+            ["popup",           "show",        PRO_POPUP],
         ];
         for (const [card, prop, etiqueta] of pares) {
             const v = objs?.[card]?.[prop];
@@ -455,8 +603,7 @@ export class Visual implements IVisual {
             el.style.cssText = [
                 `font-size:${px}px`, `font-weight:${peso}`, "letter-spacing:0.06em",
                 "color:#FFFFFF", "text-align:center",
-                // SVG no tiene text-shadow y aqui si: el contorno oscuro hace que se lea
-                // igual sobre chips claros y oscuros.
+                // El contorno oscuro hace que se lea igual sobre chips claros y oscuros.
                 "text-shadow:0 0 3px #1B2A41,0 0 3px #1B2A41,0 0 3px #1B2A41",
             ].join(";");
             capa.appendChild(el);
@@ -466,11 +613,8 @@ export class Visual implements IVisual {
         const alto = this.target.clientHeight || 200;
         const fs = Math.round(Math.max(20, Math.min(72, ancho / 8, alto / 3.5)));
 
-        linea("Pro preview", fs, "700");
-        linea(this.etiquetasPro.join(" \u00b7 "), Math.round(fs * 0.34), "600");
-
-        // El contenedor necesita posicionamiento para que inset:0 signifique algo.
-        if (!this.target.style.position) { this.target.style.position = "relative"; }
+        linea(this.t("UI_ProPreview", "Pro preview"), fs, "700");
+        linea(this.etiquetasPro.map(k => this.proLabel(k)).join(" · "), Math.round(fs * 0.34), "600");
         this.target.appendChild(capa);
     }
 
@@ -513,17 +657,17 @@ export class Visual implements IVisual {
         this.licenseIconShown = false;
 
         try {
-            const lista = labels.length === 1
-                ? labels[0]
-                : labels.slice(0, -1).join(", ") + " and " + labels[labels.length - 1];
+            const nombres = labels.map(k => this.proLabel(k));
+            const lista = nombres.length === 1
+                ? nombres[0]
+                : nombres.slice(0, -1).join(", ") + " · " + nombres[nombres.length - 1];
             this.licenseManager?.notifyFeatureBlocked?.(
-                `ChipSlicer Hierarchy: ${lista} ${labels.length === 1 ? "is" : "are"} part of ` +
-                `the Pro plan. Get a licence to enable ${labels.length === 1 ? "it" : "them"}.`
+                this.tf("UI_ProBlocked", "Chip Slicer Hierarchy: {0} — part of the Pro plan. Get a licence to enable it.", lista)
             );
         } catch { /* la notificacion nunca debe romper el render */ }
 
         // Y la barra de Upgrade DESPUES, cuando el banner ya se ha ido. Cubre el estado
-        // -una prueba caducada, donde el usuario no toca nada y la busqueda desaparece
+        // -una prueba caducada, donde el usuario no toca nada y la funcion desaparece
         // sola-, que el banner por si solo no cubre porque solo salta al cambiar un ajuste.
         this.cancelarIconoLicencia();
         this.temporizadorIcono = window.setTimeout(() => {
@@ -560,11 +704,8 @@ export class Visual implements IVisual {
             const licenseResult = await this.licenseManager?.getAvailableServicePlans();
 
             // spIdentifier: sin esto valia CUALQUIER plan activo del usuario, no el
-            // de este visual. Hoy no hace dano porque la oferta tiene un solo plan,
-            // pero deja de ser cierto en cuanto se anada un segundo.
-            //
-            // Warning es periodo de gracia por un problema de pago: la licencia
-            // sigue siendo usable y un cliente que paga no debe perder sus features.
+            // de este visual. Warning es periodo de gracia por un problema de pago:
+            // la licencia sigue siendo usable y un cliente que paga no debe perder sus features.
             this.isPro = licenseResult?.plans?.some(
                 (p: any) => matchesPlan(p.spIdentifier, PLAN_ID) &&
                     ((p.state as unknown as number) === ServicePlanState.Active ||
@@ -583,12 +724,19 @@ export class Visual implements IVisual {
         } // ISPRO_BLOCK_END
 
         const dv = options.dataViews?.[0];
-        if (!dv) { this.showLanding(); return; }
+        this.settings = this.formattingSettingsService.populateFormattingSettingsModel(VisualSettingsModel, dv);
+        const hayNiveles = !!dv?.categorical?.categories?.some(c => (c.source.roles as any)?.["categories"]);
+        if (!dv || !hayNiveles) { this.dataView = dv ?? null; this.showLanding(); return; }
 
         this.dataView = dv;
-        this.settings = this.formattingSettingsService.populateFormattingSettingsModel(
-            VisualSettingsModel, dv
-        );
+        if (this.lastLocale !== this.host.locale) { this.fmtCache.clear(); this.lastLocale = this.host.locale; }
+
+        // Plantillas: lo que el autor no ha fijado toma el valor de la plantilla; al ELEGIR una, se borra lo que define.
+        const objs: any = dv.metadata?.objects ?? {};
+        const tpl = String(objs?.style?.template ?? "classic");
+        this.applyTemplateDefaults(tpl, objs);
+        if (this.editando && this.tplVisto !== null && this.tplVisto !== tpl) this.aplicarPlantilla(tpl);
+        this.tplVisto = tpl;
 
         const s = this.settings.chipSettingsCard;
 
@@ -596,8 +744,10 @@ export class Visual implements IVisual {
         // Power BI actually aggregates it (SUM/COUNT/etc.) instead of treating it
         // as a dimension. Values are row-aligned with dv.categorical.categories.
         let measureValues: powerbi.PrimitiveValue[] | undefined;
+        let measureFormats: (string | undefined)[] | undefined;
         let highlightValues: powerbi.PrimitiveValue[] | undefined;
         this.measureDisplayName = "";
+        this.measureColumnFormat = undefined;
         // Tooltip fields that Power BI moved into categorical.values because they're
         // measures (or aggregated numeric columns) rather than plain text/dimension columns.
         const tooltipMeasureCols: { name: string; values: powerbi.PrimitiveValue[] }[] = [];
@@ -609,18 +759,24 @@ export class Visual implements IVisual {
                     measureValues = val.values as powerbi.PrimitiveValue[];
                     highlightValues = (val as any).highlights as powerbi.PrimitiveValue[] | undefined;
                     this.measureDisplayName = val.source.displayName;
+                    try { this.measureColumnFormat = valueFormatter.getFormatStringByColumn(val.source as any) || val.source.format || undefined; }
+                    catch { this.measureColumnFormat = val.source.format ?? undefined; }
+                    // Cadena dinámica por fila (general.formatString declarado en capabilities).
+                    const objsFila: any[] = (val as any).objects ?? [];
+                    measureFormats = measureValues.map((_v, i) => objsFila[i]?.general?.formatString || undefined);
                 } else if (roles && roles["tooltips"]) {
                     tooltipMeasureCols.push({ name: val.source.displayName, values: val.values as powerbi.PrimitiveValue[] });
                 }
             }
         }
 
-        this.hierarchyManager.buildTree(dv, Boolean(s.hideBlank.value), measureValues, tooltipMeasureCols, highlightValues);
+        this.hierarchyManager.buildTree(dv, Boolean(s.hideBlank.value), (v, src) => this.labelOf(v, src),
+            measureValues, measureFormats, tooltipMeasureCols, highlightValues);
 
         // Restore filter state — only on first load (report open / bookmark restore).
         // After that, buildTree already saves/restores selectedKeys from in-memory nodeMap
         // so we don't risk overwriting selections with a mis-parsed filter.
-        const existingFilter = dv.metadata?.objects?.["general"]?.["filter"] as any;
+        const existingFilter = (options.jsonFilters?.[0] ?? dv.metadata?.objects?.["general"]?.["filter"]) as any;
 
         if (this.pendingSelfFilter) {
             // Es el eco de nuestro propio filtro: no hay nada que restaurar.
@@ -636,16 +792,8 @@ export class Visual implements IVisual {
             }
             this.hasInitializedTree = true;
         } else {
-            // Bookmarks.
-            //
-            // Antes esto solo corria en la primera carga, asi que aplicar un
-            // bookmark despues no restauraba nada: los chips seguian mostrando la
-            // seleccion anterior mientras el informe estaba filtrado por otra. Y
-            // limpiar los filtros desde fuera dejaba chips marcados sin filtro
-            // detras.
-            //
-            // Se compara lo que Power BI tiene con lo que pintamos, y solo se
-            // toca cuando divergen. El eco de nuestro propio filtro ya se ha
+            // Marcadores y filtros limpiados desde fuera: se compara lo que Power BI tiene con lo que
+            // pintamos, y solo se toca cuando divergen. El eco de nuestro propio filtro ya se ha
             // descartado arriba, asi que una divergencia aqui viene de fuera.
             try {
                 const filterValues = existingFilter
@@ -654,7 +802,7 @@ export class Visual implements IVisual {
                 const enFiltro = new Set<string>();
                 filterValues.forEach((vals, lvl) => vals.forEach(v => enFiltro.add(lvl + "|" + v)));
                 const enPantalla = new Set(
-                    this.hierarchyManager.getSelectedNodes().map(n => n.level + "|" + String(n.rawValue))
+                    this.hierarchyManager.getSelectedNodes().map(n => n.level + "|" + valueKey(n.rawValue))
                 );
                 const iguales = enFiltro.size === enPantalla.size &&
                     [...enFiltro].every(k => enPantalla.has(k));
@@ -666,9 +814,12 @@ export class Visual implements IVisual {
         }
 
         const defaultSel = (s.defaultSelection?.value as any)?.value ?? "none";
-        if (this.hierarchyManager.applyDefaultSelection(defaultSel)) {
-            await this.applyFilter();
-            return;
+        if (this.interactionsAllowed() && !this.formatMode) {
+            if (defaultSel === "first" && this.hierarchyManager.applyDefaultSelection("first")) {
+                await this.applyFilter();
+            } else if (defaultSel === "values") {
+                await this.applyDefaultValues(!!existingFilter);
+            }
         }
 
         // La licencia ya esta resuelta y los ajustes poblados: es el momento de
@@ -682,21 +833,164 @@ export class Visual implements IVisual {
         this.notifyProFeatureBlocked();
 
         this.render();
-        this.renderMarcaDeAgua();
     }
 
+    /**
+     * Selección por defecto por valores: si el visual se abre sin filtro, se aplica una vez. Si luego el usuario
+     * limpia, se queda limpio hasta que se vuelve a abrir la página. Editando, cambiar el texto la aplica en el momento.
+     */
+    private async applyDefaultValues(hayFiltro: boolean): Promise<void> {
+        const s = this.settings.chipSettingsCard;
+        const txt = String(s.defaultValues.value ?? "").trim();
+        if (this.defaultSig === txt) return;
+        const cambio = this.defaultSig !== null;
+        if (!txt) { this.defaultSig = txt; return; }
+        if (hayFiltro && !(cambio && this.editando)) { this.defaultSig = txt; return; }
+        const tokens = txt.split(/[,;|]/).map(x => norm(x.trim())).filter(x => x);
+        if (!this.hierarchyManager.selectValues(tokens, Boolean(s.multiSelect.value), Boolean(s.leafOnly?.value))) return;
+        this.defaultSig = txt;
+        await this.applyFilter();
+    }
+
+    private lastLocale: string | null = null;
+
+    /** Etiqueta de un valor con el formato de su columna (fechas, números) y el idioma del informe. */
+    private labelOf(v: powerbi.PrimitiveValue, src: powerbi.DataViewMetadataColumn): string {
+        if (typeof v === "number" || v instanceof Date) {
+            let fmt: string | undefined;
+            try { fmt = valueFormatter.getFormatStringByColumn(src as any) || src?.format || undefined; } catch { fmt = src?.format; }
+            try { return this.formatter(fmt).format(v); } catch { /* cae al texto */ }
+            if (v instanceof Date) return v.toLocaleDateString(this.host.locale || undefined);
+        }
+        return String(v);
+    }
+
+    private formatter(fmt: string | undefined): valueFormatter.IValueFormatter {
+        const k = fmt ?? "";
+        let f = this.fmtCache.get(k);
+        if (!f) {
+            f = valueFormatter.create({ format: fmt, cultureSelector: this.host.locale });
+            this.fmtCache.set(k, f);
+        }
+        return f;
+    }
+
+    // ─── Plantillas ──────────────────────────────────────────────────────────
+
+    private applyTemplateDefaults(tpl: string, objs: any): void {
+        const tp = TEMPLATES[tpl];
+        if (!tp) return;
+        Object.keys(tp).forEach(obj => {
+            const card: any = this.settings.cards.find((c: any) => c.name === obj);
+            if (!card) return;
+            Object.keys(tp[obj]).forEach(prop => {
+                if (objs?.[obj]?.[prop] !== undefined) return;
+                const sl: any = (card.slices ?? []).find((x: any) => x.name === prop);
+                if (!sl) return;
+                sl.value = sl instanceof formattingSettings.ColorPicker ? { value: String(tp[obj][prop]) } : tp[obj][prop];
+            });
+        });
+    }
+
+    /** Al ELEGIR una plantilla se borran los ajustes guardados que ella define, para que se vea. */
+    private aplicarPlantilla(nombre: string): void {
+        const tp = TEMPLATES[nombre] ?? {};
+        const remove: any[] = Object.keys(tp).map(obj => ({
+            objectName: obj, selector: null,
+            properties: Object.keys(tp[obj]).reduce((acc: any, p) => { acc[p] = null; return acc; }, {})
+        }));
+        if (remove.length) this.host.persistProperties({ remove });
+    }
+
+    private persistir(objectName: string, properties: any): void {
+        this.host.persistProperties({ merge: [{ objectName, selector: null as any, properties }] });
+    }
+
+    // ─── Pantalla de inicio (serie TCViz) ────────────────────────────────────
+
+    /** En tres tamaños. Los enlaces solo se abren con un clic (host.launchUrl). */
     private showLanding(): void {
-        // Con DOM y no con innerHTML. El contenido es estatico, asi que era
-        // inofensivo, pero obligaba a suprimir powerbi-visuals/no-inner-outer-html
-        // — y una supresion de esa regla es una senal de alarma para quien revisa,
-        // mas aun en un visual que ya fue rechazado por XSS una vez.
         this.vaciar(this.target);
-        const box = document.createElement("div");
-        box.style.cssText = "display:flex;align-items:center;justify-content:center;" +
-            "height:100%;color:#9CA3AF;font-family:sans-serif;font-size:13px;" +
-            "text-align:center;padding:12px;";
-        box.textContent = "Add data fields to Level 1 to start filtering.";
-        this.target.appendChild(box);
+        const vp = this.lastViewport;
+        const w = vp?.width || 0, h = vp?.height || 0;
+        const size = (w >= 560 && h >= 300) ? "l" : (w >= 320 && h >= 200) ? "m" : "s";
+        const pal: any = this.host.colorPalette;
+        const hc = !!pal?.isHighContrast;
+        const fg = hc ? (pal.foreground?.value || "#FFFFFF") : "";
+        const el = document.createElement("div");
+        el.className = "csh-landing csh-landing-" + size;
+        if (hc) el.style.background = pal.background?.value || "#000000";
+        const mk = (tag: string, cls?: string, text?: string): HTMLElement => {
+            const n = document.createElement(tag);
+            if (cls) n.className = cls;
+            if (text !== undefined) n.textContent = text;
+            if (fg) n.style.color = fg;
+            return n;
+        };
+        const head = mk("div", "cl-head");
+        const img = document.createElement("img");
+        img.src = LANDING_ICON; img.alt = ""; img.className = "cl-icon";
+        head.appendChild(img);
+        const titles = mk("div");
+        titles.appendChild(mk("div", "cl-title", "Chip Slicer Hierarchy"));
+        if (size !== "s") titles.appendChild(mk("div", "cl-tag", this.t("Landing_Tagline", "Filter by levels — country, region, city — with one click.")));
+        head.appendChild(titles);
+        el.appendChild(head);
+        const link = (txt: string, url: string, cls: string, sub?: string): HTMLElement => {
+            const a = mk("a", cls) as HTMLAnchorElement;
+            a.href = url; a.tabIndex = 0;
+            a.appendChild(document.createTextNode(txt));
+            if (sub) a.appendChild(mk("span", "cl-sub", sub));
+            if (hc) { a.style.background = "transparent"; a.style.borderColor = fg; }
+            const open = (e: Event) => { e.preventDefault(); e.stopPropagation(); if (this.interactionsAllowed()) this.host.launchUrl(url); };
+            a.addEventListener("click", open);
+            a.addEventListener("keydown", (e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") open(e); });
+            return a;
+        };
+        if (size === "s") {
+            el.appendChild(mk("p", "cl-do", this.t("Landing_Small", "Add fields to Categories: the first is level 1.")));
+            el.appendChild(link(this.t("Landing_Guide", "Guide"), URL_GUIDE, "cl-a"));
+            this.target.appendChild(el);
+            return;
+        }
+        const cols = mk("div", "cl-cols");
+        const pasos = mk("div");
+        pasos.appendChild(mk("div", "cl-lbl", this.t("Landing_Steps", "Get started")));
+        const ol = mk("ol", "cl-steps");
+        const paso = (n: string, b: string, txt: string) => {
+            const li = mk("li");
+            const num = mk("span", "cl-n", n);
+            if (hc) Object.assign(num.style, { background: "transparent", border: "1px solid " + fg });
+            li.appendChild(num);
+            const sp = mk("span");
+            sp.appendChild(mk("b", "cl-well", b));
+            sp.appendChild(document.createTextNode(" — " + txt));
+            li.appendChild(sp);
+            ol.appendChild(li);
+        };
+        paso("1", this.t("roleCategories", "Categories"), this.t("Landing_Step1", "up to 3 fields: the first is level 1, the next its children"));
+        paso("2", this.t("roleValues", "Values"), this.t("Landing_Step2", "optional: a measure shown on each chip"));
+        paso("3", this.t("card_style", "Style template"), this.t("Landing_Step3", "in the Format pane: pick a look in one click"));
+        pasos.appendChild(ol);
+        if (size === "l") {
+            const pro = mk("div", "cl-pro");
+            const chip = mk("span", "cl-chip", "Pro");
+            if (hc) { chip.style.background = "transparent"; chip.style.border = "1px solid " + fg; }
+            pro.appendChild(chip);
+            pro.appendChild(mk("span", "", this.t("Landing_Pro", "Search, drop-down mode and colour by value — try them on your data while you edit.")));
+            pasos.appendChild(pro);
+        }
+        cols.appendChild(pasos);
+        const links = mk("div");
+        links.appendChild(mk("div", "cl-lbl", this.t("Landing_Help", "Help")));
+        const ll = mk("div", "cl-links");
+        ll.appendChild(link(this.t("Landing_Guide", "Guide"), URL_GUIDE, "cl-card", this.t("Landing_GuideSub", "support page")));
+        ll.appendChild(link(this.t("Landing_Product", "Product page"), URL_PRODUCT, "cl-card", "tcviz.com"));
+        if (size === "l") ll.appendChild(link(this.t("Landing_Video", "Video"), URL_VIDEO, "cl-card", "YouTube"));
+        links.appendChild(ll);
+        cols.appendChild(links);
+        el.appendChild(cols);
+        this.target.appendChild(el);
     }
 
     /** Vacia un elemento sin pasar por innerHTML. */
@@ -704,97 +998,181 @@ export class Visual implements IVisual {
         while (el.firstChild) el.removeChild(el.firstChild);
     }
 
-    private render(): void { this.renderChipMode(); }
+    private render(): void {
+        this.renderChipMode();
+    }
 
     // ─── MAIN RENDER ──────────────────────────────────────────────────────────
     /** Rango por nivel, recalculado una vez por render y no por chip. */
     private rangoHeatmap: Map<number, { min: number; max: number }> | null = null;
 
+    /** Modo desplegable activo (Pro o vista previa). */
+    private popupOn(): boolean {
+        return Boolean(this.settings.popupSettingsCard.show.value) && this.permitir(PRO_POPUP);
+    }
+
     private renderChipMode(): void {
+        if (!this.dataView || !this.settings) return;
         const hm = this.settings?.heatmapSettingsCard;
-        this.rangoHeatmap = (this.permitir("colouring chips by value") && hm && Boolean(hm.showHeatmap.value))
+        this.rangoHeatmap = (this.permitir(PRO_HEATMAP) && hm && Boolean(hm.showHeatmap.value))
             ? this.rangoPorNivel()
             : null;
         // Capture focus before any DOM mutation
-        const searchWasFocused = !!(document.activeElement &&
-            this.target.contains(document.activeElement) &&
-            (document.activeElement as HTMLElement).tagName === "INPUT");
+        const active = document.activeElement as HTMLElement;
+        const hadFocus = !!active && this.target.contains(active);
+        const searchWasFocused = hadFocus && active.tagName === "INPUT";
+        const barWasFocused = hadFocus && active.classList.contains("csh-bar");
+        const prevScroll = (this.target.querySelector(".csh-scroll") as HTMLElement)?.scrollTop ?? 0;
 
-        const scrollTop = this.target.scrollTop;
         const isHC   = this.host.colorPalette.isHighContrast;
         const s      = this.settings.chipSettingsCard;
         const hs     = this.settings.hierarchySettingsCard;
         const ss     = this.settings.searchSettingsCard;
         const layout = (s.layout?.value as any)?.value ?? "horizontal";
+        const popup  = this.popupOn();
 
-        this.target.style.overflow = "auto";
+        const root = document.createElement("div");
+        root.className = "csh-root";
+        root.style.fontFamily = isHC ? "system-ui" : String(s.fontFamily?.value || "'Segoe UI', sans-serif");
 
-        const wrapper = document.createElement("div");
-        wrapper.style.cssText = `
-            display:flex; flex-direction:column; gap:6px; width:100%; height:100%;
-            overflow:auto; box-sizing:border-box; padding:4px;
-            font-family:${isHC ? "system-ui" : "sans-serif"};
-        `;
-
-        if (Boolean(ss.showSearch.value)) {
-            if (this.permitir("the search box")) {
-                wrapper.appendChild(this.buildSearchBox(isHC));
-            }
-            // Sin licencia y fuera de la vista previa no se dibuja nada aqui. Antes habia
-            // un "Search requires Pro" en gris: UI de licencia propia, que la guia de
-            // Microsoft desaconseja, y ademas un callejon sin salida sin nada que pulsar.
-            // La ruta de compra la pone notifyProFeatureBlocked.
+        // Contenido: buscador, reinicio y chips. En modo desplegable va dentro del panel.
+        const body = document.createElement("div");
+        body.className = popup ? "csh-panel" : "csh-body";
+        if (Boolean(ss.showSearch.value) && this.permitir(PRO_SEARCH)) {
+            // Sin licencia y fuera de la vista previa no se dibuja nada: la ruta de compra la pone
+            // notifyProFeatureBlocked (UI de licencia propia, no).
+            body.appendChild(this.buildSearchBox(isHC));
         }
-
         if (Boolean(hs.showReset.value)) {
-            wrapper.appendChild(this.buildResetButton(isHC));
+            body.appendChild(this.buildResetButton(isHC));
         }
-
         const chipContainer = document.createElement("div");
-        chipContainer.style.cssText = `display:flex;flex-direction:column;gap:${s.chipGap.value}px;`;
-        if (this.searchQuery && this.permitir("the search box")) {
+        chipContainer.className = "csh-scroll";
+        chipContainer.style.gap = `${s.chipGap.value}px`;
+        chipContainer.setAttribute("role", "group");
+        chipContainer.setAttribute("aria-label", this.levelNames());
+        if (this.searchQuery && this.permitir(PRO_SEARCH)) {
             this.renderSearchResults(chipContainer, isHC, layout);
         } else {
             this.renderNodes(this.hierarchyManager.roots, chipContainer, isHC, layout, 0);
         }
-        wrapper.appendChild(chipContainer);
+        body.appendChild(chipContainer);
+
+        if (popup) {
+            root.appendChild(this.buildPopupBar(isHC));
+            if (this.popupOpen) {
+                if (isHC) {
+                    const pal: any = this.host.colorPalette;
+                    Object.assign(body.style, { background: pal.background?.value || "#000", borderColor: pal.foreground?.value || "#FFF" });
+                }
+                root.appendChild(body);
+            }
+        } else {
+            root.appendChild(body);
+        }
 
         this.vaciar(this.target);
-        this.target.appendChild(wrapper);
-        this.target.scrollTop = scrollTop;
+        this.target.appendChild(root);
+        const sc = this.target.querySelector(".csh-scroll") as HTMLElement;
+        if (sc) sc.scrollTop = prevScroll;
+
+        // Roving tabindex: una sola parada de Tab para los chips
+        const chips = Array.from(this.target.querySelectorAll<HTMLElement>(".csh-chip"));
+        const focusChip = chips.find(c => c.dataset.key === this.focusKey)
+            ?? chips.find(c => c.getAttribute("aria-pressed") === "true")
+            ?? chips[0];
+        chips.forEach(c => { c.tabIndex = c === focusChip ? 0 : -1; });
+        this.focusKey = focusChip?.dataset.key ?? null;
 
         if (searchWasFocused) {
             const inp = this.target.querySelector("input") as HTMLInputElement;
             if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+        } else if (barWasFocused) {
+            (this.target.querySelector(".csh-bar") as HTMLElement)?.focus();
+        } else if (hadFocus) {
+            focusChip?.focus();
         }
+
+        this.renderGuide(isHC);
+        this.renderMarcaDeAgua();
+        this.markSubSelectables();
+    }
+
+    private levelNames(): string {
+        const cats = this.dataView?.categorical?.categories ?? [];
+        return cats.filter(c => (c.source.roles as any)?.["categories"]).map(c => c.source.displayName).join(" › ");
+    }
+
+    // ─── DESPLEGABLE (Pro) ────────────────────────────────────────────────────
+    private buildPopupBar(isHC: boolean): HTMLElement {
+        const ps = this.settings.popupSettingsCard;
+        const s = this.settings.chipSettingsCard;
+        const bar = document.createElement("button");
+        bar.type = "button";
+        bar.className = "csh-bar" + (this.popupOpen ? " open" : "");
+        bar.setAttribute("aria-expanded", String(this.popupOpen));
+        bar.setAttribute("data-o", "popup");
+        const lbl = document.createElement("span");
+        lbl.className = "csh-bar-lbl";
+        lbl.textContent = String(ps.label.value || "") || this.levelNames();
+        const sel = this.hierarchyManager.getSelectedNodes();
+        const sum = document.createElement("span");
+        sum.className = "csh-bar-sum";
+        sum.textContent = sel.length === 0 ? ((s.selectAllLabel.value as string) || this.t("All", "All"))
+            : sel.length <= 2 ? sel.map(n => n.value).join(", ")
+            : this.tf("UI_NSelected", "{0} selected", String(sel.length));
+        const car = document.createElement("span");
+        car.className = "csh-bar-car";
+        car.textContent = this.popupOpen ? "▴" : "▾";
+        car.setAttribute("aria-hidden", "true");
+        bar.appendChild(lbl); bar.appendChild(sum); bar.appendChild(car);
+        bar.style.fontSize = `${s.fontSize.value}px`;
+        if (isHC) {
+            const pal: any = this.host.colorPalette;
+            Object.assign(bar.style, { background: pal.background?.value || "#000", color: pal.foreground?.value || "#FFF", borderColor: pal.foreground?.value || "#FFF" });
+        }
+        bar.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (this.formatMode) return;
+            this.popupOpen = !this.popupOpen;
+            this.renderChipMode();
+        });
+        return bar;
     }
 
     // ─── SEARCH BOX ───────────────────────────────────────────────────────────
     private buildSearchBox(isHC: boolean): HTMLElement {
         const ss = this.settings.searchSettingsCard;
         const wrap = document.createElement("div");
-        wrap.style.cssText = "position:relative;display:flex;align-items:center;margin-bottom:4px;";
+        wrap.className = "csh-search";
 
         const input = document.createElement("input");
         input.type = "text";
-        input.placeholder = (ss.searchPlaceholder.value as string) || "Search…";
+        input.placeholder = (ss.searchPlaceholder.value as string) || this.t("UI_Search", "Search…");
+        input.setAttribute("aria-label", input.placeholder);
+        input.setAttribute("data-o", "search");
         input.value = this.searchQuery;
         input.style.cssText = `
             width:100%; padding:6px 28px 6px 10px; border-radius:6px; box-sizing:border-box;
             border:1px solid ${isHC ? "ButtonText" : (ss.searchBorder.value?.value ?? "#D1D5DB")};
             background:${isHC ? "ButtonFace" : (ss.searchBg.value?.value ?? "#FFFFFF")};
             color:${isHC ? "ButtonText" : (ss.searchText.value?.value ?? "#374151")};
-            font-size:13px; outline:none;
+            font-size:13px;
         `;
         input.addEventListener("input", () => { this.searchQuery = input.value; this.renderChipMode(); });
-        input.addEventListener("keydown", (e: KeyboardEvent) => e.stopPropagation());
+        input.addEventListener("keydown", (e: KeyboardEvent) => {
+            e.stopPropagation();
+            if (e.key === "ArrowDown") { e.preventDefault(); (this.target.querySelector(".csh-chip[tabindex='0']") as HTMLElement)?.focus(); }
+            if (e.key === "Escape" && input.value) { e.preventDefault(); this.searchQuery = ""; this.renderChipMode(); }
+        });
 
-        const clr = document.createElement("span");
+        const clr = document.createElement("button");
+        clr.type = "button";
+        clr.className = "csh-search-clr";
         clr.textContent = "×";
-        clr.style.cssText = `
-            position:absolute; right:8px; cursor:pointer; color:#9CA3AF;
-            font-size:16px; line-height:1; display:${this.searchQuery ? "block" : "none"};
-        `;
+        clr.title = this.t("UI_ClearSearch", "Clear search");
+        clr.setAttribute("aria-label", clr.title);
+        clr.style.display = this.searchQuery ? "block" : "none";
         clr.addEventListener("click", () => { this.searchQuery = ""; this.renderChipMode(); });
 
         wrap.appendChild(input);
@@ -804,11 +1182,11 @@ export class Visual implements IVisual {
 
     // ─── SEARCH RESULTS ───────────────────────────────────────────────────────
     private renderSearchResults(container: HTMLElement, isHC: boolean, layout: string): void {
-        const q = this.searchQuery.toLowerCase();
+        const q = norm(this.searchQuery);
         const matches: HierarchyNode[] = [];
         const collect = (nodes: HierarchyNode[]) => {
             for (const n of nodes) {
-                if (n.value.toLowerCase().includes(q)) matches.push(n);
+                if (norm(n.value).includes(q)) matches.push(n);
                 collect(n.children);
             }
         };
@@ -816,8 +1194,8 @@ export class Visual implements IVisual {
 
         if (matches.length === 0) {
             const empty = document.createElement("div");
-            empty.style.cssText = "color:#9CA3AF;font-size:12px;padding:4px;";
-            empty.textContent = `No results for "${this.searchQuery}"`;
+            empty.className = "csh-note";
+            empty.textContent = this.tf("UI_NoResults", "No results for \"{0}\"", this.searchQuery);
             container.appendChild(empty);
             return;
         }
@@ -825,13 +1203,13 @@ export class Visual implements IVisual {
         const ss = this.settings.searchSettingsCard;
 
         // Contador: en una jerarquia grande, saber que hay 47 coincidencias
-        // cambia como se lee el resultado. Antes solo salian los chips.
+        // cambia como se lee el resultado.
         if (Boolean(ss.showResultCount?.value)) {
             const cnt = document.createElement("div");
-            cnt.style.cssText = "color:#6B7280;font-size:11px;padding:2px 4px 6px;";
+            cnt.className = "csh-note";
             cnt.textContent = matches.length === 1
-                ? "1 result"
-                : `${matches.length} results`;
+                ? this.t("UI_OneResult", "1 result")
+                : this.tf("UI_NResults", "{0} results", String(matches.length));
             container.appendChild(cnt);
         }
 
@@ -858,7 +1236,7 @@ export class Visual implements IVisual {
 
         if (layout === "vertical") {
             if (depth === 0 && showSelectAll) {
-                container.appendChild(this.buildAllChip(isHC, "block"));
+                container.appendChild(this.buildAllChip(isHC, "flex"));
             }
             for (const node of nodes) {
                 const chip = this.buildChipElement(node, isHC, layout);
@@ -895,20 +1273,23 @@ export class Visual implements IVisual {
     private buildAllChip(isHC: boolean, display: string): HTMLElement {
         const s = this.settings.chipSettingsCard;
         const anySelected = this.hierarchyManager.getSelectedNodes().length > 0;
-        const allLabel = (s.selectAllLabel.value as string) || "All";
+        const allLabel = (s.selectAllLabel.value as string) || this.t("All", "All");
 
         const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "csh-chip csh-all";
+        btn.dataset.key = Visual.ALL_KEY;
         btn.textContent = allLabel;
-        btn.setAttribute("role", "button");
         btn.setAttribute("aria-pressed", String(!anySelected));
-        btn.setAttribute("aria-label", allLabel);
+        btn.setAttribute("data-o", "chips");
         btn.style.cssText = this.buildChipStyle(isHC, !anySelected, false, 1);
         btn.style.display = display;
-        if (display === "block") {
+        if (display === "flex") {
             btn.style.width = "100%";
-            btn.style.boxSizing = "border-box";
         }
         btn.addEventListener("click", async () => {
+            if (this.formatMode || !this.interactionsAllowed()) return;
+            this.focusKey = Visual.ALL_KEY;
             this.hierarchyManager.clearAll();
             await this.applyFilter();
             this.render();
@@ -959,7 +1340,7 @@ export class Visual implements IVisual {
      * Texto legible sobre un fondo dado.
      *
      * Sin esto, un chip oscuro del extremo alto del rango se queda con el texto
-     * oscuro por defecto y no se lee. Luminancia relativa segun WCAG.
+     * oscuro por defecto y no se lee. Luminancia relativa.
      */
     private textoSobre(rgb: string): string {
         const m = /rgb\((\d+),(\d+),(\d+)\)/.exec(rgb);
@@ -981,7 +1362,7 @@ export class Visual implements IVisual {
      */
     private etiquetaConCoincidencia(texto: string, q: string): DocumentFragment {
         const frag = document.createDocumentFragment();
-        const i = q ? texto.toLowerCase().indexOf(q.toLowerCase()) : -1;
+        const i = q ? norm(texto).indexOf(norm(q)) : -1;
         if (i < 0) {
             frag.appendChild(document.createTextNode(texto));
             return frag;
@@ -1004,14 +1385,14 @@ export class Visual implements IVisual {
         const leafOnly = Boolean(s.leafOnly?.value);
 
         const chip = document.createElement("button");
-        chip.setAttribute("role", "button");
+        chip.type = "button";
+        chip.className = "csh-chip";
+        chip.dataset.key = node.key;
         chip.setAttribute("aria-pressed", String(node.isSelected));
-        chip.setAttribute("aria-label", node.value);
-        chip.setAttribute("tabindex", "0");
+        chip.setAttribute("data-o", "chips");
+        if (!node.isLeaf) chip.setAttribute("aria-expanded", String(node.isExpanded));
         chip.style.cssText = this.buildChipStyle(isHC, node.isSelected, node.isParentOfSelection, node.level);
-        // Filter-in: cuando otro visual resalta, los chips que quedan fuera se
-        // atenuan en lugar de ignorarlo. supportsHighlight estaba declarado en
-        // capabilities y no lo implementaba nadie.
+        // Filter-in: cuando otro visual resalta, los chips que quedan fuera se atenuan.
         if (!node.inHighlight) chip.style.opacity = "0.35";
 
         // Mapa de calor (Pro): el fondo del chip segun su medida, normalizado
@@ -1037,7 +1418,6 @@ export class Visual implements IVisual {
         if (layout === "vertical") {
             chip.style.display = "flex";
             chip.style.width = "100%";
-            chip.style.boxSizing = "border-box";
         }
 
         if (leafOnly && !node.isLeaf) {
@@ -1047,60 +1427,63 @@ export class Visual implements IVisual {
 
         // Image — shown for any level that has an imageUrl
         const imgPos = (is?.imagePosition?.value as any)?.value ?? "left";
+        const lbl = document.createElement("span");
+        lbl.className = "csh-lbl";
+        if (resaltar) lbl.appendChild(this.etiquetaConCoincidencia(node.value, resaltar));
+        else lbl.textContent = node.value;
         if (node.imageUrl && isSafeImageUrl(node.imageUrl)) {
             const img = document.createElement("img");
             img.src = node.imageUrl; // safe: validated as data:image/* URI
+            img.alt = "";
             img.style.cssText = `height:${is.imageHeight.value}px;border-radius:${is.imageRadius.value}px;object-fit:cover;flex-shrink:0;`;
             img.onerror = () => { img.style.display = "none"; };
-            const lbl = document.createElement("span");
-            if (resaltar) lbl.appendChild(this.etiquetaConCoincidencia(node.value, resaltar));
-            else lbl.textContent = node.value;
             if (imgPos === "above") {
                 chip.style.flexDirection = "column";
                 chip.style.alignItems = "center";
+                chip.style.height = "auto";
+                chip.style.padding = `4px ${s.chipPaddingH.value}px`;
             } else {
                 chip.style.flexDirection = "row";
                 chip.style.alignItems = "center";
                 chip.style.gap = "6px";
             }
             chip.appendChild(img);
-            chip.appendChild(lbl);
-        } else if (resaltar) {
-            chip.appendChild(this.etiquetaConCoincidencia(node.value, resaltar));
-        } else {
-            chip.textContent = node.value;
         }
+        chip.appendChild(lbl);
 
         // Value badge — shown between the label and the expand icon
         const vs = this.settings?.valueSettingsCard;
+        let badgeText = "";
         if (vs && Boolean(vs.showValue?.value) && node.measureValue !== null && node.measureValue !== undefined) {
             const fmt     = (vs.valueFormat?.value as any)?.value ?? "compact";
             const badgeBg = isHC ? "ButtonFace" : (vs.valueBg.value?.value ?? "#E5E7EB");
             const badgeFg = isHC ? "ButtonText" : (vs.valueText.value?.value ?? "#374151");
             const badge   = document.createElement("span");
-            badge.textContent = this.formatMeasure(node.measureValue, fmt);
+            badge.className = "csh-badge";
+            badge.setAttribute("data-o", "badge");
+            badgeText = this.formatMeasure(node.measureValue, fmt, node.formatString);
+            badge.textContent = badgeText;
             badge.style.cssText = `
-                display:inline-flex; align-items:center; justify-content:center;
                 background:${badgeBg}; color:${badgeFg};
                 font-size:${vs.valueFontSize.value}px;
                 border-radius:${vs.valueRadius.value}px;
                 padding:0 ${vs.valuePaddingH.value}px;
-                margin-left:auto; white-space:nowrap; flex-shrink:0;
-                line-height:1.4;
             `;
             chip.appendChild(badge);
         }
+        chip.setAttribute("aria-label", badgeText ? `${node.value}, ${badgeText}` : node.value);
 
         // Expand icon for non-leaf — click expands/collapses only, does NOT trigger selection
         if (!node.isLeaf && Boolean(hs.expandIcon.value)) {
             const icon = document.createElement("span");
-            icon.textContent = node.isExpanded ? " ▲" : " ▼";
-            icon.style.cssText = "font-size:9px;margin-left:3px;opacity:0.6;cursor:pointer;";
+            icon.className = "csh-exp";
+            icon.textContent = node.isExpanded ? "▲" : "▼";
+            icon.setAttribute("aria-hidden", "true");
             icon.addEventListener("click", (e: MouseEvent) => {
                 e.stopPropagation(); // prevent chip body click from also firing
-                const hsCurrent = this.settings.hierarchySettingsCard;
-                const autoCollapse = Boolean(hsCurrent.autoCollapse.value);
-                this.hierarchyManager.toggleExpand(node.key, autoCollapse);
+                if (this.formatMode) return;
+                this.focusKey = node.key;
+                this.hierarchyManager.toggleExpand(node.key, Boolean(this.settings.hierarchySettingsCard.autoCollapse.value));
                 this.renderChipMode(); // no applyFilter — expand state is not persisted via PBI filter
             });
             chip.appendChild(icon);
@@ -1112,26 +1495,109 @@ export class Visual implements IVisual {
         chip.addEventListener("click", async (e: MouseEvent) => {
             // Power BI lo pone a false al exportar y en algunos modos de lectura:
             // seleccionar entonces cambia el informe a espaldas del usuario.
-            if ((this.host as any).allowInteractions === false) return;
+            if (this.formatMode || !this.interactionsAllowed()) return;
             e.stopPropagation();
+            this.focusKey = node.key;
             const cs = this.settings.chipSettingsCard;
             const multiSelect = Boolean(cs.multiSelect.value) || e.ctrlKey || e.metaKey;
-            const leafOnly2   = Boolean(cs.leafOnly?.value);
-            this.hierarchyManager.toggleSelect(node.key, multiSelect, leafOnly2);
+            this.hierarchyManager.toggleSelect(node.key, multiSelect, Boolean(cs.leafOnly?.value));
             await this.applyFilter();
+            // En el desplegable, una selección simple de una hoja lo cierra, como un desplegable nativo.
+            if (this.popupOn() && !multiSelect && node.isLeaf) this.popupOpen = false;
             this.renderChipMode();
         });
 
         chip.addEventListener("contextmenu", (e: MouseEvent) => {
             e.preventDefault();
+            e.stopPropagation();
+            if (this.formatMode) return;
             this.selectionManager.showContextMenu(null as any, { x: e.clientX, y: e.clientY });
         });
 
-        chip.addEventListener("keydown", (e: KeyboardEvent) => {
-            if (e.key === "Enter" || e.key === " ") { e.preventDefault(); chip.click(); }
-        });
-
         return chip;
+    }
+
+    /**
+     * Teclado: una parada de Tab. Flechas Abajo/Arriba y Home/End se mueven entre chips; Derecha abre un chip con hijos
+     * (o avanza) e Izquierda lo cierra (o retrocede); Enter/Espacio selecciona (Ctrl añade); Escape limpia o cierra el
+     * desplegable; Mayús+F10 abre el menú contextual.
+     */
+    private onKeyDown(e: KeyboardEvent): void {
+        const cur = (e.target as HTMLElement)?.closest?.(".csh-chip") as HTMLElement;
+        if (e.key === "Escape") {
+            if (this.popupOn() && this.popupOpen) {
+                e.preventDefault();
+                this.popupOpen = false;
+                this.renderChipMode();
+                (this.target.querySelector(".csh-bar") as HTMLElement)?.focus();
+                return;
+            }
+            if (cur && this.hierarchyManager.getSelectedNodes().length && this.interactionsAllowed() && !this.formatMode) {
+                e.preventDefault();
+                this.hierarchyManager.clearAll();
+                void this.applyFilter().then(() => this.renderChipMode());
+            }
+            return;
+        }
+        if (!cur) return;
+        const chips = Array.from(this.target.querySelectorAll<HTMLElement>(".csh-chip"));
+        const idx = chips.indexOf(cur);
+        const node = this.hierarchyManager.getNode(cur.dataset.key ?? "");
+        let next = -1;
+        switch (e.key) {
+            case "ArrowDown": next = Math.min(idx + 1, chips.length - 1); break;
+            case "ArrowUp":
+                if (idx === 0) {
+                    const inp = this.target.querySelector(".csh-search input") as HTMLElement;
+                    if (inp) { e.preventDefault(); inp.focus(); return; }
+                }
+                next = Math.max(idx - 1, 0);
+                break;
+            case "ArrowRight":
+                if (node && !node.isLeaf && !node.isExpanded) {
+                    e.preventDefault();
+                    this.focusKey = node.key;
+                    this.hierarchyManager.toggleExpand(node.key, Boolean(this.settings.hierarchySettingsCard.autoCollapse.value));
+                    this.renderChipMode();
+                    return;
+                }
+                next = Math.min(idx + 1, chips.length - 1);
+                break;
+            case "ArrowLeft":
+                if (node && !node.isLeaf && node.isExpanded) {
+                    e.preventDefault();
+                    this.focusKey = node.key;
+                    this.hierarchyManager.toggleExpand(node.key, false);
+                    this.renderChipMode();
+                    return;
+                }
+                next = Math.max(idx - 1, 0);
+                break;
+            case "Home": next = 0; break;
+            case "End": next = chips.length - 1; break;
+            case "Enter":
+            case " ":
+                e.preventDefault();
+                cur.dispatchEvent(new MouseEvent("click", { bubbles: true, ctrlKey: e.ctrlKey, metaKey: e.metaKey }));
+                return;
+            case "ContextMenu":
+            case "F10": {
+                if (e.key === "F10" && !e.shiftKey) return;
+                e.preventDefault();
+                const r = cur.getBoundingClientRect();
+                this.selectionManager.showContextMenu(null as any, { x: r.left, y: r.bottom });
+                return;
+            }
+            default:
+                return;
+        }
+        e.preventDefault();
+        if (next >= 0 && next !== idx) {
+            cur.tabIndex = -1;
+            chips[next].tabIndex = 0;
+            chips[next].focus();
+            this.focusKey = chips[next].dataset.key ?? null;
+        }
     }
 
     private buildTooltipItems(node: HierarchyNode): any[] {
@@ -1145,20 +1611,19 @@ export class Visual implements IVisual {
                 const p = this.hierarchyManager.getNode(pk);
                 if (p) { path.unshift(p.value); pk = p.parentKey; } else break;
             }
-            if (path.length > 0) items.push({ displayName: "Path", value: path.join(" › ") });
+            if (path.length > 0) items.push({ displayName: this.t("UI_Path", "Path"), value: path.join(" › ") });
         }
 
         // Node label
         items.push({ displayName: node.source?.displayName ?? "Value", value: node.value });
 
         // Measure value — shown when the option is on (badge doesn't need to be visible)
-        // Use optional chaining throughout: valueSettingsCard may not exist in older builds
         const vs = this.settings?.valueSettingsCard;
         if (vs && Boolean(vs.showInTooltip?.value) &&
             node.measureValue !== null && node.measureValue !== undefined) {
             const fmt = (vs.valueFormat?.value as any)?.value ?? "compact";
             items.push({ displayName: this.measureDisplayName || "Value",
-                         value: this.formatMeasure(node.measureValue, fmt) });
+                         value: this.formatMeasure(node.measureValue, fmt, node.formatString) });
         }
 
         // Extra tooltip fields (Tooltips bucket)
@@ -1171,17 +1636,17 @@ export class Visual implements IVisual {
 
     private attachTooltip(el: HTMLElement, node: HierarchyNode): void {
         // mouseenter fires ONCE per chip entry — do the (relatively) expensive item build
-        // and the full show() call here only.
-        // mousemove then just repositions the already-shown tooltip via move(), which is
-        // cheap — calling show() on every mousemove floods the host IPC bridge and can
-        // freeze Power BI Desktop when the user sweeps the cursor across several chips.
+        // and the full show() call here only. mousemove just repositions it: calling show()
+        // on every mousemove floods the host bridge and can freeze Power BI Desktop.
         el.addEventListener("mouseenter", (event: MouseEvent) => {
+            if (this.formatMode) return;
             this.host.tooltipService.show({
                 dataItems: this.buildTooltipItems(node), identities: [],
                 coordinates: [event.clientX, event.clientY], isTouchEvent: false
             });
         });
         el.addEventListener("mousemove", (event: MouseEvent) => {
+            if (this.formatMode) return;
             this.host.tooltipService.move({
                 dataItems: [], identities: [],
                 coordinates: [event.clientX, event.clientY], isTouchEvent: false
@@ -1230,6 +1695,7 @@ export class Visual implements IVisual {
             height:${h}px; min-height:${h}px;
             border-radius:${r}px;
             font-size:${fs}px;
+            font-family:inherit;
             padding:0 ${ph}px;
             background:${bg};
             border:1.5px solid ${border};
@@ -1237,18 +1703,23 @@ export class Visual implements IVisual {
             cursor:pointer;
             white-space:nowrap;
             box-sizing:border-box;
-            outline:${isActive ? `2px solid ${border}` : "none"};
-            outline-offset:1px;
+            max-width:100%;
+            box-shadow:${isActive ? `0 0 0 1px ${border}` : "none"};
             transition:opacity 0.1s;
         `;
     }
 
     // ─── VALUE FORMAT ─────────────────────────────────────────────────────────
-    private formatMeasure(value: number, fmt: string): string {
+    private formatMeasure(value: number, fmt: string, formatString?: string): string {
         const abs = Math.abs(value);
         switch (fmt) {
+            case "model": {
+                // El formato de la medida en el modelo, dinámico si el DAX lo decide, y el idioma del informe.
+                const f = formatString || this.measureColumnFormat;
+                try { return this.formatter(f || "#,0.##").format(value); } catch { return String(value); }
+            }
             case "number":
-                return value.toLocaleString();
+                return value.toLocaleString(this.host.locale || undefined);
             case "currency":
                 return "$" + value.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
             case "percent": {
@@ -1267,26 +1738,96 @@ export class Visual implements IVisual {
 
     private buildResetButton(isHC: boolean): HTMLElement {
         const hs = this.settings.hierarchySettingsCard;
-        const label  = (hs.resetLabel.value as string) || "↺ Reset";
+        const label  = (hs.resetLabel.value as string) || this.t("UI_Reset", "↺ Reset");
         const bg     = isHC ? "ButtonFace" : (hs.resetBg.value?.value     ?? "#F3F4F6");
         const border = isHC ? "ButtonText" : (hs.resetBorder.value?.value ?? "#D1D5DB");
         const color  = isHC ? "ButtonText" : (hs.resetText.value?.value   ?? "#6B7280");
 
         const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "csh-reset";
         btn.textContent = label;
         btn.setAttribute("aria-label", label);
-        btn.style.cssText = `
-            align-self:flex-end; padding:4px 10px; border-radius:6px;
-            border:1px solid ${border}; background:${bg}; color:${color};
-            font-size:11px; cursor:pointer;
-        `;
+        btn.setAttribute("data-o", "reset");
+        btn.style.cssText = `border:1px solid ${border}; background:${bg}; color:${color};`;
         btn.addEventListener("click", async () => {
+            if (this.formatMode || !this.interactionsAllowed()) return;
             this.searchQuery = "";
             this.hierarchyManager.clearAll();
             await this.applyFilter();
             this.renderChipMode();
         });
         return btn;
+    }
+
+    // ─── GUÍA (consejos de configuración, solo editando) ──────────────────────
+    /**
+     * Barra de consejos abajo, solo editando, con datos y si cabe: plantillas en un clic y las tres funciones Pro para
+     * probarlas con tus datos (sin licencia, bajo la marca de agua). persistProperties solo desde un clic. ✕ la cierra
+     * (style.guide = false); se reabre en Formato → Plantilla de estilo.
+     */
+    private renderGuide(isHC: boolean): void {
+        if (!this.editando || this.formatMode || !this.settings.styleCard.guide.value || !this.interactionsAllowed()) return;
+        const vp = this.lastViewport;
+        if (!vp || vp.width < 320 || vp.height < 170) return;
+        if (this.popupOn() && !this.popupOpen) return;
+        const pal: any = this.host.colorPalette;
+        const azul = isHC ? (pal.foregroundSelected?.value || "#FFFF00") : "#2B6CB0";
+        const fg = isHC ? (pal.foreground?.value || "#FFF") : "";
+        const g = document.createElement("div");
+        g.className = "csh-guide";
+        g.setAttribute("role", "region");
+        g.setAttribute("aria-label", this.t("Guide_Title", "Setup tips"));
+        if (isHC) Object.assign(g.style, { background: pal.background?.value || "#000", color: fg, borderColor: azul });
+        g.onclick = e => e.stopPropagation();
+        g.onkeydown = e => e.stopPropagation();
+        const fila = (titulo: string) => {
+            const f = document.createElement("div");
+            f.className = "csh-g-row";
+            const l = document.createElement("span");
+            l.className = "csh-g-lbl";
+            l.textContent = titulo;
+            f.appendChild(l);
+            g.appendChild(f);
+            return f;
+        };
+        const boton = (f: HTMLElement, texto: string, on: boolean, accion: () => void) => {
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "csh-g-btn";
+            b.textContent = texto;
+            b.setAttribute("aria-pressed", String(on));
+            b.style.borderColor = azul;
+            if (on) { b.style.background = azul; b.style.color = isHC ? (pal.background?.value || "#000") : "#FFFFFF"; } else b.style.color = azul;
+            b.addEventListener("click", accion);
+            f.appendChild(b);
+        };
+        const f1 = fila(this.t("Guide_TryStyle", "Try a style:"));
+        const actual = String((this.settings.styleCard.template.value as any)?.value ?? "classic");
+        ([["classic", "Classic"], ["outline", "Outline"], ["soft", "Soft"], ["square", "Square"], ["mono", "One colour"], ["dark", "Dark"]] as [string, string][])
+            .forEach(([v, d]) => boton(f1, this.t("Enum_" + v, d), v === actual, () => this.persistir("style", { template: v })));
+        const objs: any = this.dataView?.metadata?.objects ?? {};
+        const f2 = fila(this.isPro ? this.t("Guide_ProOn", "Pro:") : this.t("Guide_TryPro", "Try Pro:"));
+        const hayMedida = !!this.measureDisplayName;
+        const pro: [string, string, string][] = [
+            ["searchSettings", "showSearch", this.t("Guide_Search", "Search")],
+            ["popup", "show", this.t("Guide_Popup", "Drop-down")],
+        ];
+        if (hayMedida) pro.push(["heatmapSettings", "showHeatmap", this.t("Guide_Heatmap", "Colour by value")]);
+        pro.forEach(([obj, prop, texto]) => {
+            const on = objs?.[obj]?.[prop] === true;
+            boton(f2, texto, on, () => this.persistir(obj, { [prop]: !on }));
+        });
+        const x = document.createElement("button");
+        x.type = "button";
+        x.className = "csh-g-close";
+        x.textContent = "✕";
+        x.title = this.t("Guide_Close", "Hide tips (Format → Style template)");
+        x.setAttribute("aria-label", x.title);
+        if (isHC) x.style.color = fg;
+        x.addEventListener("click", () => this.persistir("style", { guide: false }));
+        g.appendChild(x);
+        this.target.appendChild(g);
     }
 
     // ─── FILTER ───────────────────────────────────────────────────────────────
@@ -1313,19 +1854,16 @@ export class Visual implements IVisual {
         // Apply filter for the deepest level with selections
         const primaryLevel = Math.max(...Array.from(byLevel.keys()));
         const entry = byLevel.get(primaryLevel)!;
-        const qParts = (entry.source.queryName ?? "").split(".");
 
         /* eslint-disable powerbi-visuals/no-http-string */
         const filter: any = {
             $schema: "http://powerbi.com/product/schema#basic", // required literal value of the IBasicFilter schema identifier, not a network call
             /* eslint-enable powerbi-visuals/no-http-string */
-            target: {
-                table:  qParts[0] ?? entry.source.displayName,
-                column: qParts.slice(1).join(".") || entry.source.displayName
-            },
+            target: filterTarget(entry.source),
             filterType: 1,
             operator: "In",
-            values: entry.values,
+            // Valores con su tipo original: "08001" sigue siendo texto y las fechas, fechas.
+            values: entry.values.map(v => v instanceof Date ? v.toJSON() : v),
             requireSingleSelection: false
         };
 
@@ -1335,8 +1873,6 @@ export class Visual implements IVisual {
     private parseFilter(filter: any): Map<number, Set<string>> {
         const result: Map<number, Set<string>> = new Map();
         if (filter?.values && Array.isArray(filter.values)) {
-            const targetTable:  string = filter.target?.table  ?? "";
-            const targetColumn: string = filter.target?.column ?? "";
             const cats = this.dataView?.categorical?.categories;
             let level = 1;
             if (cats) {
@@ -1345,23 +1881,104 @@ export class Visual implements IVisual {
                     const roles = cat.source.roles as Record<string, boolean>;
                     if (!roles["categories"]) continue; // skip image columns
                     catIndex++;
-                    const qParts = (cat.source.queryName ?? "").split(".");
-                    const catTable  = qParts[0] ?? "";
-                    const catColumn = qParts.slice(1).join(".") || cat.source.displayName;
-                    if (catTable === targetTable && catColumn === targetColumn) {
+                    if (sameTarget(filterTarget(cat.source), filter.target)) {
                         level = catIndex; // position in categories role = level number
                         break;
                     }
                 }
             }
-            const vals = new Set<string>(filter.values.map((v: any) => String(v)));
-            result.set(level, vals);
+            result.set(level, new Set<string>(filter.values.map((v: any) => valueKey(v))));
         }
         return result;
     }
 
+    // ─── ON-OBJECT ────────────────────────────────────────────────────────────
+
+    /** Pieza → [tarjeta, clave del nombre, nombre en inglés]. */
+    private static readonly SUB: Record<string, [string, string, string]> = {
+        chips: ["chipSettings", "card_chipSettings", "Chip Style"],
+        badge: ["valueSettings", "card_valueSettings", "Value Badge"],
+        reset: ["hierarchySettings", "card_hierarchySettings", "Hierarchy"],
+        search: ["searchSettings", "card_searchSettings", "Search (Pro)"],
+        popup: ["popup", "card_popup", "Drop-down (Pro)"],
+    };
+
+    /** Marca lo que se puede elegir en modo formato. Fuera de él, no deja rastro. */
+    private markSubSelectables(): void {
+        this.target.querySelectorAll("[data-o]").forEach(el => {
+            if (!this.formatMode) { el.classList.remove(HtmlSubSelectableClass); return; }
+            const o = el.getAttribute("data-o");
+            const info = Visual.SUB[o];
+            if (!info) return;
+            el.classList.add(HtmlSubSelectableClass);
+            el.setAttribute(SubSelectableObjectNameAttribute, o);
+            el.setAttribute(SubSelectableDisplayNameAttribute, this.t(info[1], info[2]));
+            el.setAttribute(SubSelectableTypeAttribute, String(powerbi.visuals.SubSelectionStylesType.Text));
+        });
+    }
+
+    private getSubSelectionStyles(subs: powerbi.visuals.CustomVisualSubSelection[]): powerbi.visuals.SubSelectionStyles | undefined {
+        const o = subs[0]?.customVisualObjects[0]?.objectName;
+        const ref = (obj: string, prop: string, key: string, def: string) => ({ reference: { objectName: obj, propertyName: prop }, label: this.t(key, def) });
+        const Text = powerbi.visuals.SubSelectionStylesType.Text;
+        switch (o) {
+            case "chips": return { type: Text, fontSize: ref("chipSettings", "fontSize", "fontSize", "Font size"),
+                fontFamily: ref("chipSettings", "fontFamily", "fontFamily", "Font"),
+                fontColor: ref("level1Colors", "defaultText", "defaultText", "Inactive text"),
+                background: ref("level1Colors", "defaultBg", "defaultBg", "Inactive background") } as any;
+            case "badge": return { type: Text, fontSize: ref("valueSettings", "valueFontSize", "badgeFontSize", "Font size (px)"),
+                fontColor: ref("valueSettings", "valueText", "badgeText", "Text color"),
+                background: ref("valueSettings", "valueBg", "badgeBg", "Background") } as any;
+            case "reset": return { type: Text, fontColor: ref("hierarchySettings", "resetText", "resetText", "Reset button text"),
+                background: ref("hierarchySettings", "resetBg", "resetBg", "Reset button background") } as any;
+            case "search": return { type: Text, fontColor: ref("searchSettings", "searchText", "badgeText", "Text color"),
+                background: ref("searchSettings", "searchBg", "badgeBg", "Background") } as any;
+            case "popup": return { type: Text } as any;
+        }
+        return undefined;
+    }
+
+    private getSubSelectionShortcuts(subs: powerbi.visuals.CustomVisualSubSelection[]): powerbi.visuals.VisualSubSelectionShortcuts | undefined {
+        const o = subs[0]?.customVisualObjects[0]?.objectName;
+        const info = Visual.SUB[o];
+        if (!info) return undefined;
+        const id = (obj: string, prop: string) => ({ objectName: obj, propertyName: prop });
+        const toggle = (obj: string, prop: string, key: string, def: string) => ({ type: powerbi.visuals.VisualShortcutType.Toggle, ...id(obj, prop),
+            relatedToggledFormattingIds: [id(obj, prop)], disabledLabel: this.t(key, def), enabledLabel: this.t(key, def) });
+        const reset = (obj: string, props: string[]) => ({ type: powerbi.visuals.VisualShortcutType.Reset, relatedResetFormattingIds: props.map(p => id(obj, p)) });
+        // FormattingSettingsService forma el uid "<objeto>-card" y Power BI lo publica como "Visual-<objeto>-card"
+        // (comprobado en KPI Card 2.2): el atajo tiene que usar el segundo.
+        const nav = { type: powerbi.visuals.VisualShortcutType.Navigate, destinationInfo: { cardUid: "Visual-" + info[0] + "-card" }, label: this.t(info[1], info[2]) };
+        const div = { type: powerbi.visuals.VisualShortcutType.Divider };
+        const colores = ["defaultBg", "defaultBorder", "defaultText", "activeBg", "activeBorder", "activeText"];
+        switch (o) {
+            case "chips":
+                return [{ type: powerbi.visuals.VisualShortcutType.Picker, ...id("chipSettings", "layout"), label: this.t("layout", "Layout") },
+                    toggle("chipSettings", "multiSelect", "multiSelect", "Multi-select"),
+                    toggle("chipSettings", "leafOnly", "leafOnly", "Leaf-only selection"),
+                    toggle("chipSettings", "showSelectAll", "showSelectAll", "Show 'All' button"), div,
+                    reset("level1Colors", colores), nav] as any;
+            case "badge":
+                return [{ type: powerbi.visuals.VisualShortcutType.Picker, ...id("valueSettings", "valueFormat"), label: this.t("badgeFormat", "Format") },
+                    toggle("valueSettings", "showValue", "showBadge", "Show value badge"), div,
+                    reset("valueSettings", ["valueBg", "valueText", "valueFontSize"]), nav] as any;
+            case "reset":
+                return [toggle("hierarchySettings", "showReset", "showReset", "Show reset button"), div,
+                    reset("hierarchySettings", ["resetBg", "resetBorder", "resetText"]), nav] as any;
+            case "search":
+                return [toggle("searchSettings", "showSearch", "showSearch", "Show search box (Pro)"), div, nav] as any;
+            case "popup":
+                return [toggle("popup", "show", "popup_show", "Drop-down mode (Pro)"), div, nav] as any;
+        }
+        return undefined;
+    }
+
     // ─── FORMATTING MODEL ─────────────────────────────────────────────────────
     public getFormattingModel(): powerbi.visuals.FormattingModel {
-        return this.formattingSettingsService.buildFormattingModel(this.settings);
+        const s = this.settings ?? new VisualSettingsModel();
+        const ds = (s.chipSettingsCard.defaultSelection.value as any)?.value;
+        s.chipSettingsCard.defaultValues.visible = ds === "values";
+        s.chipSettingsCard.selectAllLabel.visible = !!s.chipSettingsCard.showSelectAll.value;
+        return this.formattingSettingsService.buildFormattingModel(s);
     }
 }

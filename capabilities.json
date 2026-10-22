@@ -1,25 +1,29 @@
 {
   "dataRoles": [
     {
-      "displayName": "Categories", "displayNameKey": "roleCategories",
+      "displayName": "Categories",
+      "displayNameKey": "roleCategories",
       "name": "categories",
       "kind": "Grouping",
       "description": "Add hierarchy fields in order — 1st field = Level 1, 2nd = Level 2, 3rd = Level 3"
     },
     {
-      "displayName": "Images", "displayNameKey": "roleImages",
+      "displayName": "Images",
+      "displayNameKey": "roleImages",
       "name": "images",
       "kind": "Grouping",
       "description": "Optional image URL columns — one per level, in the same order as Categories"
     },
     {
-      "displayName": "Values", "displayNameKey": "roleValues",
+      "displayName": "Values",
+      "displayNameKey": "roleValues",
       "name": "values",
       "kind": "Measure",
       "description": "Optional measure to display as a badge on each chip (aggregated per hierarchy level)"
     },
     {
-      "displayName": "Tooltips", "displayNameKey": "roleTooltips",
+      "displayName": "Tooltips",
+      "displayNameKey": "roleTooltips",
       "name": "tooltips",
       "kind": "GroupingOrMeasure",
       "description": "Optional extra fields shown in the tooltip when hovering a chip"
@@ -32,12 +36,19 @@
           "type": {
             "filter": true
           }
+        },
+        "formatString": {
+          "type": {
+            "formatting": {
+              "formatString": true
+            }
+          }
         }
       }
     },
     "chipSettings": {
       "displayName": "Chip Style",
-      "displayNameKey": "chipSettings",
+      "displayNameKey": "card_chipSettings",
       "properties": {
         "multiSelect": {
           "displayName": "Multi-select",
@@ -64,11 +75,18 @@
             "enumeration": [
               {
                 "value": "none",
-                "displayName": "None"
+                "displayName": "None",
+                "displayNameKey": "Enum_none"
               },
               {
                 "value": "first",
-                "displayName": "First value"
+                "displayName": "First value",
+                "displayNameKey": "Enum_first"
+              },
+              {
+                "value": "values",
+                "displayName": "These values",
+                "displayNameKey": "Enum_values"
               }
             ]
           }
@@ -80,11 +98,13 @@
             "enumeration": [
               {
                 "value": "horizontal",
-                "displayName": "Horizontal"
+                "displayName": "Horizontal",
+                "displayNameKey": "Enum_horizontal"
               },
               {
                 "value": "vertical",
-                "displayName": "Vertical"
+                "displayName": "Vertical",
+                "displayNameKey": "Enum_vertical"
               }
             ]
           }
@@ -139,6 +159,22 @@
           "type": {
             "text": true
           }
+        },
+        "defaultValues": {
+          "displayName": "Default values",
+          "displayNameKey": "defaultValues",
+          "type": {
+            "text": true
+          }
+        },
+        "fontFamily": {
+          "displayName": "Font",
+          "displayNameKey": "fontFamily",
+          "type": {
+            "formatting": {
+              "fontFamily": true
+            }
+          }
         }
       }
     },
@@ -153,11 +189,15 @@
         },
         "highlightMatches": {
           "displayName": "Highlight matches (Pro)",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "showResultCount": {
           "displayName": "Show result count (Pro)",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "searchPlaceholder": {
           "displayName": "Placeholder text",
@@ -195,7 +235,8 @@
             }
           }
         }
-      }
+      },
+      "displayNameKey": "card_searchSettings"
     },
     "imageSettings": {
       "displayName": "Images",
@@ -212,11 +253,13 @@
             "enumeration": [
               {
                 "value": "left",
-                "displayName": "Left of label"
+                "displayName": "Left of label",
+                "displayNameKey": "Enum_left"
               },
               {
                 "value": "above",
-                "displayName": "Above label"
+                "displayName": "Above label",
+                "displayNameKey": "Enum_above"
               }
             ]
           }
@@ -227,7 +270,8 @@
             "numeric": true
           }
         }
-      }
+      },
+      "displayNameKey": "card_imageSettings"
     },
     "valueSettings": {
       "displayName": "Value Badge",
@@ -243,20 +287,29 @@
           "type": {
             "enumeration": [
               {
+                "value": "model",
+                "displayName": "Model format",
+                "displayNameKey": "Enum_model"
+              },
+              {
                 "value": "compact",
-                "displayName": "Compact (K / M / B)"
+                "displayName": "Compact (K / M / B)",
+                "displayNameKey": "Enum_compact"
               },
               {
                 "value": "number",
-                "displayName": "Number"
+                "displayName": "Number",
+                "displayNameKey": "Enum_number"
               },
               {
                 "value": "currency",
-                "displayName": "Currency ($)"
+                "displayName": "Currency ($)",
+                "displayNameKey": "Enum_currency"
               },
               {
                 "value": "percent",
-                "displayName": "Percentage (%)"
+                "displayName": "Percentage (%)",
+                "displayNameKey": "Enum_percent"
               }
             ]
           }
@@ -305,28 +358,44 @@
             "bool": true
           }
         }
-      }
+      },
+      "displayNameKey": "card_valueSettings"
     },
     "heatmapSettings": {
       "displayName": "Value Heatmap (Pro)",
       "properties": {
         "showHeatmap": {
           "displayName": "Color chips by value (Pro)",
-          "type": { "bool": true }
+          "type": {
+            "bool": true
+          }
         },
         "colorLow": {
           "displayName": "Low value",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         },
         "colorHigh": {
           "displayName": "High value",
-          "type": { "fill": { "solid": { "color": true } } }
+          "type": {
+            "fill": {
+              "solid": {
+                "color": true
+              }
+            }
+          }
         }
-      }
+      },
+      "displayNameKey": "card_heatmapSettings"
     },
     "hierarchySettings": {
       "displayName": "Hierarchy",
-      "displayNameKey": "hierarchySettings",
+      "displayNameKey": "card_hierarchySettings",
       "properties": {
         "indentSize": {
           "displayName": "Indent per level (px)",
@@ -486,7 +555,8 @@
             }
           }
         }
-      }
+      },
+      "displayNameKey": "card_level1Colors"
     },
     "level2Colors": {
       "displayName": "Level 2 Colors",
@@ -581,7 +651,8 @@
             }
           }
         }
-      }
+      },
+      "displayNameKey": "card_level2Colors"
     },
     "level3Colors": {
       "displayName": "Level 3 Colors",
@@ -644,6 +715,78 @@
                 "color": true
               }
             }
+          }
+        }
+      },
+      "displayNameKey": "card_level3Colors"
+    },
+    "popup": {
+      "displayName": "Drop-down (Pro)",
+      "displayNameKey": "card_popup",
+      "properties": {
+        "show": {
+          "displayName": "Drop-down mode (Pro)",
+          "displayNameKey": "popup_show",
+          "type": {
+            "bool": true
+          }
+        },
+        "label": {
+          "displayName": "Label",
+          "displayNameKey": "popup_label",
+          "type": {
+            "text": true
+          }
+        }
+      }
+    },
+    "style": {
+      "displayName": "Style template",
+      "displayNameKey": "card_style",
+      "properties": {
+        "template": {
+          "displayName": "Template",
+          "displayNameKey": "style_template",
+          "type": {
+            "enumeration": [
+              {
+                "value": "classic",
+                "displayName": "Classic",
+                "displayNameKey": "Enum_classic"
+              },
+              {
+                "value": "outline",
+                "displayName": "Outline",
+                "displayNameKey": "Enum_outline"
+              },
+              {
+                "value": "soft",
+                "displayName": "Soft",
+                "displayNameKey": "Enum_soft"
+              },
+              {
+                "value": "square",
+                "displayName": "Square",
+                "displayNameKey": "Enum_square"
+              },
+              {
+                "value": "mono",
+                "displayName": "One colour",
+                "displayNameKey": "Enum_mono"
+              },
+              {
+                "value": "dark",
+                "displayName": "Dark",
+                "displayNameKey": "Enum_dark"
+              }
+            ]
+          }
+        },
+        "guide": {
+          "displayName": "Show setup tips",
+          "displayNameKey": "style_guide",
+          "type": {
+            "bool": true
           }
         }
       }
@@ -709,5 +852,17 @@
   "supportsHighlight": true,
   "supportsMultiVisualSelection": true,
   "supportsSynchronizingFilterState": true,
-  "supportsLandingPage": true
+  "supportsLandingPage": true,
+  "supportsOnObjectFormatting": true,
+  "enablePointerEventsFormatMode": true,
+  "supportsEmptyDataView": true,
+  "tooltips": {
+    "supportedTypes": {
+      "default": true,
+      "canvas": true
+    },
+    "roles": [
+      "tooltips"
+    ]
+  }
 }

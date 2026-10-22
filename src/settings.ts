@@ -4,6 +4,9 @@ import FormattingSettingsCard  = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 
+// Las propiedades publicadas hasta 1.2 no cambian de objeto ni de nombre (informes guardados). La 1.3 añade
+// propiedades y tarjetas nuevas, y claves de traducción a las tarjetas y a los valores de las listas.
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Chip Style card
 // ─────────────────────────────────────────────────────────────────────────────
@@ -34,10 +37,19 @@ class ChipSettingsCard extends FormattingSettingsCard {
         displayName: "Default selection",
         displayNameKey: "defaultSelection",
         items: [
-            { value: "none",  displayName: "None" },
-            { value: "first", displayName: "First value" }
+            { value: "none",   displayName: "None",         displayNameKey: "Enum_none" } as any,
+            { value: "first",  displayName: "First value",  displayNameKey: "Enum_first" } as any,
+            { value: "values", displayName: "These values", displayNameKey: "Enum_values" } as any
         ],
-        value: { value: "none", displayName: "None" }
+        value: { value: "none", displayName: "None", displayNameKey: "Enum_none" } as any
+    });
+
+    public defaultValues = new formattingSettings.TextInput({
+        name: "defaultValues",
+        displayName: "Default values",
+        displayNameKey: "defaultValues",
+        placeholder: "e.g. Spain, France",
+        value: ""
     });
 
     public layout = new formattingSettings.ItemDropdown({
@@ -45,10 +57,10 @@ class ChipSettingsCard extends FormattingSettingsCard {
         displayName: "Layout",
         displayNameKey: "layout",
         items: [
-            { value: "horizontal", displayName: "Horizontal" },
-            { value: "vertical",   displayName: "Vertical" }
+            { value: "horizontal", displayName: "Horizontal", displayNameKey: "Enum_horizontal" } as any,
+            { value: "vertical",   displayName: "Vertical",   displayNameKey: "Enum_vertical" } as any
         ],
-        value: { value: "horizontal", displayName: "Horizontal" }
+        value: { value: "horizontal", displayName: "Horizontal", displayNameKey: "Enum_horizontal" } as any
     });
 
     public chipHeight = new formattingSettings.NumUpDown({
@@ -63,6 +75,13 @@ class ChipSettingsCard extends FormattingSettingsCard {
         displayName: "Border radius (px)",
         displayNameKey: "chipRadius",
         value: 17
+    });
+
+    public fontFamily = new formattingSettings.FontPicker({
+        name: "fontFamily",
+        displayName: "Font",
+        displayNameKey: "fontFamily",
+        value: "'Segoe UI', wf_segoe-ui_normal, helvetica, arial, sans-serif"
     });
 
     public fontSize = new formattingSettings.NumUpDown({
@@ -103,14 +122,17 @@ class ChipSettingsCard extends FormattingSettingsCard {
 
     name: string = "chipSettings";
     displayName: string = "Chip Style";
+    displayNameKey: string = "card_chipSettings";
     slices: FormattingSettingsSlice[] = [
         this.layout,
         this.multiSelect,
         this.leafOnly,
         this.hideBlank,
         this.defaultSelection,
+        this.defaultValues,
         this.chipHeight,
         this.chipRadius,
+        this.fontFamily,
         this.fontSize,
         this.chipGap,
         this.chipPaddingH,
@@ -175,8 +197,11 @@ class SearchSettingsCard extends FormattingSettingsCard {
 
     name: string = "searchSettings";
     displayName: string = "Search (Pro)";
+    displayNameKey: string = "card_searchSettings";
     slices: FormattingSettingsSlice[] = [
         this.showSearch,
+        this.highlightMatches,
+        this.showResultCount,
         this.searchPlaceholder,
         this.searchBg,
         this.searchBorder,
@@ -200,10 +225,10 @@ class ImageSettingsCard extends FormattingSettingsCard {
         displayName: "Image position",
         displayNameKey: "imgPosition",
         items: [
-            { value: "left",  displayName: "Left of label" },
-            { value: "above", displayName: "Above label" }
+            { value: "left",  displayName: "Left of label", displayNameKey: "Enum_left" } as any,
+            { value: "above", displayName: "Above label",   displayNameKey: "Enum_above" } as any
         ],
-        value: { value: "left", displayName: "Left of label" }
+        value: { value: "left", displayName: "Left of label", displayNameKey: "Enum_left" } as any
     });
 
     public imageRadius = new formattingSettings.NumUpDown({
@@ -215,6 +240,7 @@ class ImageSettingsCard extends FormattingSettingsCard {
 
     name: string = "imageSettings";
     displayName: string = "Images";
+    displayNameKey: string = "card_imageSettings";
     slices: FormattingSettingsSlice[] = [
         this.imageHeight,
         this.imagePosition,
@@ -238,12 +264,14 @@ class ValueSettingsCard extends FormattingSettingsCard {
         displayName: "Format",
         displayNameKey: "badgeFormat",
         items: [
-            { value: "compact",  displayName: "Compact (K / M / B)" },
-            { value: "number",   displayName: "Number" },
-            { value: "currency", displayName: "Currency ($)" },
-            { value: "percent",  displayName: "Percentage (%)" }
+            { value: "model",    displayName: "Model format",        displayNameKey: "Enum_model" } as any,
+            { value: "compact",  displayName: "Compact (K / M / B)", displayNameKey: "Enum_compact" } as any,
+            { value: "number",   displayName: "Number",              displayNameKey: "Enum_number" } as any,
+            { value: "currency", displayName: "Currency ($)",        displayNameKey: "Enum_currency" } as any,
+            { value: "percent",  displayName: "Percentage (%)",      displayNameKey: "Enum_percent" } as any
         ],
-        value: { value: "compact", displayName: "Compact (K / M / B)" }
+        // "compact" sigue siendo el valor por defecto: los informes guardados sin este ajuste se ven igual.
+        value: { value: "compact", displayName: "Compact (K / M / B)", displayNameKey: "Enum_compact" } as any
     });
 
     public valueBg = new formattingSettings.ColorPicker({
@@ -290,6 +318,7 @@ class ValueSettingsCard extends FormattingSettingsCard {
 
     name: string = "valueSettings";
     displayName: string = "Value Badge";
+    displayNameKey: string = "card_valueSettings";
     slices: FormattingSettingsSlice[] = [
         this.showValue,
         this.valueFormat,
@@ -303,30 +332,25 @@ class ValueSettingsCard extends FormattingSettingsCard {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Level 1 colours
+// Level colours
 // ─────────────────────────────────────────────────────────────────────────────
+const color = (name: string, displayName: string, value: string) =>
+    new formattingSettings.ColorPicker({ name, displayName, displayNameKey: name, value: { value } });
+
 class Level1ColorsCard extends FormattingSettingsCard {
-    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",
-        displayNameKey: "defaultBg",           value: { value: "#F3F4F6" } });
-    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",
-        displayNameKey: "defaultBorder",               value: { value: "#E5E7EB" } });
-    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",
-        displayNameKey: "defaultText",                 value: { value: "#374151" } });
-    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",
-        displayNameKey: "activeBg",             value: { value: "#378ADD" } });
-    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",
-        displayNameKey: "activeBorder",                 value: { value: "#378ADD" } });
-    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",
-        displayNameKey: "activeText",                   value: { value: "#FFFFFF" } });
-    public parentBg      = new formattingSettings.ColorPicker({ name: "parentBg",      displayName: "Parent-of-selection background",
-        displayNameKey: "parentBg",value: { value: "#D6EBFA" } });
-    public parentBorder  = new formattingSettings.ColorPicker({ name: "parentBorder",  displayName: "Parent-of-selection border",
-        displayNameKey: "parentBorder",    value: { value: "#378ADD" } });
-    public parentText    = new formattingSettings.ColorPicker({ name: "parentText",    displayName: "Parent-of-selection text",
-        displayNameKey: "parentText",      value: { value: "#1A5FA8" } });
+    public defaultBg     = color("defaultBg",     "Inactive background", "#F3F4F6");
+    public defaultBorder = color("defaultBorder", "Inactive border", "#E5E7EB");
+    public defaultText   = color("defaultText",   "Inactive text", "#374151");
+    public activeBg      = color("activeBg",      "Active background", "#378ADD");
+    public activeBorder  = color("activeBorder",  "Active border", "#378ADD");
+    public activeText    = color("activeText",    "Active text", "#FFFFFF");
+    public parentBg      = color("parentBg",      "Parent-of-selection background", "#D6EBFA");
+    public parentBorder  = color("parentBorder",  "Parent-of-selection border", "#378ADD");
+    public parentText    = color("parentText",    "Parent-of-selection text", "#1A5FA8");
 
     name: string = "level1Colors";
     displayName: string = "Level 1 Colors";
+    displayNameKey: string = "card_level1Colors";
     slices: FormattingSettingsSlice[] = [
         this.defaultBg, this.defaultBorder, this.defaultText,
         this.activeBg, this.activeBorder, this.activeText,
@@ -334,31 +358,20 @@ class Level1ColorsCard extends FormattingSettingsCard {
     ];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Level 2 colours
-// ─────────────────────────────────────────────────────────────────────────────
 class Level2ColorsCard extends FormattingSettingsCard {
-    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",
-        displayNameKey: "defaultBg",           value: { value: "#E8F5F4" } });
-    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",
-        displayNameKey: "defaultBorder",               value: { value: "#B2DDD9" } });
-    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",
-        displayNameKey: "defaultText",                 value: { value: "#1B5E59" } });
-    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",
-        displayNameKey: "activeBg",             value: { value: "#0F9B8E" } });
-    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",
-        displayNameKey: "activeBorder",                 value: { value: "#0F9B8E" } });
-    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",
-        displayNameKey: "activeText",                   value: { value: "#FFFFFF" } });
-    public parentBg      = new formattingSettings.ColorPicker({ name: "parentBg",      displayName: "Parent-of-selection background",
-        displayNameKey: "parentBg",value: { value: "#C5EAE7" } });
-    public parentBorder  = new formattingSettings.ColorPicker({ name: "parentBorder",  displayName: "Parent-of-selection border",
-        displayNameKey: "parentBorder",    value: { value: "#0F9B8E" } });
-    public parentText    = new formattingSettings.ColorPicker({ name: "parentText",    displayName: "Parent-of-selection text",
-        displayNameKey: "parentText",      value: { value: "#0A6B62" } });
+    public defaultBg     = color("defaultBg",     "Inactive background", "#E8F5F4");
+    public defaultBorder = color("defaultBorder", "Inactive border", "#B2DDD9");
+    public defaultText   = color("defaultText",   "Inactive text", "#1B5E59");
+    public activeBg      = color("activeBg",      "Active background", "#0F9B8E");
+    public activeBorder  = color("activeBorder",  "Active border", "#0F9B8E");
+    public activeText    = color("activeText",    "Active text", "#FFFFFF");
+    public parentBg      = color("parentBg",      "Parent-of-selection background", "#C5EAE7");
+    public parentBorder  = color("parentBorder",  "Parent-of-selection border", "#0F9B8E");
+    public parentText    = color("parentText",    "Parent-of-selection text", "#0A6B62");
 
     name: string = "level2Colors";
     displayName: string = "Level 2 Colors";
+    displayNameKey: string = "card_level2Colors";
     slices: FormattingSettingsSlice[] = [
         this.defaultBg, this.defaultBorder, this.defaultText,
         this.activeBg, this.activeBorder, this.activeText,
@@ -366,36 +379,24 @@ class Level2ColorsCard extends FormattingSettingsCard {
     ];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Level 3 colours
-// ─────────────────────────────────────────────────────────────────────────────
 class Level3ColorsCard extends FormattingSettingsCard {
-    public defaultBg     = new formattingSettings.ColorPicker({ name: "defaultBg",     displayName: "Inactive background",
-        displayNameKey: "defaultBg",value: { value: "#F0EBF8" } });
-    public defaultBorder = new formattingSettings.ColorPicker({ name: "defaultBorder", displayName: "Inactive border",
-        displayNameKey: "defaultBorder",    value: { value: "#D4BEF0" } });
-    public defaultText   = new formattingSettings.ColorPicker({ name: "defaultText",   displayName: "Inactive text",
-        displayNameKey: "defaultText",      value: { value: "#3D1F7A" } });
-    public activeBg      = new formattingSettings.ColorPicker({ name: "activeBg",      displayName: "Active background",
-        displayNameKey: "activeBg",  value: { value: "#7B5EA7" } });
-    public activeBorder  = new formattingSettings.ColorPicker({ name: "activeBorder",  displayName: "Active border",
-        displayNameKey: "activeBorder",      value: { value: "#7B5EA7" } });
-    public activeText    = new formattingSettings.ColorPicker({ name: "activeText",    displayName: "Active text",
-        displayNameKey: "activeText",        value: { value: "#FFFFFF" } });
+    public defaultBg     = color("defaultBg",     "Inactive background", "#F0EBF8");
+    public defaultBorder = color("defaultBorder", "Inactive border", "#D4BEF0");
+    public defaultText   = color("defaultText",   "Inactive text", "#3D1F7A");
+    public activeBg      = color("activeBg",      "Active background", "#7B5EA7");
+    public activeBorder  = color("activeBorder",  "Active border", "#7B5EA7");
+    public activeText    = color("activeText",    "Active text", "#FFFFFF");
 
     name: string = "level3Colors";
     displayName: string = "Level 3 Colors";
+    displayNameKey: string = "card_level3Colors";
     slices: FormattingSettingsSlice[] = [
         this.defaultBg, this.defaultBorder, this.defaultText,
         this.activeBg, this.activeBorder, this.activeText
     ];
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Hierarchy behaviour card
-// ─────────────────────────────────────────────────────────────────────────────
 // ─── Value Heatmap (Pro) ─────────────────────────────────────────────────────
-
 class HeatmapSettingsCard extends FormattingSettingsCard {
     public showHeatmap = new formattingSettings.ToggleSwitch({
         name: "showHeatmap",
@@ -420,6 +421,7 @@ class HeatmapSettingsCard extends FormattingSettingsCard {
 
     name: string = "heatmapSettings";
     displayName: string = "Value Heatmap (Pro)";
+    displayNameKey: string = "card_heatmapSettings";
     slices: FormattingSettingsSlice[] = [
         this.showHeatmap,
         this.colorLow,
@@ -427,6 +429,9 @@ class HeatmapSettingsCard extends FormattingSettingsCard {
     ];
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Hierarchy behaviour card
+// ─────────────────────────────────────────────────────────────────────────────
 class HierarchySettingsCard extends FormattingSettingsCard {
     public indentSize = new formattingSettings.NumUpDown({
         name: "indentSize",
@@ -464,29 +469,13 @@ class HierarchySettingsCard extends FormattingSettingsCard {
         value: "↺ Reset"
     });
 
-    public resetBg = new formattingSettings.ColorPicker({
-        name: "resetBg",
-        displayName: "Reset button background",
-        displayNameKey: "resetBg",
-        value: { value: "#F3F4F6" }
-    });
-
-    public resetBorder = new formattingSettings.ColorPicker({
-        name: "resetBorder",
-        displayName: "Reset button border",
-        displayNameKey: "resetBorder",
-        value: { value: "#D1D5DB" }
-    });
-
-    public resetText = new formattingSettings.ColorPicker({
-        name: "resetText",
-        displayName: "Reset button text",
-        displayNameKey: "resetText",
-        value: { value: "#6B7280" }
-    });
+    public resetBg = color("resetBg", "Reset button background", "#F3F4F6");
+    public resetBorder = color("resetBorder", "Reset button border", "#D1D5DB");
+    public resetText = color("resetText", "Reset button text", "#6B7280");
 
     name: string = "hierarchySettings";
     displayName: string = "Hierarchy";
+    displayNameKey: string = "card_hierarchySettings";
     slices: FormattingSettingsSlice[] = [
         this.indentSize,
         this.expandIcon,
@@ -499,11 +488,51 @@ class HierarchySettingsCard extends FormattingSettingsCard {
     ];
 }
 
+// ─── Desplegable (Pro, 1.3) ──────────────────────────────────────────────────
+class PopupSettingsCard extends FormattingSettingsCard {
+    public show = new formattingSettings.ToggleSwitch({
+        name: "show", displayName: "Drop-down mode (Pro)", displayNameKey: "popup_show", value: false
+    });
+    public label = new formattingSettings.TextInput({
+        name: "label", displayName: "Label", displayNameKey: "popup_label", placeholder: "Field name", value: ""
+    });
+    topLevelSlice = this.show;
+    name: string = "popup";
+    displayName: string = "Drop-down (Pro)";
+    displayNameKey: string = "card_popup";
+    slices: FormattingSettingsSlice[] = [this.label];
+}
+
+// ─── Plantilla de estilo y consejos (1.3) ────────────────────────────────────
+class StyleCard extends FormattingSettingsCard {
+    public template = new formattingSettings.ItemDropdown({
+        name: "template", displayName: "Template", displayNameKey: "style_template",
+        items: [
+            { value: "classic", displayName: "Classic",    displayNameKey: "Enum_classic" } as any,
+            { value: "outline", displayName: "Outline",    displayNameKey: "Enum_outline" } as any,
+            { value: "soft",    displayName: "Soft",       displayNameKey: "Enum_soft" } as any,
+            { value: "square",  displayName: "Square",     displayNameKey: "Enum_square" } as any,
+            { value: "mono",    displayName: "One colour", displayNameKey: "Enum_mono" } as any,
+            { value: "dark",    displayName: "Dark",       displayNameKey: "Enum_dark" } as any
+        ],
+        value: { value: "classic", displayName: "Classic", displayNameKey: "Enum_classic" } as any
+    });
+    public guide = new formattingSettings.ToggleSwitch({
+        name: "guide", displayName: "Show setup tips", displayNameKey: "style_guide", value: true
+    });
+    name: string = "style";
+    displayName: string = "Style template";
+    displayNameKey: string = "card_style";
+    slices: FormattingSettingsSlice[] = [this.template, this.guide];
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Root model
 // ─────────────────────────────────────────────────────────────────────────────
 export class VisualSettingsModel extends FormattingSettingsModel {
+    public styleCard             = new StyleCard();
     public chipSettingsCard      = new ChipSettingsCard();
+    public popupSettingsCard     = new PopupSettingsCard();
     public searchSettingsCard    = new SearchSettingsCard();
     public imageSettingsCard     = new ImageSettingsCard();
     public valueSettingsCard     = new ValueSettingsCard();
@@ -514,7 +543,9 @@ export class VisualSettingsModel extends FormattingSettingsModel {
     public level3ColorsCard      = new Level3ColorsCard();
 
     cards: FormattingSettingsCard[] = [
+        this.styleCard,
         this.chipSettingsCard,
+        this.popupSettingsCard,
         this.searchSettingsCard,
         this.imageSettingsCard,
         this.valueSettingsCard,
@@ -525,3 +556,42 @@ export class VisualSettingsModel extends FormattingSettingsModel {
         this.level3ColorsCard
     ];
 }
+
+/**
+ * Plantillas: valores que la plantilla pone donde el autor no ha fijado nada, por objeto. "classic" es el aspecto de
+ * 1.2 (los informes guardados sin plantilla se ven igual). Al ELEGIR una, el visual borra esas propiedades guardadas
+ * para que se vea (aplicarPlantilla). El nivel 3 no tiene colores de "padre de la selección".
+ */
+interface Paleta { db: string; dbo: string; dt: string; ab: string; abo: string; at: string; pb?: string; pbo?: string; pt?: string }
+function niveles(l1: Paleta, l2: Paleta, l3: Paleta): Record<string, Record<string, string>> {
+    const obj = (p: Paleta) => {
+        const o: Record<string, string> = { defaultBg: p.db, defaultBorder: p.dbo, defaultText: p.dt, activeBg: p.ab, activeBorder: p.abo, activeText: p.at };
+        if (p.pb) { o.parentBg = p.pb; o.parentBorder = p.pbo; o.parentText = p.pt; }
+        return o;
+    };
+    return { level1Colors: obj(l1), level2Colors: obj(l2), level3Colors: obj(l3) };
+}
+
+export const TEMPLATES: Record<string, Record<string, Record<string, string | number>>> = {
+    classic: {},
+    outline: niveles(
+        { db: "#FFFFFF", dbo: "#C8C6C4", dt: "#323130", ab: "#FFFFFF", abo: "#2B6CB0", at: "#2B6CB0", pb: "#FFFFFF", pbo: "#2B6CB0", pt: "#2B6CB0" },
+        { db: "#FFFFFF", dbo: "#C8C6C4", dt: "#323130", ab: "#FFFFFF", abo: "#2F7A47", at: "#2F7A47", pb: "#FFFFFF", pbo: "#2F7A47", pt: "#2F7A47" },
+        { db: "#FFFFFF", dbo: "#C8C6C4", dt: "#323130", ab: "#FFFFFF", abo: "#6B4FA0", at: "#6B4FA0" }),
+    soft: niveles(
+        { db: "#EEF3F9", dbo: "#EEF3F9", dt: "#1F4E80", ab: "#2B6CB0", abo: "#2B6CB0", at: "#FFFFFF", pb: "#D6E4F3", pbo: "#2B6CB0", pt: "#1F4E80" },
+        { db: "#EAF4EE", dbo: "#EAF4EE", dt: "#1E4D2B", ab: "#2F7A47", abo: "#2F7A47", at: "#FFFFFF", pb: "#D3EADB", pbo: "#2F7A47", pt: "#1E4D2B" },
+        { db: "#F1ECF8", dbo: "#F1ECF8", dt: "#3D1F7A", ab: "#6B4FA0", abo: "#6B4FA0", at: "#FFFFFF" }),
+    square: Object.assign({ chipSettings: { chipRadius: 4 } }, niveles(
+        { db: "#FFFFFF", dbo: "#D2D0CE", dt: "#252423", ab: "#252423", abo: "#252423", at: "#FFFFFF", pb: "#EDEBE9", pbo: "#252423", pt: "#252423" },
+        { db: "#FFFFFF", dbo: "#D2D0CE", dt: "#252423", ab: "#484644", abo: "#484644", at: "#FFFFFF", pb: "#EDEBE9", pbo: "#484644", pt: "#252423" },
+        { db: "#FFFFFF", dbo: "#D2D0CE", dt: "#252423", ab: "#605E5C", abo: "#605E5C", at: "#FFFFFF" })),
+    mono: niveles(
+        { db: "#F3F6FA", dbo: "#D6E0EC", dt: "#1F4E80", ab: "#2B6CB0", abo: "#2B6CB0", at: "#FFFFFF", pb: "#DCE7F3", pbo: "#2B6CB0", pt: "#1F4E80" },
+        { db: "#F3F6FA", dbo: "#D6E0EC", dt: "#1F4E80", ab: "#2B6CB0", abo: "#2B6CB0", at: "#FFFFFF", pb: "#DCE7F3", pbo: "#2B6CB0", pt: "#1F4E80" },
+        { db: "#F3F6FA", dbo: "#D6E0EC", dt: "#1F4E80", ab: "#2B6CB0", abo: "#2B6CB0", at: "#FFFFFF" }),
+    dark: niveles(
+        { db: "#2B2B2B", dbo: "#3B3A39", dt: "#E1DFDD", ab: "#9DC3E6", abo: "#9DC3E6", at: "#10263F", pb: "#3A4A5C", pbo: "#9DC3E6", pt: "#E1DFDD" },
+        { db: "#2B2B2B", dbo: "#3B3A39", dt: "#E1DFDD", ab: "#A3D9B1", abo: "#A3D9B1", at: "#10301A", pb: "#33493A", pbo: "#A3D9B1", pt: "#E1DFDD" },
+        { db: "#2B2B2B", dbo: "#3B3A39", dt: "#E1DFDD", ab: "#C9B8E8", abo: "#C9B8E8", at: "#2A1A4A" })
+};
