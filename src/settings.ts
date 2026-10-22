@@ -458,20 +458,20 @@ class HierarchySettingsCard extends FormattingSettingsCard {
         name: "showReset",
         displayName: "Show reset button",
         displayNameKey: "showReset",
-        value: false
+        value: true
     });
 
     public resetLabel = new formattingSettings.TextInput({
         name: "resetLabel",
         displayName: "Reset button label",
         displayNameKey: "resetLabel",
-        placeholder: "↺ Reset",
-        value: "↺ Reset"
+        placeholder: "Clear selection",
+        value: ""
     });
 
-    public resetBg = color("resetBg", "Reset button background", "#F3F4F6");
-    public resetBorder = color("resetBorder", "Reset button border", "#D1D5DB");
-    public resetText = color("resetText", "Reset button text", "#6B7280");
+    public resetBg = color("resetBg", "Reset button background", "#FFFFFF");
+    public resetBorder = color("resetBorder", "Reset button border", "#C8C6C4");
+    public resetText = color("resetText", "Reset button text", "#605E5C");
 
     name: string = "hierarchySettings";
     displayName: string = "Hierarchy";

@@ -70,10 +70,17 @@
         position: absolute; right: 6px; border: none; background: transparent; cursor: pointer;
         color: #9CA3AF; font-size: 16px; line-height: 1; padding: 0 2px;
     }
-    .csh-reset {
-        align-self: flex-end; padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer; flex-shrink: 0;
+    .csh-row { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .csh-row > .csh-search, .csh-row > .csh-bar { flex: 1; min-width: 0; }
+    .csh-clear {
+        flex: none; width: 24px; height: 24px; border-radius: 50%; border: 1px solid #C8C6C4; background: transparent;
+        color: #605E5C; font-size: 11px; line-height: 1; cursor: pointer; padding: 0;
+        &:hover:not(:disabled) { filter: brightness(0.94); }
+        &:disabled { opacity: 0.35; cursor: default; }
         &:focus-visible { outline: 2px solid var(--csh-focus, #005A9E); outline-offset: 1px; }
     }
+    .csh-clear-float { position: absolute; top: 6px; right: 6px; z-index: 5; }
+    .csh-root.reserve-clear .csh-scroll { padding-right: 30px; }
     .csh-note { color: #6B7280; font-size: 11px; padding: 2px 4px 6px; }
 
     // Barra del desplegable

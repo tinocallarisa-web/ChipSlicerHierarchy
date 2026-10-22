@@ -27,6 +27,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "el color por valor",
         "Pro_Popup": "el modo desplegable",
         "Pro_Search": "el cuadro de búsqueda",
+        "UI_Clear": "Borrar selección",
         "UI_ClearSearch": "Borrar búsqueda",
         "UI_NResults": "{0} resultados",
         "UI_NSelected": "{0} seleccionados",
@@ -35,7 +36,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Ruta",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — es parte del plan Pro. Consigue una licencia para activarlo.",
         "UI_ProPreview": "Vista previa Pro",
-        "UI_Reset": "↺ Reiniciar",
         "UI_Search": "Buscar…",
         "badgeFormat": "Formato"
     },
@@ -63,6 +63,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "a cor dos chips por valor",
         "Pro_Popup": "o modo suspenso",
         "Pro_Search": "a caixa de pesquisa",
+        "UI_Clear": "Limpar seleção",
         "UI_ClearSearch": "Limpar pesquisa",
         "UI_NResults": "{0} resultados",
         "UI_NSelected": "{0} selecionados",
@@ -71,7 +72,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Caminho",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — faz parte do plano Pro. Obtenha uma licença para ativá-lo.",
         "UI_ProPreview": "Prévia Pro",
-        "UI_Reset": "↺ Redefinir",
         "UI_Search": "Pesquisar…",
         "badgeFormat": "Formato"
     },
@@ -99,6 +99,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "a cor dos chips por valor",
         "Pro_Popup": "o modo suspenso",
         "Pro_Search": "a caixa de pesquisa",
+        "UI_Clear": "Limpar seleção",
         "UI_ClearSearch": "Limpar pesquisa",
         "UI_NResults": "{0} resultados",
         "UI_NSelected": "{0} selecionados",
@@ -107,7 +108,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Caminho",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — faz parte do plano Pro. Obtenha uma licença para ativá-lo.",
         "UI_ProPreview": "Prévia Pro",
-        "UI_Reset": "↺ Redefinir",
         "UI_Search": "Pesquisar…",
         "badgeFormat": "Formato"
     },
@@ -135,6 +135,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "la couleur des puces selon la valeur",
         "Pro_Popup": "le mode liste déroulante",
         "Pro_Search": "la zone de recherche",
+        "UI_Clear": "Effacer la sélection",
         "UI_ClearSearch": "Effacer la recherche",
         "UI_NResults": "{0} résultats",
         "UI_NSelected": "{0} sélectionnés",
@@ -143,7 +144,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Chemin",
         "UI_ProBlocked": "Chip Slicer Hierarchy : {0} — inclus dans le plan Pro. Obtenez une licence pour l'activer.",
         "UI_ProPreview": "Aperçu Pro",
-        "UI_Reset": "↺ Réinitialiser",
         "UI_Search": "Rechercher…"
     },
     "de-DE": {
@@ -169,6 +169,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "die Einfärbung nach Wert",
         "Pro_Popup": "der Dropdown-Modus",
         "Pro_Search": "das Suchfeld",
+        "UI_Clear": "Auswahl löschen",
         "UI_ClearSearch": "Suche löschen",
         "UI_NResults": "{0} Ergebnisse",
         "UI_NSelected": "{0} ausgewählt",
@@ -177,7 +178,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Pfad",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — Teil des Pro-Plans. Holen Sie sich eine Lizenz, um es zu aktivieren.",
         "UI_ProPreview": "Pro-Vorschau",
-        "UI_Reset": "↺ Zurücksetzen",
         "UI_Search": "Suchen…"
     },
     "it-IT": {
@@ -203,6 +203,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "il colore dei chip per valore",
         "Pro_Popup": "la modalità elenco a discesa",
         "Pro_Search": "la casella di ricerca",
+        "UI_Clear": "Cancella selezione",
         "UI_ClearSearch": "Cancella ricerca",
         "UI_NResults": "{0} risultati",
         "UI_NSelected": "{0} selezionati",
@@ -211,7 +212,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Percorso",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — fa parte del piano Pro. Ottieni una licenza per attivarlo.",
         "UI_ProPreview": "Anteprima Pro",
-        "UI_Reset": "↺ Reimposta",
         "UI_Search": "Cerca…",
         "badgeFormat": "Formato"
     },
@@ -237,6 +237,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "kleuren op waarde",
         "Pro_Popup": "de vervolgkeuzemodus",
         "Pro_Search": "het zoekvak",
+        "UI_Clear": "Selectie wissen",
         "UI_ClearSearch": "Zoekopdracht wissen",
         "UI_NResults": "{0} resultaten",
         "UI_NSelected": "{0} geselecteerd",
@@ -245,7 +246,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Pad",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — onderdeel van het Pro-abonnement. Neem een licentie om het in te schakelen.",
         "UI_ProPreview": "Pro-voorbeeld",
-        "UI_Reset": "↺ Opnieuw instellen",
         "UI_Search": "Zoeken…",
         "badgeFormat": "Notatie"
     },
@@ -273,6 +273,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "kolorowanie według wartości",
         "Pro_Popup": "tryb listy rozwijanej",
         "Pro_Search": "pole wyszukiwania",
+        "UI_Clear": "Wyczyść zaznaczenie",
         "UI_ClearSearch": "Wyczyść wyszukiwanie",
         "UI_NResults": "Wyniki: {0}",
         "UI_NSelected": "Zaznaczono: {0}",
@@ -281,7 +282,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "Ścieżka",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} — część planu Pro. Kup licencję, aby to włączyć.",
         "UI_ProPreview": "Podgląd Pro",
-        "UI_Reset": "↺ Resetuj",
         "UI_Search": "Szukaj…"
     },
     "ja-JP": {
@@ -308,6 +308,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "値による色分け",
         "Pro_Popup": "ドロップダウン モード",
         "Pro_Search": "検索ボックス",
+        "UI_Clear": "選択をクリア",
         "UI_ClearSearch": "検索をクリア",
         "UI_NResults": "{0} 件",
         "UI_NSelected": "{0} 件を選択",
@@ -316,7 +317,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "パス",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0} は Pro プランの機能です。有効にするにはライセンスを取得してください。",
         "UI_ProPreview": "Pro プレビュー",
-        "UI_Reset": "↺ リセット",
         "UI_Search": "検索…",
         "badgeFormat": "書式"
     },
@@ -345,6 +345,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "按值着色",
         "Pro_Popup": "下拉模式",
         "Pro_Search": "搜索框",
+        "UI_Clear": "清除选择",
         "UI_ClearSearch": "清除搜索",
         "UI_NResults": "{0} 个结果",
         "UI_NSelected": "已选 {0} 项",
@@ -353,7 +354,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "路径",
         "UI_ProBlocked": "Chip Slicer Hierarchy：{0} 属于 Pro 计划。获取许可证即可启用。",
         "UI_ProPreview": "Pro 预览",
-        "UI_Reset": "↺ 重置",
         "UI_Search": "搜索…",
         "badgeFormat": "格式"
     },
@@ -381,6 +381,7 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "Pro_Heatmap": "값별 칩 색",
         "Pro_Popup": "드롭다운 모드",
         "Pro_Search": "검색 상자",
+        "UI_Clear": "선택 지우기",
         "UI_ClearSearch": "검색 지우기",
         "UI_NResults": "결과 {0}개",
         "UI_NSelected": "{0}개 선택됨",
@@ -389,7 +390,6 @@ export const STRINGS: Record<string, Record<string, string>> = {
         "UI_Path": "경로",
         "UI_ProBlocked": "Chip Slicer Hierarchy: {0}은(는) Pro 플랜에 포함됩니다. 사용하려면 라이선스를 구입하세요.",
         "UI_ProPreview": "Pro 미리 보기",
-        "UI_Reset": "↺ 다시 설정",
         "UI_Search": "검색…",
         "badgeFormat": "서식"
     }

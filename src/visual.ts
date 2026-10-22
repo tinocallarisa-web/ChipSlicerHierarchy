@@ -1038,13 +1038,20 @@ export class Visual implements IVisual {
         // Contenido: buscador, reinicio y chips. En modo desplegable va dentro del panel.
         const body = document.createElement("div");
         body.className = popup ? "csh-panel" : "csh-body";
-        if (Boolean(ss.showSearch.value) && this.permitir(PRO_SEARCH)) {
+        // Botón de limpiar (✕), como en Chip Slicer: junto a la barra del desplegable, junto al buscador o, si no hay
+        // ninguno, flotando arriba a la derecha. Solo cuando hay algo seleccionado (o en modo formato, para elegirlo).
+        const hasSel = this.hierarchyManager.getSelectedNodes().length > 0;
+        const showClear = Boolean(hs.showReset.value) && (hasSel || this.formatMode);
+        let clearPlaced = false;
+        const conBuscador = Boolean(ss.showSearch.value) && this.permitir(PRO_SEARCH);
+        if (conBuscador) {
             // Sin licencia y fuera de la vista previa no se dibuja nada: la ruta de compra la pone
             // notifyProFeatureBlocked (UI de licencia propia, no).
-            body.appendChild(this.buildSearchBox(isHC));
-        }
-        if (Boolean(hs.showReset.value)) {
-            body.appendChild(this.buildResetButton(isHC));
+            const fila = document.createElement("div");
+            fila.className = "csh-row";
+            fila.appendChild(this.buildSearchBox(isHC));
+            if (showClear) { fila.appendChild(this.buildResetButton(isHC)); clearPlaced = true; }
+            body.appendChild(fila);
         }
         const chipContainer = document.createElement("div");
         chipContainer.className = "csh-scroll";
@@ -1059,7 +1066,11 @@ export class Visual implements IVisual {
         body.appendChild(chipContainer);
 
         if (popup) {
-            root.appendChild(this.buildPopupBar(isHC));
+            const fila = document.createElement("div");
+            fila.className = "csh-row";
+            fila.appendChild(this.buildPopupBar(isHC));
+            if (showClear && !clearPlaced) { fila.appendChild(this.buildResetButton(isHC)); clearPlaced = true; }
+            root.appendChild(fila);
             if (this.popupOpen) {
                 if (isHC) {
                     const pal: any = this.host.colorPalette;
@@ -1070,6 +1081,13 @@ export class Visual implements IVisual {
         } else {
             root.appendChild(body);
         }
+        if (showClear && !clearPlaced) {
+            const b = this.buildResetButton(isHC);
+            b.classList.add("csh-clear-float");
+            root.appendChild(b);
+        }
+        // Sin barra ni buscador, se reserva el hueco del botón flotante para que no tape chips.
+        if (Boolean(hs.showReset.value) && !popup && !conBuscador) root.classList.add("reserve-clear");
 
         this.vaciar(this.target);
         this.target.appendChild(root);
@@ -1736,21 +1754,31 @@ export class Visual implements IVisual {
         }
     }
 
+    /** ✕ que limpia la selección (y el buscador). El texto del ajuste "Reset button label" es su nombre accesible. */
     private buildResetButton(isHC: boolean): HTMLElement {
         const hs = this.settings.hierarchySettingsCard;
-        const label  = (hs.resetLabel.value as string) || this.t("UI_Reset", "↺ Reset");
-        const bg     = isHC ? "ButtonFace" : (hs.resetBg.value?.value     ?? "#F3F4F6");
-        const border = isHC ? "ButtonText" : (hs.resetBorder.value?.value ?? "#D1D5DB");
-        const color  = isHC ? "ButtonText" : (hs.resetText.value?.value   ?? "#6B7280");
-
+        const label  = (hs.resetLabel.value as string) || this.t("UI_Clear", "Clear selection");
+        const pal: any = this.host.colorPalette;
+        const fgHC = pal?.foreground?.value ?? "#FFFFFF";
         const btn = document.createElement("button");
         btn.type = "button";
-        btn.className = "csh-reset";
-        btn.textContent = label;
+        btn.className = "csh-clear";
+        btn.textContent = "✕";
+        btn.title = label;
         btn.setAttribute("aria-label", label);
         btn.setAttribute("data-o", "reset");
-        btn.style.cssText = `border:1px solid ${border}; background:${bg}; color:${color};`;
-        btn.addEventListener("click", async () => {
+        btn.disabled = this.hierarchyManager.getSelectedNodes().length === 0 && !this.searchQuery;
+        if (isHC) {
+            Object.assign(btn.style, { color: fgHC, borderColor: fgHC, background: "transparent" });
+        } else {
+            Object.assign(btn.style, {
+                color: hs.resetText.value?.value ?? "#605E5C",
+                borderColor: hs.resetBorder.value?.value ?? "#C8C6C4",
+                background: hs.resetBg.value?.value ?? "transparent"
+            });
+        }
+        btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
             if (this.formatMode || !this.interactionsAllowed()) return;
             this.searchQuery = "";
             this.hierarchyManager.clearAll();

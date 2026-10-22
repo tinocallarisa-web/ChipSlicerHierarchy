@@ -133,7 +133,6 @@
   "UI_OneResult": "1 result",
   "UI_NResults": "{0} results",
   "UI_Path": "Path",
-  "UI_Reset": "↺ Reset",
   "Guide_Title": "Setup tips",
   "Guide_TryStyle": "Try a style:",
   "Guide_ProOn": "Pro:",
@@ -141,5 +140,6 @@
   "Guide_Search": "Search",
   "Guide_Popup": "Drop-down",
   "Guide_Heatmap": "Colour by value",
-  "Guide_Close": "Hide tips (Format → Style template)"
+  "Guide_Close": "Hide tips (Format → Style template)",
+  "UI_Clear": "Clear selection"
 }

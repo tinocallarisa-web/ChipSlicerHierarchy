@@ -133,7 +133,6 @@
   "UI_OneResult": "1 resultaat",
   "UI_NResults": "{0} resultaten",
   "UI_Path": "Pad",
-  "UI_Reset": "↺ Opnieuw instellen",
   "Guide_Title": "Installatietips",
   "Guide_TryStyle": "Probeer een stijl:",
   "Guide_ProOn": "Pro:",
@@ -141,5 +140,6 @@
   "Guide_Search": "Zoeken",
   "Guide_Popup": "Vervolgkeuzelijst",
   "Guide_Heatmap": "Kleur op waarde",
-  "Guide_Close": "Tips verbergen (Opmaak → Stijlsjabloon)"
+  "Guide_Close": "Tips verbergen (Opmaak → Stijlsjabloon)",
+  "UI_Clear": "Selectie wissen"
 }

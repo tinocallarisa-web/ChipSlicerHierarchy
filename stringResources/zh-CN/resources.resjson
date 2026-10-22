@@ -133,7 +133,6 @@
   "UI_OneResult": "1 个结果",
   "UI_NResults": "{0} 个结果",
   "UI_Path": "路径",
-  "UI_Reset": "↺ 重置",
   "Guide_Title": "设置提示",
   "Guide_TryStyle": "试试样式：",
   "Guide_ProOn": "Pro：",
@@ -141,5 +140,6 @@
   "Guide_Search": "搜索",
   "Guide_Popup": "下拉列表",
   "Guide_Heatmap": "按值着色",
-  "Guide_Close": "隐藏提示（格式 → 样式模板）"
+  "Guide_Close": "隐藏提示（格式 → 样式模板）",
+  "UI_Clear": "清除选择"
 }

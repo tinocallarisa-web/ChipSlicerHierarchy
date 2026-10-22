@@ -133,7 +133,6 @@
   "UI_OneResult": "결과 1개",
   "UI_NResults": "결과 {0}개",
   "UI_Path": "경로",
-  "UI_Reset": "↺ 다시 설정",
   "Guide_Title": "설정 팁",
   "Guide_TryStyle": "스타일 사용해 보기:",
   "Guide_ProOn": "Pro:",
@@ -141,5 +140,6 @@
   "Guide_Search": "검색",
   "Guide_Popup": "드롭다운",
   "Guide_Heatmap": "값별 색",
-  "Guide_Close": "팁 숨기기(서식 → 스타일 템플릿)"
+  "Guide_Close": "팁 숨기기(서식 → 스타일 템플릿)",
+  "UI_Clear": "선택 지우기"
 }

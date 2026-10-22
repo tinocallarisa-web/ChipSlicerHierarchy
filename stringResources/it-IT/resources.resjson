@@ -133,7 +133,6 @@
   "UI_OneResult": "1 risultato",
   "UI_NResults": "{0} risultati",
   "UI_Path": "Percorso",
-  "UI_Reset": "↺ Reimposta",
   "Guide_Title": "Suggerimenti di configurazione",
   "Guide_TryStyle": "Prova uno stile:",
   "Guide_ProOn": "Pro:",
@@ -141,5 +140,6 @@
   "Guide_Search": "Cerca",
   "Guide_Popup": "Elenco a discesa",
   "Guide_Heatmap": "Colore per valore",
-  "Guide_Close": "Nascondi suggerimenti (Formato → Modello di stile)"
+  "Guide_Close": "Nascondi suggerimenti (Formato → Modello di stile)",
+  "UI_Clear": "Cancella selezione"
 }
